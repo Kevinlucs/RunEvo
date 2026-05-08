@@ -1,13 +1,13 @@
-const CACHE_NAME = 'planebsb-v2';
+const CACHE_NAME = 'planrun-v3';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './app.js',
   './ai-coach.js',
+  './config.js',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
+  './logo.jpeg',
   'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap'
 ];
 
