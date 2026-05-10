@@ -212,16 +212,30 @@ IMPORTANTE:
   // ===== PARSE RESPONSE =====
   function parsePlanResponse(text, userData) {
     // Clean up: remove markdown code fences if present
-    let cleaned = text.trim();
-    if (cleaned.startsWith('```')) {
-      cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    let cleaned = String(text || '').trim();
+
+    cleaned = cleaned
+      .replace(/^```json\s*/i, '')
+      .replace(/^```\s*/i, '')
+      .replace(/```$/i, '')
+      .trim();
+
+    const firstBrace = cleaned.indexOf('{');
+    const lastBrace = cleaned.lastIndexOf('}');
+
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      cleaned = cleaned.slice(firstBrace, lastBrace + 1);
     }
 
     let plan;
     try {
       plan = JSON.parse(cleaned);
     } catch (e) {
-      // Try to find JSON in the text
+      console.error('Resposta bruta da IA:', text);
+      console.error('Resposta limpa:', cleaned);
+      console.error('Erro no JSON.parse:', e);
+      
+      // Tenta encontrar JSON no texto se o parse direto falhar
       const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {

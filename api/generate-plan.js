@@ -54,10 +54,11 @@ async function tryModels(prompt, apiKey) {
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
-              temperature: 0.4,
+              temperature: 0.2, // Reduzido para maior precisão no JSON
               topP: 0.95,
               topK: 40,
-              maxOutputTokens: 8192
+              maxOutputTokens: 8192,
+              responseMimeType: 'application/json' // Força resposta JSON pura
             }
           })
         },
