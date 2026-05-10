@@ -412,8 +412,6 @@ IMPORTANTE:
 
   // ===== PUBLIC API =====
   return {
-    getApiKey,
-    hasApiKey,
     saveProfile,
     loadProfile,
     generatePlan,
