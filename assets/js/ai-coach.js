@@ -141,20 +141,20 @@ IMPORTANTE:
     const start = parseLocalDate(startDateStr);
     start.setHours(0, 0, 0, 0);
     race.setHours(0, 0, 0, 0);
-    
+
     // Find Monday of the start week
     const startDay = start.getDay() === 0 ? 6 : start.getDay() - 1;
     const startMonday = new Date(start);
     startMonday.setDate(start.getDate() - startDay);
-    
+
     // Find Sunday of the race week
     const raceDay = race.getDay() === 0 ? 0 : 7 - race.getDay();
     const raceSunday = new Date(race);
     raceSunday.setDate(race.getDate() + raceDay);
-    
+
     const diffMs = raceSunday - startMonday;
     const diffWeeks = Math.round(diffMs / (7 * 24 * 60 * 60 * 1000));
-    
+
     return Math.max(4, Math.min(52, diffWeeks));
   }
 
@@ -166,33 +166,37 @@ IMPORTANTE:
       body: JSON.stringify({ prompt })
     });
 
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      const errMsg = err.error?.message || err.error || '';
-      console.error(`API error (${response.status}):`, errMsg);
+    const data = await response.json().catch(() => ({}));
 
-      if (response.status === 429) {
-        if (attempt <= 2) {
-          const waitTime = attempt * 10000;
-          console.log(`Rate limited. Tentativa ${attempt}/2. Aguardando ${waitTime / 1000}s...`);
-          await new Promise(r => setTimeout(r, waitTime));
-          return callGeminiAPI(prompt, attempt + 1);
-        }
-        throw new Error('Limite de requisições atingido na IA. Aguarde 1-2 minutos e tente novamente.');
+    if (!response.ok) {
+      console.error('Erro completo da API:', data);
+
+      const errMsg =
+        data.details ||
+        data.error?.message ||
+        data.error ||
+        `Erro na API (${response.status})`;
+
+      // Tratamento de Rate Limit
+      if (response.status === 429 && attempt <= 2) {
+        const waitTime = attempt * 10000;
+        console.log(`Rate limited. Tentativa ${attempt}/2. Aguardando ${waitTime / 1000}s...`);
+        await new Promise(r => setTimeout(r, waitTime));
+        return callGeminiAPI(prompt, attempt + 1);
       }
 
-      if (response.status === 500 && errMsg.includes('API Key not configured')) {
+      // Erro de configuração específico
+      if (response.status === 500 && (errMsg.includes('API Key not configured') || errMsg.includes('Configuração incompleta'))) {
         throw new Error('Erro de configuração: A chave da IA não foi configurada no servidor Vercel.');
       }
 
-      throw new Error(errMsg || `Erro na API (${response.status}). Verifique a conexão.`);
+      throw new Error(errMsg);
     }
 
-    return response.json();
+    return data;
   }
 
   async function generatePlan(userData) {
-
     const prompt = buildPrompt(userData);
     const data = await callGeminiAPI(prompt);
     const text = data.text;
@@ -274,7 +278,7 @@ IMPORTANTE:
     const raceDate = parseLocalDate(plan.raceDate);
     const startDate = parseLocalDate(plan.userData.startDate);
     startDate.setHours(0, 0, 0, 0);
-    
+
     // Find the Monday of the starting week to use as the base for day offsets
     const startDayOfWeek = startDate.getDay();
     const jsDayToMondayIndexed = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;

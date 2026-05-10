@@ -1,6 +1,6 @@
 const MODELS = [
-  'gemini-1.5-flash',
-  'gemini-1.5-pro'
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite'
 ];
 
 async function fetchWithRetry(url, options, retries = 3) {
@@ -32,7 +32,7 @@ async function fetchWithRetry(url, options, retries = 3) {
       await new Promise(resolve => setTimeout(resolve, 1500));
     }
   }
-  
+
   if (lastResponse) {
     const text = await lastResponse.text();
     throw new Error(`Todos os retries falharam. Último status: ${lastResponse.status}. Resposta: ${text}`);
@@ -65,7 +65,7 @@ async function tryModels(prompt, apiKey) {
       );
 
       const data = await response.json();
-      
+
       // Validação profunda da resposta
       if (!data.candidates || data.candidates.length === 0) {
         console.error(`Modelo ${model} retornou sem candidatos:`, JSON.stringify(data));
@@ -109,9 +109,9 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       console.error('ERRO: GEMINI_API_KEY não encontrada nas variáveis de ambiente da Vercel.');
-      return res.status(500).json({ 
-        error: 'Configuração incompleta', 
-        details: 'A chave da API (GEMINI_API_KEY) não foi configurada no painel da Vercel.' 
+      return res.status(500).json({
+        error: 'Configuração incompleta',
+        details: 'A chave da API (GEMINI_API_KEY) não foi configurada no painel da Vercel.'
       });
     }
 
