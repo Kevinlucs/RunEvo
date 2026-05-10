@@ -110,13 +110,7 @@ FORMATO DE RESPOSTA — RETORNE APENAS O JSON, sem texto adicional:
           "title": "8km Forte/Pace",
           "desc": "Descrição detalhada do treino com instruções claras",
           "km": 8,
-          "pace": "6:30/km",
-          "nutrition": {
-            "water": "500ml 2h antes",
-            "pre": "Banana e aveia",
-            "intra": "Gel a cada 45m",
-            "post": "Proteína e carbo"
-          }
+          "pace": "6:30/km"
         }
       ]
     }
@@ -131,8 +125,7 @@ IMPORTANTE:
 - "off" = true para semanas de descanso/recuperação
 - A fase deve ser: "Base", "Resistência", "Pico" ou "Polimento"
 - Mantenha a descrição (desc) muito curta (máximo 1 frase) para economizar texto.
-- O campo nutrition deve ser um OBJETO com as chaves "water", "pre", "intra" e "post".
-- ATENÇÃO NA NUTRIÇÃO: Seja direto, humano e EXTREMAMENTE prático, pensando em atletas do dia a dia. Forneça comidas reais e quantidades exatas (ex: "500ml 1h antes", "1 banana com aveia", "1 gel a cada 45m ou no km 10", "Pão com ovo e café"). MÁXIMO ABSOLUTO de 10 palavras por chave para economizar tokens!
+- O campo "pace" é obrigatório para todos os treinos.
 - Retorne APENAS o JSON, sem markdown, sem explicação, sem \`\`\``;
   }
 
