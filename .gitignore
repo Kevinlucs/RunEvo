@@ -1,1 +1,6 @@
 config/config.js.example
+.env
+.env.local
+.env.*
+node_modules/
+.vercel

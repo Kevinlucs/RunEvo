@@ -5,12 +5,9 @@ const AICoach = (() => {
   function getPlanKey() { return `${localStorage.getItem('planebsb_current_user')}_planebsb_ai_plan`; }
   function getAdoptedKey() { return `${localStorage.getItem('planebsb_current_user')}_planebsb_ai_adopted`; }
 
-  const GEMINI_MODEL = 'gemini-2.5-flash';
-  const _K = typeof CONFIG !== 'undefined' ? CONFIG.GEMINI_API_KEY : '';
-
-  // ===== API KEY (embutida) =====
-  function getApiKey() { return _K; }
-  function hasApiKey() { return true; }
+  // ===== API CALL CONFIG =====
+  // Agora usamos a nossa própria API na Vercel para mascarar a chave
+  const API_ENDPOINT = '/api/generate-plan';
 
   // ===== PROFILE =====
   function saveProfile(data) {
@@ -163,39 +160,17 @@ IMPORTANTE:
 
   // ===== API CALL =====
   async function callGeminiAPI(prompt, attempt = 1) {
-    const apiKey = getApiKey();
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-
-    const response = await fetch(url, {
+    const response = await fetch(API_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{ text: prompt }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 65536,
-          responseMimeType: 'application/json'
-        }
-      })
+      body: JSON.stringify({ prompt })
     });
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      const errMsg = err.error?.message || '';
-      const errReason = err.error?.details?.[0]?.reason || '';
-      console.error(`Gemini API error (${response.status}):`, errMsg, errReason);
+      const errMsg = err.error?.message || err.error || '';
+      console.error(`API error (${response.status}):`, errMsg);
 
-      if (response.status === 400) {
-        if (errReason === 'API_KEY_INVALID' || errMsg.includes('API key not valid')) {
-          throw new Error('API Key inválida! Crie uma nova chave em aistudio.google.com/apikey e atualize no app.');
-        }
-        throw new Error(`Erro na requisição: ${errMsg || 'Verifique sua API Key.'}`);
-      }
-      if (response.status === 403) {
-        throw new Error('API Key sem permissão. Verifique se a chave está ativa no Google AI Studio.');
-      }
       if (response.status === 429) {
         if (attempt <= 2) {
           const waitTime = attempt * 10000;
@@ -203,17 +178,20 @@ IMPORTANTE:
           await new Promise(r => setTimeout(r, waitTime));
           return callGeminiAPI(prompt, attempt + 1);
         }
-        throw new Error('Limite de requisições atingido. Aguarde 1-2 minutos e tente novamente.');
+        throw new Error('Limite de requisições atingido na IA. Aguarde 1-2 minutos e tente novamente.');
       }
-      throw new Error(errMsg || `Erro na API (${response.status})`);
+
+      if (response.status === 500 && errMsg.includes('API Key not configured')) {
+        throw new Error('Erro de configuração: A chave da IA não foi configurada no servidor Vercel.');
+      }
+
+      throw new Error(errMsg || `Erro na API (${response.status}). Verifique a conexão.`);
     }
 
     return response.json();
   }
 
   async function generatePlan(userData) {
-    const apiKey = getApiKey();
-    if (!apiKey) throw new Error('API Key não configurada');
 
     const prompt = buildPrompt(userData);
     const data = await callGeminiAPI(prompt);

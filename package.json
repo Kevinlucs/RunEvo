@@ -1,0 +1,14 @@
+{
+  "name": "plan-run",
+  "version": "1.0.0",
+  "description": "Controle de treinos para corrida de rua",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "dev": "vercel dev"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}
