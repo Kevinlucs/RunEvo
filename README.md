@@ -152,3 +152,16 @@ O motor local continua responsável por montar todas as semanas, validar a estru
 - `paceZones`: zonas de ritmo usadas pelo motor.
 - `warnings`: alertas práticos do plano.
 - `engineCalibration`: estilo de progressão, prioridade de recuperação e viés de intensidade.
+
+
+## Check-in com IA
+
+Nesta versão, o Adaptive Training Engine passou a consultar o Coach IA no fechamento semanal. O fluxo agora é:
+
+1. O usuário registra todos os treinos da semana.
+2. O check-in envia um resumo compacto para a IA: aderência, km planejado, km realizado, esforço, dor/incômodo e próxima semana.
+3. A IA recomenda manter, reduzir, aplicar recuperação ou aumentar levemente a carga.
+4. O PlanRun aplica guardrails locais para impedir aumentos quando houver dor, esforço extremo ou baixa aderência.
+5. Se a IA falhar, o motor local continua funcionando normalmente.
+
+A IA não reescreve a planilha inteira; ela apenas interpreta o check-in e justifica o ajuste semanal.

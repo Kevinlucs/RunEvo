@@ -12,12 +12,18 @@ function weekDates(weekIndex) {
 }
 
 function fmt(d) { return d.toISOString().split('T')[0]; }
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
 function fmtBR(d) {
   const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
   return `${dias[d.getDay()]}, ${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
 }
 
 const WEEKS_DATA = [];
+const AI_COACH_ENDPOINT = '/api/generate-plan';
 
 // ===== GERAR LISTA FLAT DE TREINOS =====
 const allWorkouts = [];
@@ -2114,6 +2120,7 @@ function renderWeeklyCheckInCard(currentWeekWorkouts) {
       <div class="checkin-result">
         <strong>${escapeHTML(checkin.resultTitle || 'Plano revisado')}</strong>
         <p>${escapeHTML(checkin.resultMessage || 'Check-in registrado.')}</p>
+        ${checkin.adjustment?.source === 'ai' ? '<span class="checkin-source ai">🧠 Análise do Coach IA</span>' : '<span class="checkin-source local">⚙️ Ajuste automático local</span>'}
       </div>
     ` : `
       <p class="checkin-hint">Finalize todos os treinos da semana como concluído, parcial ou pulado para liberar o check-in.</p>
@@ -2152,7 +2159,10 @@ function openWeeklyCheckin(weekIndex) {
   `;
 
   document.getElementById('modal-overlay').classList.remove('hidden');
-  document.getElementById('modal-confirm').onclick = () => {
+  document.getElementById('modal-confirm').onclick = async () => {
+    const confirmBtn = document.getElementById('modal-confirm');
+    const originalText = confirmBtn.textContent;
+
     const feedback = {
       feeling: document.getElementById('checkin-feeling')?.value || 'normal',
       effort: Number(document.getElementById('checkin-effort')?.value || summary.averageEffort || 6),
@@ -2162,25 +2172,37 @@ function openWeeklyCheckin(weekIndex) {
       createdAt: new Date().toISOString()
     };
 
-    const adjustment = runPlanAdjustmentEngine(weekIndex, feedback);
-    weeklyCheckins[getWeekKey(weekIndex)] = {
-      ...feedback,
-      adjustment,
-      resultTitle: adjustment.title,
-      resultMessage: adjustment.message
-    };
+    try {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Analisando com IA...';
 
-    saveWeeklyCheckins();
-    document.getElementById('modal-overlay').classList.add('hidden');
-    renderHome();
-    renderStats();
+      const adjustment = await runSmartPlanAdjustmentEngine(weekIndex, feedback);
+      weeklyCheckins[getWeekKey(weekIndex)] = {
+        ...feedback,
+        adjustment,
+        resultTitle: adjustment.title,
+        resultMessage: adjustment.message
+      };
+
+      saveWeeklyCheckins();
+      document.getElementById('modal-overlay').classList.add('hidden');
+      renderHome();
+      renderStats();
+    } catch (error) {
+      console.error('Erro no check-in inteligente:', error);
+      showToast('Não foi possível concluir o check-in. Tente novamente.', 'error');
+    } finally {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = originalText;
+    }
   };
   document.getElementById('modal-cancel').onclick = () => {
     document.getElementById('modal-overlay').classList.add('hidden');
   };
 }
 
-function runPlanAdjustmentEngine(weekIndex, feedback) {
+
+function getLocalAdjustmentRecommendation(weekIndex, feedback) {
   const summary = feedback.summary;
   let factor = 1;
   let action = 'maintain';
@@ -2206,18 +2228,256 @@ function runPlanAdjustmentEngine(weekIndex, feedback) {
     reason = 'Semana leve e completa. Próxima semana recebeu aumento conservador de 3%.';
   }
 
-  const applied = applyAdjustmentToStoredPlan(weekIndex, factor, action, weeksToAdjust);
-  const adjustment = {
-    weekIndex,
-    week: summary.workouts[0]?.week || `S${weekIndex + 1}`,
+  return {
     action,
     factor,
     weeksToAdjust,
-    applied,
     reason,
+    source: 'local',
+    confidence: 'local-rule',
+    title: getAdjustmentTitle(action),
+    message: reason
+  };
+}
+
+function getAdjustmentTitle(action) {
+  const titles = {
+    maintain: 'Plano mantido',
+    recovery: 'Semana de recuperação aplicada',
+    reduce: 'Plano ajustado',
+    slight_increase: 'Carga levemente ampliada'
+  };
+
+  return titles[action] || 'Plano ajustado';
+}
+
+function getNextWeekPreview(weekIndex) {
+  const plan = AICoach.loadPlan();
+  const nextWeek = plan?.weeks?.[weekIndex + 1];
+
+  if (!nextWeek) return null;
+
+  return {
+    week: nextWeek.week || `S${weekIndex + 2}`,
+    phase: nextWeek.phase || '-',
+    plannedKm: Math.round((nextWeek.workouts || []).reduce((sum, w) => sum + Number(w.km || 0), 0) * 10) / 10,
+    workouts: (nextWeek.workouts || []).map(w => ({
+      dayType: w.dayType,
+      title: w.title,
+      km: Number(w.km || 0),
+      pace: w.pace || '-'
+    }))
+  };
+}
+
+function buildAICheckinPrompt(weekIndex, feedback, localRecommendation) {
+  const plan = AICoach.loadPlan();
+  const summary = feedback.summary;
+  const nextWeek = getNextWeekPreview(weekIndex);
+  const blueprint = plan?.blueprint || {};
+  const userData = plan?.userData || {};
+
+  const payload = {
+    currentWeek: summary.workouts[0]?.week || `S${weekIndex + 1}`,
+    currentPhase: summary.workouts[0]?.phase || '-',
+    plannedKm: Math.round(summary.plannedKm * 10) / 10,
+    completedKm: summary.completedKm,
+    completedWorkouts: summary.completed + summary.partial,
+    totalWorkouts: summary.total,
+    skippedWorkouts: summary.skipped,
+    completionRate: Math.round(summary.completionRate * 100),
+    averageEffort: feedback.effort || summary.averageEffort || 0,
+    feeling: feedback.feeling,
+    pain: feedback.pain,
+    notes: feedback.notes || '',
+    nextWeek,
+    localRecommendation: {
+      action: localRecommendation.action,
+      factor: localRecommendation.factor,
+      weeksToAdjust: localRecommendation.weeksToAdjust,
+      reason: localRecommendation.reason
+    },
+    athlete: {
+      level: userData.level || '-',
+      targetDistance: userData.targetDistance || '-',
+      customDistance: userData.customDistance || null,
+      raceDate: userData.raceDate || plan?.raceDate || '-',
+      daysPerWeek: userData.daysPerWeek || plan?.daysPerWeek || '-',
+      imc: userData.imc || null,
+      test3kmTime: userData.test3kmTime || null,
+      test3kmPace: userData.test3kmPace || null
+    },
+    aiStrategy: {
+      riskLevel: blueprint?.athleteAnalysis?.riskLevel || null,
+      detectedLevel: blueprint?.athleteAnalysis?.detectedLevel || null,
+      focus: blueprint?.athleteAnalysis?.focus || null,
+      peakWeeklyKm: blueprint?.strategy?.peakWeeklyKm || null,
+      peakLongRunKm: blueprint?.strategy?.peakLongRunKm || null
+    }
+  };
+
+  return `
+Você é o Coach IA do PlanRun. Analise o check-in semanal e recomende um ajuste prudente para a próxima semana.
+
+DADOS DO CHECK-IN:
+${JSON.stringify(payload, null, 2)}
+
+REGRAS DE SEGURANÇA:
+- Se pain=true, use action "recovery" ou "reduce". Nunca aumente carga.
+- Se averageEffort >= 9, nunca aumente carga.
+- Se completionRate < 60, nunca aumente carga.
+- Aumento máximo permitido: 3%.
+- Redução padrão: 10% a 20%.
+- Seja conservador. Priorize consistência e prevenção de lesão.
+- Retorne somente JSON válido, sem markdown.
+
+FORMATO EXATO:
+{
+  "action": "maintain | reduce | recovery | slight_increase",
+  "adjustmentPercent": 0,
+  "weeksToAdjust": 1,
+  "confidence": "baixa | média | alta",
+  "reason": "motivo técnico curto",
+  "messageToUser": "mensagem curta e humana para o atleta",
+  "coachTip": "uma dica prática para a próxima semana"
+}
+`;
+}
+
+async function callAICheckinCoach(weekIndex, feedback, localRecommendation) {
+  const prompt = buildAICheckinPrompt(weekIndex, feedback, localRecommendation);
+  const response = await fetch(AI_COACH_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt })
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.details || data.error || `Erro IA (${response.status})`);
+  }
+
+  return parseAICheckinResponse(data.text || '');
+}
+
+function parseAICheckinResponse(text) {
+  let cleaned = String(text || '').trim()
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/```$/i, '')
+    .trim();
+
+  const first = cleaned.indexOf('{');
+  const last = cleaned.lastIndexOf('}');
+  if (first !== -1 && last !== -1) cleaned = cleaned.slice(first, last + 1);
+
+  return JSON.parse(cleaned);
+}
+
+function normalizeAICheckinRecommendation(ai, feedback, localRecommendation) {
+  const allowedActions = ['maintain', 'reduce', 'recovery', 'slight_increase'];
+  let action = allowedActions.includes(ai?.action) ? ai.action : localRecommendation.action;
+  const effort = Number(feedback.effort || feedback.summary?.averageEffort || 0);
+  const completionRate = Number(feedback.summary?.completionRate || 0);
+
+  // Guardrails: a IA pode sugerir, mas não passa por cima das regras de segurança.
+  if (feedback.pain && action === 'slight_increase') action = 'recovery';
+  if ((effort >= 9 || completionRate < 0.6) && action === 'slight_increase') action = localRecommendation.action === 'maintain' ? 'reduce' : localRecommendation.action;
+
+  let percent = Math.abs(Number(ai?.adjustmentPercent || 0));
+  let factor = 1;
+
+  if (action === 'recovery') {
+    percent = percent || 20;
+    factor = 1 - clamp(percent, 15, 30) / 100;
+  } else if (action === 'reduce') {
+    percent = percent || 10;
+    factor = 1 - clamp(percent, 5, 20) / 100;
+  } else if (action === 'slight_increase') {
+    percent = percent || 3;
+    factor = 1 + clamp(percent, 1, 3) / 100;
+  }
+
+  const weeksToAdjust = clamp(Number(ai?.weeksToAdjust || localRecommendation.weeksToAdjust || 1), 1, 2);
+  const reason = ai?.reason || localRecommendation.reason;
+  const coachTip = ai?.coachTip || '';
+  const messageToUser = ai?.messageToUser || reason;
+  const message = coachTip ? `${messageToUser} Dica: ${coachTip}` : messageToUser;
+
+  return {
+    action,
+    factor,
+    weeksToAdjust,
+    reason,
+    coachTip,
+    confidence: ai?.confidence || 'média',
+    source: 'ai',
+    title: getAdjustmentTitle(action),
+    message
+  };
+}
+
+async function runSmartPlanAdjustmentEngine(weekIndex, feedback) {
+  const localRecommendation = getLocalAdjustmentRecommendation(weekIndex, feedback);
+  let recommendation = localRecommendation;
+
+  try {
+    const ai = await callAICheckinCoach(weekIndex, feedback, localRecommendation);
+    recommendation = normalizeAICheckinRecommendation(ai, feedback, localRecommendation);
+  } catch (error) {
+    console.warn('Coach IA indisponível no check-in. Usando regra local.', error);
+  }
+
+  const applied = applyAdjustmentToStoredPlan(
+    weekIndex,
+    recommendation.factor,
+    recommendation.action,
+    recommendation.weeksToAdjust
+  );
+
+  const adjustment = {
+    weekIndex,
+    week: feedback.summary.workouts[0]?.week || `S${weekIndex + 1}`,
+    action: recommendation.action,
+    factor: recommendation.factor,
+    weeksToAdjust: recommendation.weeksToAdjust,
+    applied,
+    reason: recommendation.reason,
+    coachTip: recommendation.coachTip || '',
+    confidence: recommendation.confidence,
+    source: recommendation.source,
+    localFallback: recommendation.source !== 'ai',
     createdAt: new Date().toISOString(),
-    title: action === 'maintain' ? 'Plano mantido' : action === 'recovery' ? 'Semana de recuperação aplicada' : 'Plano ajustado',
-    message: applied ? reason : 'Check-in salvo. Nenhuma semana futura disponível para ajuste.'
+    title: recommendation.title,
+    message: applied
+      ? recommendation.message
+      : 'Check-in salvo. Nenhuma semana futura disponível para ajuste.'
+  };
+
+  adjustmentHistory.push(adjustment);
+  saveAdjustmentHistory();
+
+  return adjustment;
+}
+
+// Compatibilidade com versões antigas que chamavam o motor local diretamente.
+function runPlanAdjustmentEngine(weekIndex, feedback) {
+  const recommendation = getLocalAdjustmentRecommendation(weekIndex, feedback);
+  const applied = applyAdjustmentToStoredPlan(weekIndex, recommendation.factor, recommendation.action, recommendation.weeksToAdjust);
+  const adjustment = {
+    weekIndex,
+    week: feedback.summary.workouts[0]?.week || `S${weekIndex + 1}`,
+    action: recommendation.action,
+    factor: recommendation.factor,
+    weeksToAdjust: recommendation.weeksToAdjust,
+    applied,
+    reason: recommendation.reason,
+    source: 'local',
+    localFallback: true,
+    createdAt: new Date().toISOString(),
+    title: recommendation.title,
+    message: applied ? recommendation.message : 'Check-in salvo. Nenhuma semana futura disponível para ajuste.'
   };
 
   adjustmentHistory.push(adjustment);
