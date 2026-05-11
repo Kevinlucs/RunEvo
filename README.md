@@ -69,3 +69,16 @@ Plano é salvo no localStorage
 - Adicionar exportação em CSV/Excel/PDF.
 - Criar check-in semanal para replanejamento adaptativo.
 - Futuramente migrar para Supabase/PostgreSQL quando houver mais usuários e necessidade de sincronização entre dispositivos.
+
+
+## Plan Review Engine
+
+A camada de revisão técnica exibe ao usuário o resultado do Validation Engine antes da adoção do plano:
+
+- status da validação;
+- quantidade de ajustes aplicados;
+- detalhes de cada ajuste por semana;
+- volume inicial, volume pico e maior longão;
+- semanas de recuperação, polimento e semana da prova.
+
+Isso torna a geração mais transparente: quando o sistema informa “1 ajuste”, o atleta consegue ver exatamente o que foi corrigido.

@@ -1410,6 +1410,191 @@ select.ai-input {
   margin-bottom: 20px;
 }
 
+
+
+/* Plan Review / Validation Details */
+.plan-review-card {
+  background: linear-gradient(135deg, rgba(252, 76, 2, 0.10), rgba(255, 255, 255, 0.035));
+  border: 1px solid rgba(252, 76, 2, 0.22);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.plan-review-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.plan-review-eyebrow {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.plan-review-header h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.plan-review-pill {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  color: #FFD36A;
+}
+
+.plan-review-pill.ok {
+  background: rgba(76, 217, 100, 0.12);
+  border-color: rgba(76, 217, 100, 0.25);
+  color: #4CD964;
+}
+
+.plan-review-pill.error {
+  background: rgba(255, 59, 48, 0.12);
+  border-color: rgba(255, 59, 48, 0.25);
+  color: var(--red);
+}
+
+.plan-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.plan-review-metric,
+.plan-review-tags div {
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+}
+
+.plan-review-metric span,
+.plan-review-tags span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.plan-review-metric strong,
+.plan-review-tags strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.plan-review-tags {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.plan-review-details {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.plan-review-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--text-primary);
+  font-weight: 800;
+  font-size: 0.86rem;
+}
+
+.plan-review-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.plan-review-details summary small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.plan-review-issues {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.plan-review-issue {
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  background: rgba(255, 193, 7, 0.10);
+  border: 1px solid rgba(255, 193, 7, 0.22);
+}
+
+.plan-review-issue.fixed {
+  background: rgba(76, 217, 100, 0.08);
+  border-color: rgba(76, 217, 100, 0.18);
+}
+
+.plan-review-issue-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.plan-review-issue-top strong {
+  color: var(--accent-light);
+  font-size: 0.8rem;
+}
+
+.plan-review-issue-top span {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.plan-review-issue p,
+.plan-review-ok {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.plan-review-ok {
+  margin-top: 10px;
+}
+
+@media (min-width: 640px) {
+  .plan-review-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .plan-review-tags {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* Week Card in Results */
 .ai-week-card {
   background: var(--bg-card);
@@ -1630,7 +1815,6 @@ select.ai-input {
   background: var(--bg-card);
   transform: scale(0.96);
 }
-
 /* Login Screen */
 .login-screen {
   position: fixed;
@@ -1657,8 +1841,8 @@ select.ai-input {
   background: var(--bg-card);
   padding: 32px 24px;
   border-radius: var(--radius-lg);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.05);
   text-align: center;
 }
 
@@ -1822,108 +2006,107 @@ select.ai-input {
 
 /* ===== RESPONSIVIDADE PARA CELULARES MENORES ===== */
 @media (max-width: 400px) {
-
   /* Header */
   .header-title {
     font-size: 1.1rem;
   }
-
+  
   /* Login */
   .login-container {
     padding: 24px 16px;
   }
-
+  
   .login-logo .logo-text {
     font-size: 1.6rem;
   }
-
+  
   /* Hero Section */
   .hero-card {
     padding: 16px;
   }
-
+  
   .hero-card .workout-title {
     font-size: 1.15rem;
   }
-
+  
   .hero-card .meta-item {
     font-size: 0.8rem;
     padding: 4px 8px;
   }
-
+  
   /* Countdown */
   .countdown-value {
     font-size: 1.3rem;
   }
-
+  
   .countdown-unit {
     font-size: 0.6rem;
   }
-
+  
   /* Stats & Workout Detail */
   .stats-grid,
   .wd-stats {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-
+  
   .stat-card,
   .wd-stat {
     padding: 12px;
   }
-
+  
   .stat-card-value,
   .wd-stat-value {
     font-size: 1.2rem;
   }
-
+  
   /* AI Coach Form */
   .ai-form-row {
     flex-direction: column;
     gap: 0;
   }
-
+  
   .ai-radio-group {
     flex-direction: column;
   }
-
+  
   .ai-radio-option {
     width: 100%;
   }
-
+  
   .ai-weeks-info {
     font-size: 0.85rem;
   }
-
+  
   /* AI Result */
   .ai-week-header-left {
     flex-wrap: wrap;
     gap: 4px;
   }
-
+  
   .ai-week-title {
     font-size: 0.85rem;
   }
-
+  
   .ai-workout-day {
     min-width: 36px;
     height: 36px;
     font-size: 0.8rem;
   }
-
+  
   .ai-workout-title {
     font-size: 0.85rem;
   }
-
+  
   /* Phases */
   .phase-card {
     padding: 20px 16px;
   }
-
+  
   .phase-card h2 {
     font-size: 1.2rem;
   }
-
+  
   /* App Header Stats */
   .stat-km {
     font-size: 0.85rem;
@@ -1935,19 +2118,19 @@ select.ai-input {
   .logo-text {
     font-size: 1.8rem;
   }
-
+  
   .bottom-nav span {
     font-size: 0.6rem;
   }
-
+  
   .nav-item {
     padding: 8px 4px;
   }
-
+  
   .countdown-body {
     gap: 4px;
   }
-
+  
   .countdown-divider {
     display: none;
   }

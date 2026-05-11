@@ -1050,9 +1050,18 @@ REGRAS:
 
     enforceWeeklyProgression(plan, plan.userData, blueprint, report);
 
-    report.summary.totalKm = plan.weeks.reduce((sum, week) => sum + sumWeekKm(week), 0);
-    report.summary.peakWeekKm = Math.max(...plan.weeks.map(sumWeekKm));
-    report.summary.peakLongRunKm = Math.max(...plan.weeks.map(week => week.workouts[week.workouts.length - 1]?.km || 0));
+    const weekTotals = plan.weeks.map(sumWeekKm);
+    const longRunTotals = plan.weeks.map(week => week.workouts[week.workouts.length - 1]?.km || 0);
+
+    report.summary.totalKm = weekTotals.reduce((sum, km) => sum + km, 0);
+    report.summary.initialWeeklyKm = weekTotals[0] || 0;
+    report.summary.peakWeekKm = Math.max(...weekTotals);
+    report.summary.peakWeeklyKm = report.summary.peakWeekKm;
+    report.summary.peakLongRunKm = Math.max(...longRunTotals);
+    report.summary.biggestLongRunKm = report.summary.peakLongRunKm;
+    report.summary.recoveryWeeks = plan.weeks.filter(week => week.off).map(week => week.week);
+    report.summary.taperWeeks = plan.weeks.filter(week => week.phase === 'Polimento').map(week => week.week);
+    report.summary.raceWeek = plan.weeks[plan.weeks.length - 1]?.week || `S${totalWeeks}`;
     report.summary.totalWeeks = totalWeeks;
     report.summary.daysPerWeek = daysPerWeek;
     report.status = report.status === 'error'

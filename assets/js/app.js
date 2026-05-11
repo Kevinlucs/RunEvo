@@ -311,7 +311,7 @@ function renderStats() {
     { key: 'pico', name: 'PICO', sub: 'Semanas 17-24' },
     { key: 'polimento', name: 'POLIMENTO', sub: 'Semanas 25+' },
   ];
-
+  
   const plan = AICoach.loadPlan();
   const profile = plan && plan.userData ? plan.userData : null;
   if (profile && profile.imc) {
@@ -370,7 +370,7 @@ function showPage(page) {
 function renderAICoachPage() {
   const formSection = document.getElementById('ai-form-section');
   formSection.classList.remove('hidden');
-
+  
   // Restore profile data if exists
   const profile = AICoach.loadProfile();
   if (profile) {
@@ -441,7 +441,7 @@ function secondsToTimeStr(totalSeconds) {
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
-window.handle3kmTimeInput = function (input) {
+window.handle3kmTimeInput = function(input) {
   const val = input.value.trim();
   if (val.match(/^\d{1,2}:\d{2}$/)) {
     const totalSecs = timeStrToSeconds(val);
@@ -450,7 +450,7 @@ window.handle3kmTimeInput = function (input) {
   }
 };
 
-window.handle3kmPaceInput = function (input) {
+window.handle3kmPaceInput = function(input) {
   const val = input.value.trim();
   if (val.match(/^\d{1,2}:\d{2}$/)) {
     const paceSecs = timeStrToSeconds(val);
@@ -500,13 +500,13 @@ function validateFormData(data) {
   if (!data.weight) return 'Informe seu peso.';
   if (!data.startDate) return 'Informe a data de início dos treinos.';
   if (!data.raceDate) return 'Informe a data da prova.';
-
+  
   const startDate = new Date(data.startDate);
   const raceDate = new Date(data.raceDate);
   const now = new Date();
-
+  
   if (raceDate <= startDate) return 'A data da prova deve ser depois da data de início.';
-
+  
   const weeks = AICoach.calculateWeeks(data.startDate, data.raceDate);
   if (weeks < 4) return 'Precisa ter pelo menos 4 semanas de treino até a prova.';
   if ((data.targetDistance === 'custom' || data.targetDistance === 'ultra') && !data.customDistance) {
@@ -553,6 +553,162 @@ function hideAIError() {
   document.getElementById('ai-error').classList.add('hidden');
 }
 
+function escapeHTML(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function getValidationStatusLabel(status) {
+  if (status === 'ok') return 'Validação OK';
+  if (status === 'error') return 'Erro crítico';
+  return 'Ajustes aplicados';
+}
+
+function getValidationStatusIcon(status) {
+  if (status === 'ok') return '✅';
+  if (status === 'error') return '⛔';
+  return '🛠️';
+}
+
+function getValidationCodeLabel(code) {
+  const labels = {
+    WEEKS_ARRAY_CREATED: 'Estrutura de semanas criada',
+    WEEK_CREATED: 'Semana criada',
+    PHASE_FIXED: 'Fase ajustada',
+    WORKOUT_COUNT_FIXED: 'Quantidade de treinos ajustada',
+    WORKOUT_DAY_FIXED: 'Dia do treino ajustado',
+    WORKOUT_TYPE_FIXED: 'Tipo de treino ajustado',
+    WORKOUT_TITLE_FIXED: 'Título preenchido',
+    WORKOUT_KM_FIXED: 'Distância ajustada',
+    WORKOUT_PACE_FIXED: 'Pace preenchido',
+    WORKOUT_DAY_REALIGNED: 'Dias reorganizados',
+    LONG_RUN_CREATED: 'Longão criado',
+    LONG_RUN_MOVED: 'Longão reposicionado',
+    RACE_WORKOUT_FIXED: 'Prova ajustada',
+    WEEKLY_VOLUME_CAPPED: 'Volume limitado',
+    RECOVERY_WEEK_REDUCED: 'Recuperação reduzida',
+    TAPER_WEEK_REDUCED: 'Polimento reduzido',
+    LONG_RUN_SHARE_HIGH: 'Longão com carga alta'
+  };
+
+  return labels[code] || String(code || 'Ajuste técnico').replace(/_/g, ' ');
+}
+
+function getValidationIssueWeek(issue) {
+  if (!issue) return 'Plano';
+  if (issue.week) return issue.week;
+
+  const path = String(issue.path || '');
+  const match = path.match(/weeks\[(\d+)\]/);
+
+  return match ? `S${Number(match[1]) + 1}` : 'Plano';
+}
+
+function formatKm(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return '-';
+
+  return `${Math.round(number * 10) / 10} km`;
+}
+
+function getPlanReviewSummary(plan) {
+  const weeks = Array.isArray(plan?.weeks) ? plan.weeks : [];
+  const validationSummary = plan?.validation?.summary || {};
+  const weekTotals = weeks.map(week => Number(week.totalKm ?? week.workouts?.reduce((s, w) => s + Number(w.km || 0), 0) ?? 0));
+  const longRuns = weeks.map(week => Number(week.workouts?.[week.workouts.length - 1]?.km || 0));
+  const recoveryWeeks = weeks.filter(week => week.off).map(week => week.week);
+  const taperWeeks = weeks.filter(week => week.phase === 'Polimento').map(week => week.week);
+
+  return {
+    initialWeeklyKm: validationSummary.initialWeeklyKm ?? weekTotals[0] ?? 0,
+    peakWeeklyKm: validationSummary.peakWeekKm ?? validationSummary.peakWeeklyKm ?? Math.max(...weekTotals, 0),
+    biggestLongRunKm: validationSummary.peakLongRunKm ?? validationSummary.biggestLongRunKm ?? Math.max(...longRuns, 0),
+    recoveryWeeks: validationSummary.recoveryWeeks || recoveryWeeks,
+    taperWeeks: validationSummary.taperWeeks || taperWeeks,
+    raceWeek: validationSummary.raceWeek || weeks[weeks.length - 1]?.week || '-'
+  };
+}
+
+function renderPlanReview(plan) {
+  const validation = plan?.validation || null;
+  const summary = getPlanReviewSummary(plan);
+  const fixedIssues = validation?.fixed || [];
+  const warningIssues = (validation?.warnings || []).filter(issue => !issue.fixed);
+  const visibleIssues = [...fixedIssues, ...warningIssues];
+  const totalFixes = validation?.summary?.totalFixes ?? fixedIssues.length;
+  const totalWarnings = validation?.summary?.totalWarnings ?? warningIssues.length;
+  const status = validation?.status || 'ok';
+
+  return `
+    <div class="plan-review-card">
+      <div class="plan-review-header">
+        <div>
+          <span class="plan-review-eyebrow">Revisão técnica</span>
+          <h4>${getValidationStatusIcon(status)} ${escapeHTML(getValidationStatusLabel(status))}</h4>
+        </div>
+        <div class="plan-review-pill ${status}">${totalFixes} ajuste(s)</div>
+      </div>
+
+      <div class="plan-review-grid">
+        <div class="plan-review-metric">
+          <span>Volume inicial</span>
+          <strong>${formatKm(summary.initialWeeklyKm)}</strong>
+        </div>
+        <div class="plan-review-metric">
+          <span>Volume pico</span>
+          <strong>${formatKm(summary.peakWeeklyKm)}</strong>
+        </div>
+        <div class="plan-review-metric">
+          <span>Maior longão</span>
+          <strong>${formatKm(summary.biggestLongRunKm)}</strong>
+        </div>
+        <div class="plan-review-metric">
+          <span>Semana da prova</span>
+          <strong>${escapeHTML(summary.raceWeek)}</strong>
+        </div>
+      </div>
+
+      <div class="plan-review-tags">
+        <div>
+          <span>Recuperação</span>
+          <strong>${summary.recoveryWeeks.length ? escapeHTML(summary.recoveryWeeks.join(', ')) : '-'}</strong>
+        </div>
+        <div>
+          <span>Polimento</span>
+          <strong>${summary.taperWeeks.length ? escapeHTML(summary.taperWeeks.join(', ')) : '-'}</strong>
+        </div>
+      </div>
+
+      <details class="plan-review-details" ${visibleIssues.length ? 'open' : ''}>
+        <summary>
+          <span>Detalhes da validação</span>
+          <small>${totalFixes} correção(ões) • ${Math.max(totalWarnings - totalFixes, 0)} aviso(s)</small>
+        </summary>
+
+        ${visibleIssues.length ? `
+          <div class="plan-review-issues">
+            ${visibleIssues.map(issue => `
+              <div class="plan-review-issue ${issue.fixed ? 'fixed' : 'warning'}">
+                <div class="plan-review-issue-top">
+                  <strong>${escapeHTML(getValidationIssueWeek(issue))}</strong>
+                  <span>${escapeHTML(getValidationCodeLabel(issue.code))}</span>
+                </div>
+                <p>${escapeHTML(issue.message || 'Ajuste técnico aplicado ao plano.')}</p>
+              </div>
+            `).join('')}
+          </div>
+        ` : `
+          <p class="plan-review-ok">Nenhum ajuste necessário. O plano passou limpo na validação técnica.</p>
+        `}
+      </details>
+    </div>
+  `;
+}
+
 function renderAIPlanResult(plan) {
   if (!plan || !plan.weeks) return;
 
@@ -566,7 +722,8 @@ function renderAIPlanResult(plan) {
     `${plan.totalWeeks} semanas • ${plan.raceName} • ${plan.daysPerWeek} dias/semana${imcStr}${validationStr}`;
 
   const weeksEl = document.getElementById('ai-result-weeks');
-  weeksEl.innerHTML = plan.weeks.map((week, i) => {
+  const reviewHtml = renderPlanReview(plan);
+  const weeksHtml = plan.weeks.map((week, i) => {
     const totalKm = week.workouts.reduce((s, w) => s + w.km, 0);
     const workoutsHtml = week.workouts.map(w => `
       <div class="ai-workout-item">
@@ -600,6 +757,8 @@ function renderAIPlanResult(plan) {
       </div>
     `;
   }).join('');
+
+  weeksEl.innerHTML = reviewHtml + weeksHtml;
 
   document.getElementById('ai-result').classList.remove('hidden');
 }
@@ -673,7 +832,7 @@ function applyAdoptedPlan() {
   // Update race info
   RACE_DATE.setTime(adopted.raceDate.getTime());
   START_DATE.setTime(adopted.startDate.getTime());
-
+  
   const raceNameEl = document.getElementById('countdown-race-name');
   if (raceNameEl && adopted.raceName) {
     raceNameEl.textContent = `${adopted.raceName.toUpperCase()} - ${adopted.raceDistance}KM`;
@@ -870,7 +1029,7 @@ if (btnTogglePassword) {
     const passwordInput = document.getElementById('login-password');
     const iconEye = document.getElementById('icon-eye');
     const iconEyeOff = document.getElementById('icon-eye-off');
-
+    
     if (passwordInput.type === 'password') {
       passwordInput.type = 'text';
       iconEye.classList.add('hidden');
@@ -892,7 +1051,7 @@ window.addEventListener('load', () => {
 
   setTimeout(() => {
     document.getElementById('splash-screen').style.display = 'none';
-
+    
     // Check Login State
     const isLoggedIn = localStorage.getItem('planebsb_logged_in') === 'true';
     if (!isLoggedIn) {
