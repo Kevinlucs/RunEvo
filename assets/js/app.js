@@ -1861,7 +1861,12 @@ function renderAICoachPage() {
 function toggleCustomDistance() {
   const dist = document.getElementById('ai-distance').value;
   const customGroup = document.getElementById('ai-custom-dist-group');
-  customGroup.style.display = (dist === 'custom' || dist === 'ultra') ? 'block' : 'none';
+  const distanceRow = document.getElementById('ai-distance-row');
+  const hasCustomDistance = dist === 'custom' || dist === 'ultra';
+
+  if (customGroup) customGroup.classList.toggle('hidden', !hasCustomDistance);
+  if (distanceRow) distanceRow.classList.toggle('has-custom-distance', hasCustomDistance);
+
   updateWeeksInfo();
 }
 

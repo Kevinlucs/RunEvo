@@ -356,8 +356,8 @@
                             </div>
                         </div>
 
-                        <div class="ai-form-row">
-                            <div class="ai-form-group">
+                        <div class="ai-form-row ai-distance-row" id="ai-distance-row">
+                            <div class="ai-form-group ai-distance-select-group">
                                 <label class="ai-label">Distância da Prova</label>
                                 <select id="ai-distance" class="ai-input" onchange="toggleCustomDistance()">
                                     <option value="5">5 km</option>
@@ -368,7 +368,7 @@
                                     <option value="custom">Personalizado...</option>
                                 </select>
                             </div>
-                            <div class="ai-form-group" id="ai-custom-dist-group" style="display:none">
+                            <div class="ai-form-group hidden" id="ai-custom-dist-group">
                                 <label class="ai-label">Distância (km)</label>
                                 <input type="number" id="ai-custom-distance" class="ai-input" placeholder="50" min="1"
                                     max="500">
@@ -379,14 +379,14 @@
                             <div class="ai-form-group">
                                 <label class="ai-label">Data de Início dos Treinos</label>
                                 <div class="date-input-wrap">
-                                    <input type="date" id="ai-start-date" class="ai-input" onchange="updateWeeksInfo()" onclick="openNativeDatePicker(this)">
+                                    <input type="date" id="ai-start-date" class="ai-input" onchange="updateWeeksInfo()">
                                     <button type="button" class="date-picker-btn" onclick="openNativeDatePicker(document.getElementById('ai-start-date'))" aria-label="Abrir calendário">📅</button>
                                 </div>
                             </div>
                             <div class="ai-form-group">
                                 <label class="ai-label">Data da Prova</label>
                                 <div class="date-input-wrap">
-                                    <input type="date" id="ai-race-date" class="ai-input" onchange="updateWeeksInfo()" onclick="openNativeDatePicker(this)">
+                                    <input type="date" id="ai-race-date" class="ai-input" onchange="updateWeeksInfo()">
                                     <button type="button" class="date-picker-btn" onclick="openNativeDatePicker(document.getElementById('ai-race-date'))" aria-label="Abrir calendário">📅</button>
                                 </div>
                             </div>

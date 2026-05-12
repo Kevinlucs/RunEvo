@@ -237,3 +237,13 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Corrigido `openNativeDatePicker is not defined`.
 - Ícone nativo preto do datepicker foi ocultado; fica somente o botão colorido do app.
 - Cache atualizado para `planrun-v26`.
+
+
+## Responsividade do campo de distância e datepicker - v27
+
+- Campo "Distância da Prova" ocupa melhor a linha quando Ultra/Personalizado não está ativo.
+- Ao selecionar Ultra/Personalizado, a distância em km aparece em duas colunas proporcionais.
+- Removido `style="display:none"` do campo de distância customizada; agora o controle é por classe.
+- Removido clique no input date para evitar disparo duplo do datepicker.
+- Ícone nativo preto do datepicker ocultado com regras adicionais.
+- Cache atualizado para `planrun-v27`.
