@@ -1,4 +1,4 @@
-const CACHE_NAME = 'planrun-v30';
+const CACHE_NAME = 'planrun-v31';
 const ASSETS = [
   './',
   './index.html',

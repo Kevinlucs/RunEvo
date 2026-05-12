@@ -277,3 +277,11 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Login passou a validar pelo `UserProfileService`, mantendo compatibilidade com `CONFIG.ALLOWED_USERS`.
 - `config/config.js` agora suporta `USER_PROFILES`.
 - Cache atualizado para `planrun-v30`.
+
+
+## Correção do header no desktop - v31
+
+- Corrigido desalinhamento do perfil do usuário na versão desktop.
+- Header agora usa flex layout consistente para perfil, km total e botão sair.
+- Mobile preservado com avatar compacto.
+- Cache atualizado para `planrun-v31`.

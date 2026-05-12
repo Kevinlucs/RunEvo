@@ -4787,3 +4787,109 @@ input[type="date"].ai-input {
     display: none;
   }
 }
+
+
+/* ===== HEADER PROFILE DESKTOP FIX V31 ===== */
+.app-header {
+  box-sizing: border-box;
+}
+
+.header-left {
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.header-right {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  min-width: 0;
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+.header-stats {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  height: 34px;
+  flex: 0 0 auto;
+}
+
+.header-user-profile {
+  flex: 0 1 auto;
+  min-width: 0;
+  height: 38px;
+  max-width: 220px;
+  white-space: nowrap;
+  align-self: center;
+}
+
+.header-user-text {
+  min-width: 0;
+}
+
+.header-logout-btn {
+  flex: 0 0 auto;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+}
+
+@media (min-width: 768px) {
+  .header-right {
+    max-width: min(520px, 48vw);
+  }
+
+  .header-user-profile {
+    display: inline-flex !important;
+  }
+
+  .header-logout-btn {
+    display: inline-flex !important;
+  }
+
+  .header-stats {
+    display: inline-flex !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .header-right {
+    gap: 8px !important;
+    flex: 0 0 auto;
+  }
+
+  .header-user-profile {
+    height: 36px;
+    max-width: 42px;
+    overflow: hidden;
+  }
+
+  .header-user-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .header-logout-btn {
+    display: none !important;
+  }
+
+  .header-stats {
+    display: none !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .header-title {
+    font-size: 1.05rem;
+  }
+
+  .header-user-profile {
+    max-width: 38px;
+    padding: 5px;
+  }
+}
