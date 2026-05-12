@@ -198,3 +198,10 @@ A aba de Estatísticas agora possui um painel visual de performance com:
 - timeline compacta dos ajustes do Adaptive Training/Coach IA.
 
 O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e check-ins salvos no localStorage do usuário.
+
+
+## Dashboard Refinement
+
+- Remove a redundância entre gráficos e histórico.
+- A parte inferior agora mostra leitura inteligente do ciclo, últimos check-ins e ajustes recentes.
+- Cache atualizado para `planrun-v22`.

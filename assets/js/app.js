@@ -832,6 +832,42 @@ function getAdjustmentLabel(action) {
   return labels[action] || 'Ajustado';
 }
 
+function getEvolutionInsights(rows, totals) {
+  const finishedRows = rows.filter(row => row.resolved > 0 || row.checkin || row.completedKm > 0);
+  const checkedRows = rows.filter(row => row.checkin);
+  const adjustedRows = rows.filter(row => row.adjustment && row.adjustment.action && row.adjustment.action !== 'maintain');
+  const lastCompleted = finishedRows.slice(-1)[0] || null;
+  const nextOpen = rows.find(row => !row.checkin && row.resolved < row.total) || rows.find(row => !row.checkin) || null;
+
+  const bestAdherence = checkedRows.length
+    ? checkedRows.reduce((best, row) => row.adherence > best.adherence ? row : best, checkedRows[0])
+    : null;
+
+  const heaviestEffort = checkedRows
+    .filter(row => Number(row.averageEffort || 0) > 0)
+    .reduce((max, row) => Number(row.averageEffort || 0) > Number(max?.averageEffort || 0) ? row : max, null);
+
+  const currentTrend = (() => {
+    const recent = checkedRows.slice(-3);
+    if (recent.length < 2) return 'Ainda coletando dados para identificar tendência.';
+    const avg = recent.reduce((sum, row) => sum + Number(row.adherence || 0), 0) / recent.length;
+    if (avg >= 90) return 'Consistência alta nas últimas semanas. Excelente base para evoluir com segurança.';
+    if (avg >= 65) return 'Consistência moderada. O foco agora é reduzir oscilações entre as semanas.';
+    return 'Aderência baixa recentemente. Vale priorizar regularidade antes de aumentar carga.';
+  })();
+
+  return {
+    finishedRows,
+    checkedRows,
+    adjustedRows,
+    lastCompleted,
+    nextOpen,
+    bestAdherence,
+    heaviestEffort,
+    currentTrend
+  };
+}
+
 function renderEvolutionHistory() {
   const el = document.getElementById('evolution-history');
   if (!el) return;
@@ -849,62 +885,115 @@ function renderEvolutionHistory() {
   }
 
   const totals = getEvolutionTotals(rows);
-  const recentRows = rows
-    .filter(row => row.resolved > 0 || row.checkin || row.adjustment)
-    .slice(-8)
+  const insights = getEvolutionInsights(rows, totals);
+  const recentCheckins = rows
+    .filter(row => row.checkin)
+    .slice(-3)
     .reverse();
 
+  const lastAdjustments = insights.adjustedRows
+    .slice(-3)
+    .reverse();
+
+  const nextOpenLabel = insights.nextOpen
+    ? `${insights.nextOpen.week} • ${insights.nextOpen.phase}`
+    : 'Plano sem pendências abertas';
+
+  const bestAdherenceLabel = insights.bestAdherence
+    ? `${insights.bestAdherence.week} • ${insights.bestAdherence.adherence}%`
+    : 'Aguardando check-ins';
+
+  const heaviestEffortLabel = insights.heaviestEffort
+    ? `${insights.heaviestEffort.week} • ${insights.heaviestEffort.averageEffort}/10`
+    : 'Sem esforço registrado';
+
   el.innerHTML = `
-    <div class="evolution-summary-grid">
-      <div class="evolution-summary-card">
-        <span>Aderência geral</span>
-        <strong>${totals.adherence}%</strong>
+    <div class="evolution-insight-panel">
+      <div class="insight-panel-header">
+        <div>
+          <span class="dashboard-eyebrow">Resumo inteligente</span>
+          <h3>Leitura rápida do ciclo</h3>
+          <p>Os gráficos acima mostram os números. Aqui ficam os sinais práticos para tomada de decisão.</p>
+        </div>
       </div>
-      <div class="evolution-summary-card">
-        <span>Km realizados</span>
-        <strong>${totals.completedKm}/${totals.plannedKm}</strong>
-      </div>
-      <div class="evolution-summary-card">
-        <span>Check-ins</span>
-        <strong>${totals.checkedWeeks}</strong>
-      </div>
-      <div class="evolution-summary-card">
-        <span>Ajustes aplicados</span>
-        <strong>${totals.adjustedWeeks}</strong>
-      </div>
-      <div class="evolution-summary-card">
-        <span>Esforço médio</span>
-        <strong>${totals.avgEffort || '-'}/10</strong>
+
+      <div class="insight-grid">
+        <div class="insight-card featured">
+          <span>Tendência atual</span>
+          <strong>${escapeHTML(insights.currentTrend)}</strong>
+        </div>
+
+        <div class="insight-card">
+          <span>Próxima semana em foco</span>
+          <strong>${escapeHTML(nextOpenLabel)}</strong>
+        </div>
+
+        <div class="insight-card">
+          <span>Melhor aderência</span>
+          <strong>${escapeHTML(bestAdherenceLabel)}</strong>
+        </div>
+
+        <div class="insight-card">
+          <span>Maior esforço</span>
+          <strong>${escapeHTML(heaviestEffortLabel)}</strong>
+        </div>
+
+        <div class="insight-card">
+          <span>Check-ins fechados</span>
+          <strong>${totals.checkedWeeks}</strong>
+        </div>
+
+        <div class="insight-card">
+          <span>Ajustes relevantes</span>
+          <strong>${totals.adjustedWeeks}</strong>
+        </div>
       </div>
     </div>
 
-    <div class="evolution-timeline">
-      ${recentRows.length ? recentRows.map(row => `
-        <div class="evolution-row ${row.adjustment?.action || 'none'}">
-          <div class="evolution-week">
-            <strong>${escapeHTML(row.week)}</strong>
-            <span>${escapeHTML(row.phase)}</span>
-          </div>
-          <div class="evolution-main">
-            <div class="evolution-row-top">
-              <span>${row.completedKm}/${row.plannedKm} km</span>
-              <span>${row.adherence}%</span>
-            </div>
-            <div class="evolution-progress">
-              <div style="width:${Math.min(100, row.adherence)}%"></div>
-            </div>
-            <p>${row.checkin ? escapeHTML(row.checkin.resultMessage || 'Check-in registrado.') : 'Semana em acompanhamento.'}</p>
-          </div>
-          <div class="evolution-badge">
-            ${row.adjustment ? getAdjustmentLabel(row.adjustment.action) : row.checkin ? 'Check-in' : 'Em aberto'}
-          </div>
+    <div class="evolution-review-grid">
+      <div class="evolution-review-card">
+        <div class="review-card-header">
+          <span>Últimos check-ins</span>
+          <strong>${recentCheckins.length || '—'}</strong>
         </div>
-      `).join('') : `
-        <div class="evolution-empty compact">
-          <strong>Sem histórico fechado ainda.</strong>
-          <p>Registre treinos e responda o check-in semanal para alimentar esta linha do tempo.</p>
+
+        ${recentCheckins.length ? recentCheckins.map(row => `
+          <div class="review-list-row">
+            <div>
+              <strong>${escapeHTML(row.week)} • ${row.adherence}%</strong>
+              <p>${escapeHTML(row.checkin?.aiFeedback?.messageToUser || row.checkin?.resultMessage || 'Check-in registrado.')}</p>
+            </div>
+            <span>${row.averageEffort || '-'}/10</span>
+          </div>
+        `).join('') : `
+          <div class="evolution-empty compact">
+            <strong>Nenhum check-in concluído.</strong>
+            <p>Finalize uma semana para liberar a leitura do Coach IA.</p>
+          </div>
+        `}
+      </div>
+
+      <div class="evolution-review-card">
+        <div class="review-card-header">
+          <span>Ajustes recentes</span>
+          <strong>${lastAdjustments.length || '—'}</strong>
         </div>
-      `}
+
+        ${lastAdjustments.length ? lastAdjustments.map(row => `
+          <div class="review-list-row ${row.adjustment?.action || 'none'}">
+            <div>
+              <strong>${escapeHTML(row.week)} • ${escapeHTML(getAdjustmentLabel(row.adjustment?.action))}</strong>
+              <p>${escapeHTML(row.adjustment?.reason || row.checkin?.resultMessage || 'Ajuste aplicado pelo Adaptive Training.')}</p>
+            </div>
+            <span>${formatKmShort(row.completedKm)}/${formatKmShort(row.plannedKm)} km</span>
+          </div>
+        `).join('') : `
+          <div class="evolution-empty compact">
+            <strong>Nenhum ajuste aplicado.</strong>
+            <p>Quando o plano for adaptado, o motivo aparecerá aqui sem repetir os gráficos.</p>
+          </div>
+        `}
+      </div>
     </div>
   `;
 }
