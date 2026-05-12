@@ -5388,3 +5388,87 @@ input[type="date"].ai-input {
     justify-content: stretch;
   }
 }
+
+
+/* ===== PROFILE/NAV/MODAL POLISH V35 ===== */
+.settings-hero h2 {
+  font-size: 1.55rem;
+}
+
+.settings-profile-editor-layout {
+  align-items: stretch;
+}
+
+.settings-photo-editor.compact {
+  height: 100%;
+  min-height: 320px;
+  align-content: start;
+}
+
+.settings-photo-preview {
+  flex: 0 0 auto;
+}
+
+.settings-readonly-field.locked-weight {
+  border-color: rgba(252, 76, 2, 0.22);
+  background: rgba(252, 76, 2, 0.075);
+}
+
+.settings-readonly-field small {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+
+@media (min-width: 768px) {
+  .settings-profile-editor-layout {
+    grid-template-columns: minmax(360px, 0.95fr) minmax(0, 1.05fr);
+  }
+
+  .settings-photo-editor.compact {
+    grid-template-columns: 96px 1fr;
+  }
+
+  .settings-photo-preview {
+    width: 88px;
+    height: 88px;
+    border-radius: 24px;
+  }
+}
+
+/* Bottom nav com 5 itens: Início | Treinos | IA Coach | Estatísticas | Perfil */
+.bottom-nav {
+  gap: 4px;
+}
+
+.nav-item {
+  min-width: 0;
+}
+
+.nav-item span {
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .bottom-nav {
+    width: min(820px, calc(100vw - 48px));
+  }
+
+  .nav-item {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+@media (max-width: 520px) {
+  .nav-item {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .nav-item span {
+    font-size: 0.58rem;
+  }
+}

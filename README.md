@@ -319,3 +319,15 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - A cada 4 semanas concluídas, o check-in exige peso atual.
 - Peso do check-in atualiza o perfil, recalcula IMC e alimenta a análise do Coach IA.
 - Cache atualizado para `planrun-v34`.
+
+
+## Polimento perfil, modal e navegação - v35
+
+- Modal de concluir treino agora usa “Concluir”, “Salvar parcial” ou “Registrar” no botão principal.
+- Nome da página alterado para “Perfil do Atleta”.
+- Texto da página adaptado para explicar que só foto/nome são editáveis e peso vem do check-in.
+- Peso travado na aba Perfil; somente leitura.
+- Card da foto ocupa melhor o grid esquerdo no desktop.
+- Navegação reordenada: Início | Treinos | IA Coach | Estatísticas | Perfil.
+- “Stats” virou “Estatísticas”; “Ajustes” virou “Perfil”.
+- Cache atualizado para `planrun-v35`.

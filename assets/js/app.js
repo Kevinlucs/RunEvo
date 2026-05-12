@@ -2372,8 +2372,16 @@ function handleAdoptPlan() {
   document.getElementById('modal-title').textContent = 'Adotar Este Plano?';
   document.getElementById('modal-message').textContent =
     'Seu plano atual será substituído pelo plano gerado pela IA. Todos os treinos concluídos serão zerados.';
+  const cancelBtn = document.getElementById('modal-cancel');
+  const confirmBtn = document.getElementById('modal-confirm');
+
+  cancelBtn.textContent = 'Fechar';
+  cancelBtn.classList.remove('hidden');
+  confirmBtn.textContent = isComplete ? 'Concluir' : isPartial ? 'Salvar parcial' : 'Registrar';
+  confirmBtn.disabled = false;
+
   document.getElementById('modal-overlay').classList.remove('hidden');
-  document.getElementById('modal-confirm').onclick = () => {
+  confirmBtn.onclick = () => {
     AICoach.adoptPlan();
     clearProgress();
     document.getElementById('modal-overlay').classList.add('hidden');
@@ -2550,7 +2558,7 @@ function openWorkoutFeedbackModal(id, status) {
     renderPhases();
     renderStats();
   };
-  document.getElementById('modal-cancel').onclick = () => {
+  cancelBtn.onclick = () => {
     document.getElementById('modal-overlay').classList.add('hidden');
   };
 }
@@ -3897,7 +3905,7 @@ function renderSettingsPage() {
   setText('settings-adopted', summary.isAdopted ? 'Adotada' : 'Não adotada');
 
   setValue('settings-athlete-name', profile?.displayName || plan?.userData?.name || '');
-  setValue('settings-weight', weight || '');
+  setText('settings-weight-readonly', weight ? `${weight} kg` : '-');
   setText('settings-age-readonly', age ? `${age} anos` : '-');
   setText('settings-height-readonly', height ? `${height} cm` : '-');
   setText('settings-imc-readonly', imc ? `${imc} • ${getIMCLabel(imc)}` : '-');
@@ -3907,11 +3915,11 @@ function saveAthleteProfileSettings() {
   const current = StorageService.loadUserProfile?.() || {};
   const { plan, userData } = getCurrentAthleteMetrics();
   const displayName = document.getElementById('settings-athlete-name')?.value.trim() || '';
-  const weight = document.getElementById('settings-weight')?.value || '';
 
   const height = current.height || userData.height || '';
   const age = current.age || userData.age || '';
-  const imc = calculateIMCFromValues(weight, height);
+  const weight = current.weight || userData.weight || '';
+  const imc = current.imc || userData.imc || calculateIMCFromValues(weight, height);
 
   StorageService.saveUserProfile?.({
     ...current,
@@ -3920,17 +3928,13 @@ function saveAthleteProfileSettings() {
     height,
     weight,
     imc,
-    updatedAt: new Date().toISOString(),
-    lastWeightUpdate: weight ? new Date().toISOString() : current.lastWeightUpdate,
-    lastWeightSource: weight ? 'settings' : current.lastWeightSource
+    updatedAt: new Date().toISOString()
   });
 
   if (plan) {
     plan.userData = {
       ...(plan.userData || {}),
-      name: displayName,
-      weight,
-      imc
+      name: displayName
     };
     plan.updatedAt = new Date().toISOString();
     StorageService.savePlan(plan);
@@ -3941,9 +3945,7 @@ function saveAthleteProfileSettings() {
   renderStats();
 
   const aiName = document.getElementById('ai-name');
-  const aiWeight = document.getElementById('ai-weight');
   if (aiName && displayName) aiName.value = displayName;
-  if (aiWeight && weight) aiWeight.value = weight;
 
   document.getElementById('modal-icon').textContent = '✅';
   document.getElementById('modal-title').textContent = 'Perfil salvo';
