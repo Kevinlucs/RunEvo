@@ -351,3 +351,14 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Campo “Nome do atleta” alinhado visualmente com os demais cards.
 - Ajuste responsivo aplicado para web e mobile.
 - Cache atualizado para `planrun-v37`.
+
+
+## Treinos Hub + Exportação - v38
+
+- Aba Treinos virou um hub mais organizado.
+- Fases Base, Resistência, Pico e Polimento agora ficam em cards compactos.
+- Exportação e Backup foram movidos da aba Estatísticas para Treinos.
+- Aba Estatísticas ficou focada apenas em análise/performance.
+- Cards de fase mostram treinos concluídos e km realizado/planejado.
+- Layout responsivo para web e mobile.
+- Cache atualizado para `planrun-v38`.

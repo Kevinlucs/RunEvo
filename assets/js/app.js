@@ -370,12 +370,21 @@ function renderHome() {
 }
 
 function renderPhases() {
+  const totalHubEl = document.getElementById('training-hub-km');
+  if (totalHubEl) totalHubEl.textContent = `${getTotalKmDone()} km`;
+
   ['base', 'resistencia', 'pico', 'polimento'].forEach(p => {
-    const total = getPhaseWorkouts(p).length;
+    const workouts = getPhaseWorkouts(p);
+    const total = workouts.length;
     const done = getPhaseCompleted(p);
+    const kmDone = Math.round(workouts.reduce((sum, w) => sum + getWorkoutCompletedKm(w), 0));
+    const kmTotal = Math.round(workouts.reduce((sum, w) => sum + Number(w.km || 0), 0));
     const countEl = document.getElementById(`count-${p}`);
+    const kmEl = document.getElementById(`km-${p}`);
     const progEl = document.getElementById(`progress-${p}`);
-    if (countEl) countEl.textContent = `${done}/${total}`;
+
+    if (countEl) countEl.textContent = `${done}/${total} treinos`;
+    if (kmEl) kmEl.textContent = `${kmDone}/${kmTotal} km`;
     if (progEl) progEl.style.width = total > 0 ? (done / total * 100) + '%' : '0%';
   });
 }

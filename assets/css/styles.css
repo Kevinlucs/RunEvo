@@ -5621,3 +5621,229 @@ input[type="date"].ai-input {
     min-height: auto;
   }
 }
+
+
+/* ===== TRAINING HUB + EXPORT V38 ===== */
+.training-hub-container {
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.training-hub-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 18px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top right, rgba(252, 76, 2, 0.18), transparent 36%),
+    var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+.training-hub-eyebrow {
+  display: block;
+  color: var(--accent-light);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.training-hub-hero h2 {
+  margin: 0 0 5px;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+.training-hub-hero p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  max-width: 720px;
+}
+
+.training-hub-kpi {
+  min-width: 116px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(252, 76, 2, 0.10);
+  border: 1px solid rgba(252, 76, 2, 0.24);
+  text-align: right;
+}
+
+.training-hub-kpi span {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.training-hub-kpi strong {
+  color: var(--accent-light);
+  font-size: 1.2rem;
+}
+
+.phase-dashboard-card {
+  padding: 16px;
+  border-radius: 22px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+.phase-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.phase-dashboard-header span {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 4px;
+}
+
+.phase-dashboard-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.phase-dashboard-header small {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.3;
+  text-align: right;
+}
+
+.phase-grid-compact {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.phase-card.compact {
+  width: 100%;
+  min-height: 0;
+  padding: 14px;
+  border-radius: 18px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.045) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+}
+
+.phase-card.compact:hover {
+  border-color: rgba(252, 76, 2, 0.30);
+  background: rgba(252, 76, 2, 0.07) !important;
+}
+
+.phase-card.compact .phase-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.phase-card.compact .phase-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(252, 76, 2, 0.13);
+  font-size: 1.25rem;
+}
+
+.phase-card.compact h2 {
+  margin: 0;
+  font-size: 0.98rem;
+  color: var(--text);
+  text-transform: none;
+}
+
+.phase-card.compact p {
+  margin: 3px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+}
+
+.phase-card.compact .phase-progress {
+  height: 7px;
+  margin: 0 0 9px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.phase-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.phase-meta-row strong {
+  color: var(--accent-light);
+  white-space: nowrap;
+}
+
+.training-export-card {
+  margin-top: 0;
+}
+
+.training-export-grid {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .phase-grid-compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .training-export-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 980px) {
+  .phase-grid-compact {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .training-export-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .training-hub-hero,
+  .phase-dashboard-header,
+  .export-backup-header {
+    flex-direction: column;
+  }
+
+  .training-hub-kpi {
+    text-align: left;
+    width: 100%;
+  }
+
+  .phase-dashboard-header small {
+    text-align: left;
+  }
+}

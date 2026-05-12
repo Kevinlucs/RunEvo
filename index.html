@@ -149,55 +149,125 @@
 
         <!-- PHASES PAGE -->
         <main id="page-phases" class="page">
-            <div class="phases-container">
-                <div class="phase-card" data-phase="base" id="phase-base">
-                    <div class="phase-card-bg"></div>
-                    <div class="phase-card-content">
-                        <div class="phase-icon">🏗️</div>
-                        <h2>BASE</h2>
-                        <p>Semanas 1 a 8</p>
-                        <div class="phase-progress">
-                            <div class="phase-progress-bar" id="progress-base"></div>
-                        </div>
-                        <span class="phase-count" id="count-base">0/24</span>
+            <div class="training-hub-container">
+                <section class="training-hub-hero">
+                    <div>
+                        <span class="training-hub-eyebrow">Centro de treinos</span>
+                        <h2>Treinos & Exportação</h2>
+                        <p>Acesse as fases da planilha, acompanhe o progresso e exporte tudo em PDF, Excel ou backup.</p>
                     </div>
-                </div>
-                <div class="phase-card" data-phase="resistencia" id="phase-resistencia">
-                    <div class="phase-card-bg"></div>
-                    <div class="phase-card-content">
-                        <div class="phase-icon">💪</div>
-                        <h2>RESISTÊNCIA</h2>
-                        <p>Semanas 9 a 16</p>
-                        <div class="phase-progress">
-                            <div class="phase-progress-bar" id="progress-resistencia"></div>
-                        </div>
-                        <span class="phase-count" id="count-resistencia">0/24</span>
+                    <div class="training-hub-kpi">
+                        <span>Total feito</span>
+                        <strong id="training-hub-km">0 km</strong>
                     </div>
-                </div>
-                <div class="phase-card" data-phase="pico" id="phase-pico">
-                    <div class="phase-card-bg"></div>
-                    <div class="phase-card-content">
-                        <div class="phase-icon">⚡</div>
-                        <h2>PICO</h2>
-                        <p>Semanas 17 a 24</p>
-                        <div class="phase-progress">
-                            <div class="phase-progress-bar" id="progress-pico"></div>
+                </section>
+
+                <section class="phase-dashboard-card">
+                    <div class="phase-dashboard-header">
+                        <div>
+                            <span>Fases da planilha</span>
+                            <h3>Organização do ciclo</h3>
                         </div>
-                        <span class="phase-count" id="count-pico">0/24</span>
+                        <small>Clique em uma fase para ver os treinos</small>
                     </div>
-                </div>
-                <div class="phase-card" data-phase="polimento" id="phase-polimento">
-                    <div class="phase-card-bg"></div>
-                    <div class="phase-card-content">
-                        <div class="phase-icon">🏁</div>
-                        <h2>POLIMENTO</h2>
-                        <p>Semanas 25+</p>
-                        <div class="phase-progress">
-                            <div class="phase-progress-bar" id="progress-polimento"></div>
+
+                    <div class="phase-grid-compact">
+                        <button class="phase-card compact" data-phase="base" id="phase-base">
+                            <div class="phase-card-top">
+                                <span class="phase-icon">🏗️</span>
+                                <div>
+                                    <h2>Base</h2>
+                                    <p>Fundação aeróbica</p>
+                                </div>
+                            </div>
+                            <div class="phase-progress"><div class="phase-progress-bar" id="progress-base"></div></div>
+                            <div class="phase-meta-row">
+                                <span id="count-base">0/0</span>
+                                <strong id="km-base">0 km</strong>
+                            </div>
+                        </button>
+
+                        <button class="phase-card compact" data-phase="resistencia" id="phase-resistencia">
+                            <div class="phase-card-top">
+                                <span class="phase-icon">💪</span>
+                                <div>
+                                    <h2>Resistência</h2>
+                                    <p>Volume e constância</p>
+                                </div>
+                            </div>
+                            <div class="phase-progress"><div class="phase-progress-bar" id="progress-resistencia"></div></div>
+                            <div class="phase-meta-row">
+                                <span id="count-resistencia">0/0</span>
+                                <strong id="km-resistencia">0 km</strong>
+                            </div>
+                        </button>
+
+                        <button class="phase-card compact" data-phase="pico" id="phase-pico">
+                            <div class="phase-card-top">
+                                <span class="phase-icon">⚡</span>
+                                <div>
+                                    <h2>Pico</h2>
+                                    <p>Semanas mais fortes</p>
+                                </div>
+                            </div>
+                            <div class="phase-progress"><div class="phase-progress-bar" id="progress-pico"></div></div>
+                            <div class="phase-meta-row">
+                                <span id="count-pico">0/0</span>
+                                <strong id="km-pico">0 km</strong>
+                            </div>
+                        </button>
+
+                        <button class="phase-card compact" data-phase="polimento" id="phase-polimento">
+                            <div class="phase-card-top">
+                                <span class="phase-icon">🏁</span>
+                                <div>
+                                    <h2>Polimento</h2>
+                                    <p>Redução até a prova</p>
+                                </div>
+                            </div>
+                            <div class="phase-progress"><div class="phase-progress-bar" id="progress-polimento"></div></div>
+                            <div class="phase-meta-row">
+                                <span id="count-polimento">0/0</span>
+                                <strong id="km-polimento">0 km</strong>
+                            </div>
+                        </button>
+                    </div>
+                </section>
+
+                <section class="export-backup-card training-export-card">
+                    <div class="export-backup-header">
+                        <div>
+                            <span class="export-backup-eyebrow">Exportação & Backup</span>
+                            <h3>Guardar e compartilhar planilha</h3>
+                            <p>Exporte a planilha ativa ou faça backup completo do progresso do atleta.</p>
                         </div>
-                        <span class="phase-count" id="count-polimento">0/24</span>
+                        <div class="export-backup-badge">Treinos</div>
                     </div>
-                </div>
+                    <div class="export-backup-grid training-export-grid">
+                        <button type="button" class="export-action-card featured" onclick="handleExportExcel()">
+                            <span>📈</span>
+                            <strong>Excel profissional</strong>
+                            <small>Resumo, semanas e treinos em relatório editável.</small>
+                        </button>
+                        <button type="button" class="export-action-card" onclick="handleExportPDF()">
+                            <span>📄</span>
+                            <strong>PDF profissional</strong>
+                            <small>Versão visual para imprimir ou compartilhar.</small>
+                        </button>
+                        <button type="button" class="export-action-card" onclick="handleExportBackup()">
+                            <span>🧳</span>
+                            <strong>Backup JSON</strong>
+                            <small>Plano, check-ins, ajustes e progresso completo.</small>
+                        </button>
+                        <button type="button" class="export-action-card" onclick="handleImportBackupClick()">
+                            <span>📥</span>
+                            <strong>Importar backup</strong>
+                            <small>Restaure um arquivo JSON exportado pelo PlanRun.</small>
+                        </button>
+                    </div>
+                    <input type="file" id="backup-import-input" accept="application/json,.json" class="hidden">
+                    <p id="export-backup-status" class="export-backup-status">Nenhuma ação realizada nesta sessão.</p>
+                </section>
             </div>
         </main>
 
@@ -260,45 +330,10 @@
                     <!-- Populated by JS -->
                 </div>
 
-                <h2 class="section-title" style="margin-top: 1.5rem;">Exportação & Backup</h2>
-                <div class="export-backup-card">
-                    <div class="export-backup-header">
-                        <div>
-                            <span class="export-backup-eyebrow">Export & Backup Engine</span>
-                            <h3>Guardar e compartilhar plano</h3>
-                            <p>Exporte a planilha em Excel profissional ou gere um PDF de apresentação para compartilhar.</p>
-                        </div>
-                        <div class="export-backup-badge">Local</div>
-                    </div>
-                    <div class="export-backup-grid">
-                        <button type="button" class="export-action-card featured" onclick="handleExportExcel()">
-                            <span>📈</span>
-                            <strong>Excel profissional</strong>
-                            <small>Relatório estilizado com capa, resumo, semanas e treinos.</small>
-                        </button>
-                        <button type="button" class="export-action-card" onclick="handleExportPDF()">
-                            <span>📄</span>
-                            <strong>PDF profissional</strong>
-                            <small>Relatório visual para imprimir, salvar em PDF ou compartilhar.</small>
-                        </button>
-                        <button type="button" class="export-action-card" onclick="handleExportBackup()">
-                            <span>🧳</span>
-                            <strong>Backup JSON</strong>
-                            <small>Plano, check-ins, ajustes e progresso completo.</small>
-                        </button>
-                        <button type="button" class="export-action-card" onclick="handleImportBackupClick()">
-                            <span>📥</span>
-                            <strong>Importar backup</strong>
-                            <small>Restaure um arquivo JSON exportado pelo PlanRun.</small>
-                        </button>
-                    </div>
-                    <input type="file" id="backup-import-input" accept="application/json,.json" class="hidden">
-                    <p id="export-backup-status" class="export-backup-status">Nenhuma ação realizada nesta sessão.</p>
-                </div>
+                                </div>
             </div>
         </main>
 
-        <!-- 
         <!-- SETTINGS PAGE -->
         <main id="page-settings" class="page">
             <div class="settings-container">
