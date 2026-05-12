@@ -257,3 +257,11 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Backup/importação usa snapshot centralizado do usuário.
 - Preparação para futura migração para Supabase/Firebase sem reescrever o app inteiro.
 - Cache atualizado para `planrun-v28`.
+
+
+## Lapidação final do campo de distância - v29
+
+- Para 5K, 10K, 21K e 42K, o campo “Distância da Prova” ocupa a largura útil do card.
+- Para Ultra/Personalizado, o campo “Distância (km)” aparece ao lado no desktop e empilha corretamente no mobile.
+- Regras CSS reforçadas com responsividade web/mobile.
+- Cache atualizado para `planrun-v29`.
