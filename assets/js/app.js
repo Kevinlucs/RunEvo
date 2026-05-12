@@ -510,7 +510,266 @@ function renderStats() {
     </div>`;
   }).join('');
 
+  renderEvolutionDashboard();
   renderEvolutionHistory();
+}
+
+
+// ===== EVOLUTION DASHBOARD 2.0 =====
+function clampPercent(value) {
+  return Math.max(0, Math.min(100, Number(value || 0)));
+}
+
+function formatKmShort(value) {
+  const number = Math.round(Number(value || 0) * 10) / 10;
+  return Number.isInteger(number) ? String(number) : String(number).replace('.', ',');
+}
+
+function getWeekLongRunKm(weekIndex) {
+  const summary = getWeekSummary(weekIndex);
+
+  if (!summary.workouts.length) return 0;
+
+  const longRuns = summary.workouts.filter(w => {
+    const type = String(w.dayType || '').toLowerCase();
+    const title = String(w.title || '').toLowerCase();
+
+    return type.includes('long') || title.includes('long') || type.includes('prova') || title.includes('prova');
+  });
+
+  const candidates = longRuns.length ? longRuns : summary.workouts;
+
+  return candidates.reduce((max, w) => Math.max(max, Number(w.km || 0)), 0);
+}
+
+function getRowStatusTone(row) {
+  if (row.adjustment?.action === 'recovery' || row.adjustment?.action === 'reduce') return 'warning';
+  if (row.adjustment?.action === 'slight_increase') return 'success';
+  if (row.adherence >= 90) return 'success';
+  if (row.adherence >= 60) return 'neutral';
+  if (row.resolved > 0 || row.checkin) return 'warning';
+  return 'muted';
+}
+
+function renderMiniBarChart(rows, options = {}) {
+  const {
+    type = 'adherence',
+    maxValue = 100,
+    valueLabel = value => `${Math.round(value)}%`,
+    emptyLabel = 'Sem dados suficientes ainda.'
+  } = options;
+
+  const visibleRows = rows.slice(-16);
+
+  if (!visibleRows.length) {
+    return `<div class="evolution-chart-empty">${emptyLabel}</div>`;
+  }
+
+  return `
+    <div class="mini-chart-scroll">
+      <div class="mini-chart-bars ${type}">
+        ${visibleRows.map(row => {
+          const value = type === 'effort'
+            ? Number(row.averageEffort || 0)
+            : type === 'longrun'
+              ? getWeekLongRunKm(row.weekIndex)
+              : Number(row.adherence || 0);
+
+          const height = maxValue > 0 ? clampPercent((value / maxValue) * 100) : 0;
+          const tone = getRowStatusTone(row);
+
+          return `
+            <div class="mini-chart-item ${tone}" title="${escapeHTML(row.week)} • ${escapeHTML(valueLabel(value))}">
+              <div class="mini-chart-bar-wrap">
+                <div class="mini-chart-bar" style="height:${Math.max(4, height)}%"></div>
+              </div>
+              <strong>${escapeHTML(valueLabel(value))}</strong>
+              <span>${escapeHTML(row.week)}</span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderKmComparisonChart(rows) {
+  const visibleRows = rows.slice(-14);
+
+  if (!visibleRows.length) {
+    return '<div class="evolution-chart-empty">Registre treinos para comparar km planejado e realizado.</div>';
+  }
+
+  const maxKm = Math.max(1, ...visibleRows.map(row => Math.max(Number(row.plannedKm || 0), Number(row.completedKm || 0))));
+
+  return `
+    <div class="km-comparison-list">
+      ${visibleRows.map(row => {
+        const plannedPct = clampPercent((Number(row.plannedKm || 0) / maxKm) * 100);
+        const completedPct = clampPercent((Number(row.completedKm || 0) / maxKm) * 100);
+
+        return `
+          <div class="km-compare-row ${getRowStatusTone(row)}">
+            <div class="km-compare-label">
+              <strong>${escapeHTML(row.week)}</strong>
+              <span>${escapeHTML(row.phase)}</span>
+            </div>
+            <div class="km-compare-bars">
+              <div class="km-bar-line planned"><span style="width:${plannedPct}%"></span></div>
+              <div class="km-bar-line completed"><span style="width:${completedPct}%"></span></div>
+            </div>
+            <div class="km-compare-values">
+              <span>${formatKmShort(row.completedKm)} km</span>
+              <small>de ${formatKmShort(row.plannedKm)} km</small>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderAdjustmentTimeline(rows) {
+  const adjustedRows = rows
+    .filter(row => row.adjustment || row.checkin?.aiFeedback || row.checkin?.resultMessage)
+    .slice(-6)
+    .reverse();
+
+  if (!adjustedRows.length) {
+    return `
+      <div class="evolution-chart-empty">
+        Nenhum ajuste fechado ainda. Conclua uma semana e responda o check-in para alimentar a timeline.
+      </div>
+    `;
+  }
+
+  return `
+    <div class="adjustment-timeline-compact">
+      ${adjustedRows.map(row => {
+        const action = row.adjustment?.action || 'maintain';
+        const source = row.checkin?.feedbackSource === 'ai' ? 'Coach IA' : row.checkin ? 'Regra local' : 'Sistema';
+        const message = row.checkin?.aiFeedback?.messageToUser || row.checkin?.resultMessage || row.adjustment?.reason || 'Semana analisada pelo PlanRun.';
+
+        return `
+          <div class="adjustment-compact-row ${action}">
+            <div class="adjustment-dot"></div>
+            <div>
+              <strong>${escapeHTML(row.week)} — ${escapeHTML(getAdjustmentLabel(action))}</strong>
+              <p>${escapeHTML(message)}</p>
+              <span>${escapeHTML(source)} • ${formatKmShort(row.completedKm)}/${formatKmShort(row.plannedKm)} km • esforço ${row.averageEffort || '-'}/10</span>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderEvolutionDashboard() {
+  const el = document.getElementById('evolution-dashboard');
+  if (!el) return;
+
+  const rows = getWeekEvolutionRows();
+
+  if (!rows.length) {
+    el.innerHTML = `
+      <div class="evolution-empty">
+        <strong>Dashboard aguardando plano.</strong>
+        <p>Gere uma planilha na aba IA Coach para liberar os gráficos de evolução.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const activeRows = rows.filter(row => row.resolved > 0 || row.checkin || row.completedKm > 0 || row.weekIndex <= 3);
+  const chartRows = activeRows.length ? activeRows : rows.slice(0, 8);
+  const maxLongRun = Math.max(1, ...rows.map(row => getWeekLongRunKm(row.weekIndex)));
+  const totals = getEvolutionTotals(rows);
+
+  el.innerHTML = `
+    <div class="evolution-dashboard-hero">
+      <div>
+        <span class="dashboard-eyebrow">Performance Center</span>
+        <h3>Visão real da evolução</h3>
+        <p>Compare planejamento, execução, esforço e ajustes do Adaptive Training em um painel único.</p>
+      </div>
+      <div class="dashboard-score-ring" style="--score:${clampPercent(totals.adherence)}%">
+        <strong>${totals.adherence}%</strong>
+        <span>Aderência</span>
+      </div>
+    </div>
+
+    <div class="evolution-dashboard-grid">
+      <div class="dashboard-chart-card wide">
+        <div class="chart-card-header">
+          <div>
+            <span>Volume semanal</span>
+            <h4>Km planejado x realizado</h4>
+          </div>
+          <div class="chart-legend">
+            <i class="planned"></i> Planejado
+            <i class="completed"></i> Realizado
+          </div>
+        </div>
+        ${renderKmComparisonChart(chartRows)}
+      </div>
+
+      <div class="dashboard-chart-card">
+        <div class="chart-card-header compact">
+          <div>
+            <span>Consistência</span>
+            <h4>Aderência semanal</h4>
+          </div>
+        </div>
+        ${renderMiniBarChart(chartRows, {
+          type: 'adherence',
+          maxValue: 100,
+          valueLabel: value => `${Math.round(value)}%`,
+          emptyLabel: 'Sem aderência registrada ainda.'
+        })}
+      </div>
+
+      <div class="dashboard-chart-card">
+        <div class="chart-card-header compact">
+          <div>
+            <span>Carga percebida</span>
+            <h4>Esforço médio</h4>
+          </div>
+        </div>
+        ${renderMiniBarChart(chartRows, {
+          type: 'effort',
+          maxValue: 10,
+          valueLabel: value => value ? `${Math.round(value * 10) / 10}` : '-',
+          emptyLabel: 'Sem esforço registrado ainda.'
+        })}
+      </div>
+
+      <div class="dashboard-chart-card">
+        <div class="chart-card-header compact">
+          <div>
+            <span>Resistência</span>
+            <h4>Evolução dos longões</h4>
+          </div>
+        </div>
+        ${renderMiniBarChart(rows, {
+          type: 'longrun',
+          maxValue: maxLongRun,
+          valueLabel: value => `${formatKmShort(value)}km`,
+          emptyLabel: 'Sem longões no plano.'
+        })}
+      </div>
+
+      <div class="dashboard-chart-card">
+        <div class="chart-card-header compact">
+          <div>
+            <span>Adaptive Training</span>
+            <h4>Timeline de ajustes</h4>
+          </div>
+        </div>
+        ${renderAdjustmentTimeline(rows)}
+      </div>
+    </div>
+  `;
 }
 
 

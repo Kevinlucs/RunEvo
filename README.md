@@ -185,3 +185,16 @@ Regras aplicadas:
 - Ao adicionar/remover treino em uma semana já fechada, o check-in daquela semana é reaberto para manter os cálculos corretos.
 - Progresso e feedback de treino removido são apagados para evitar dados órfãos.
 - Treinos adicionados recebem ID interno estável para preservar status, exports e backups.
+
+
+## Dashboard de Evolução 2.0
+
+A aba de Estatísticas agora possui um painel visual de performance com:
+
+- km planejado x km realizado por semana;
+- aderência semanal;
+- esforço médio registrado;
+- evolução dos longões;
+- timeline compacta dos ajustes do Adaptive Training/Coach IA.
+
+O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e check-ins salvos no localStorage do usuário.
