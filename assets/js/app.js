@@ -129,12 +129,42 @@ function isCompleted(id) {
 }
 
 function isWorkoutResolved(id) {
-  return ['completed', 'partial', 'skipped'].includes(getWorkoutStatus(id));
+  return ['completed', 'skipped'].includes(getWorkoutStatus(id));
 }
+
+
+function invalidateWeekAnalysis(weekIndex, reason = 'status_change') {
+  if (weekIndex === null || weekIndex === undefined || Number.isNaN(Number(weekIndex))) return false;
+
+  const key = getWeekKey(Number(weekIndex));
+  let changed = false;
+
+  if (weeklyCheckins[key]) {
+    delete weeklyCheckins[key];
+    saveWeeklyCheckins();
+    changed = true;
+  }
+
+  const before = Array.isArray(adjustmentHistory) ? adjustmentHistory.length : 0;
+  adjustmentHistory = (adjustmentHistory || []).filter(item => Number(item.weekIndex) !== Number(weekIndex));
+
+  if (adjustmentHistory.length !== before) {
+    saveAdjustmentHistory();
+    changed = true;
+  }
+
+  if (changed) {
+    console.info(`RUINNA: check-in da semana ${Number(weekIndex) + 1} invalidado por ${reason}.`);
+  }
+
+  return changed;
+}
+
 
 function setWorkoutStatus(id, status, extra = {}) {
   const workout = allWorkouts.find(w => w.id === id);
   const now = new Date().toISOString();
+  const previousStatus = getWorkoutStatus(id);
 
   if (status === 'pending') {
     delete workoutFeedback[id];
@@ -158,6 +188,10 @@ function setWorkoutStatus(id, status, extra = {}) {
 
   saveWorkoutFeedback();
   saveCompleted();
+
+  if (workout && previousStatus !== status) {
+    invalidateWeekAnalysis(workout.weekIndex, `workout_${previousStatus}_to_${status}`);
+  }
 }
 
 function toggleComplete(id) {
@@ -600,7 +634,7 @@ function renderWorkoutDetail(id) {
     </div>
     <div class="wd-stats">
       <div class="wd-stat"><div class="wd-stat-icon">📏</div><div class="wd-stat-value">${w.km} km</div><div class="wd-stat-label">Distância</div></div>
-      <div class="wd-stat" onclick="startEditPace('${w.id}')" style="cursor:pointer"><div class="wd-stat-icon">⏱️</div><div class="wd-stat-value" style="font-size:1rem">${pace}</div><div class="wd-stat-label">Pace ✏️</div></div>
+      <div class="wd-stat"><div class="wd-stat-icon">⏱️</div><div class="wd-stat-value" style="font-size:1rem">${pace}</div><div class="wd-stat-label">Pace planejado</div></div>
       <div class="wd-stat"><div class="wd-stat-icon">🏷️</div><div class="wd-stat-value">${w.dayType}</div><div class="wd-stat-label">Tipo</div></div>
       <div class="wd-stat"><div class="wd-stat-icon">📆</div><div class="wd-stat-value">${w.week}</div><div class="wd-stat-label">Semana</div></div>
     </div>
@@ -610,7 +644,7 @@ function renderWorkoutDetail(id) {
           <span class="wd-desc-eyebrow">Como executar</span>
           <h3>Descrição do treino</h3>
         </div>
-        <button class="btn-edit-inline" onclick="startEditDesc('${w.id}')">✏️ Editar descrição</button>
+        <span class="wd-desc-lock">Edição na aba Treinos</span>
       </div>
       ${renderWorkoutDescriptionHTML(desc, w.off)}
     </div>
@@ -673,7 +707,7 @@ function renderWorkoutActionButtons(w) {
     return `
       <div class="workout-status-summary ${status}">
         <strong>${getWorkoutStatusIcon(status)} ${getWorkoutStatusLabel(status)}</strong>
-        <span>${status === 'partial' ? `${Number(feedback?.completedKm || 0)} km realizados` : status === 'completed' ? `${Number(feedback?.completedKm || w.km)} km realizados` : 'Treino não realizado'}</span>
+        <span>${status === 'completed' ? `${Number(feedback?.completedKm || w.km)} km realizados` : 'Treino pulado'}</span>
         ${effortText}
         ${notesText}
       </div>
@@ -2996,6 +3030,7 @@ function openWorkoutFeedbackModal(id, status) {
     renderHome();
     renderPhases();
     renderStats();
+    showToast('Check-in da semana recalculado após alteração do treino.', 'info');
   };
   cancelBtn.onclick = () => {
     document.getElementById('modal-overlay').classList.add('hidden');
@@ -3007,7 +3042,8 @@ function handleToggleComplete(id) {
 }
 
 function handleMarkPartial(id) {
-  openWorkoutFeedbackModal(id, 'partial');
+  // Fluxo parcial removido: agora o atleta registra apenas concluído ou pulado.
+  showToast('Use “Concluir treino” ou “Pulei”.', 'info');
 }
 
 function handleSkipWorkout(id) {
@@ -3042,7 +3078,7 @@ function getWeekSummary(weekIndex) {
   const plannedKm = workouts.reduce((sum, w) => sum + Number(w.km || 0), 0);
   const completedKm = workouts.reduce((sum, w) => sum + getWorkoutCompletedKm(w), 0);
   const completed = workouts.filter(w => getWorkoutStatus(w.id) === 'completed').length;
-  const partial = workouts.filter(w => getWorkoutStatus(w.id) === 'partial').length;
+  const partial = 0;
   const skipped = workouts.filter(w => getWorkoutStatus(w.id) === 'skipped').length;
   const resolved = workouts.filter(w => isWorkoutResolved(w.id)).length;
   const efforts = workouts
@@ -3060,7 +3096,7 @@ function getWeekSummary(weekIndex) {
     resolved,
     total: workouts.length,
     averageEffort,
-    completionRate: workouts.length ? (completed + partial * 0.5) / workouts.length : 0,
+    completionRate: workouts.length ? completed / workouts.length : 0,
     resolvedRate: workouts.length ? resolved / workouts.length : 0
   };
 }
@@ -3798,11 +3834,7 @@ function normalizePlanWeekAfterManualChange(plan, weekIndex) {
 }
 
 function invalidateWeekCheckinAfterManualChange(weekIndex) {
-  const key = getWeekKey(weekIndex);
-  if (weeklyCheckins[key]) {
-    delete weeklyCheckins[key];
-    saveWeeklyCheckins();
-  }
+  return invalidateWeekAnalysis(weekIndex, 'manual_plan_change');
 }
 
 function refreshAfterManualPlanMutation(targetId = null) {

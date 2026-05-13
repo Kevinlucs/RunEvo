@@ -6704,3 +6704,133 @@ input[type="date"].ai-input {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ===== MOBILE TRAINING ACTIONS / RESPONSIVENESS V55 ===== */
+.wd-stat[onclick],
+.wd-stat[style*="cursor"] {
+  cursor: default !important;
+}
+
+.wd-desc-lock {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 11px;
+  border-radius: 999px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.workout-action-grid.two-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.workout-action-grid.two-actions .btn-complete,
+.workout-action-grid.two-actions .btn-status {
+  min-height: 52px;
+  border-radius: 16px;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+
+  .wd-header {
+    padding-top: 8px;
+    text-align: center;
+  }
+
+  .wd-title {
+    font-size: clamp(1.45rem, 7vw, 2rem);
+    line-height: 1.1;
+  }
+
+  .wd-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .wd-stat {
+    min-height: 104px;
+    padding: 14px 10px;
+    border-radius: 18px;
+  }
+
+  .wd-stat-value {
+    font-size: clamp(1rem, 4.8vw, 1.35rem) !important;
+    line-height: 1.15;
+    word-break: break-word;
+  }
+
+  .wd-stat-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+  }
+
+  .wd-description-pro {
+    padding: 14px;
+  }
+
+  .desc-step {
+    padding: 12px;
+    gap: 9px;
+  }
+
+  .desc-step-content p {
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .desc-highlight {
+    white-space: normal;
+  }
+
+  .workout-action-grid.two-actions {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .workout-action-grid.two-actions .btn-complete,
+  .workout-action-grid.two-actions .btn-status {
+    width: 100%;
+    min-height: 54px;
+    font-size: 1rem;
+  }
+
+  .workout-status-summary {
+    border-radius: 18px;
+    padding: 14px;
+  }
+
+  .btn-undo {
+    width: 100%;
+    min-height: 50px;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 390px) {
+  .wd-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .wd-stat {
+    min-height: 88px;
+  }
+
+  .desc-step-icon {
+    width: 34px;
+    height: 34px;
+  }
+}

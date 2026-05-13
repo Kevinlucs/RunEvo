@@ -531,3 +531,16 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Treinos pulados continuam liberando check-in e são enviados para a IA como skippedWorkouts/skippedDetails.
 - Prompt do check-in reforçado para a IA entender treino pulado e sugerir redistribuição prudente.
 - Cache atualizado para `ruinna-v54`.
+
+
+## Check-in consistente + treino mobile limpo - v55
+
+- Ao desmarcar/alterar treino de uma semana que já tinha check-in, a análise semanal é removida automaticamente.
+- A invalidação remove também o ajuste daquela semana no histórico adaptativo.
+- Botão de editar descrição saiu da tela do treino; edição fica centralizada na aba Treinos.
+- Pace planejado deixou de ser clicável dentro do treino.
+- Ação “Fiz parcial” removida da tela do treino.
+- Check-in considera apenas treinos concluídos ou pulados como resolvidos.
+- Treino pulado continua entrando na análise do check-in para redistribuição segura da carga.
+- Responsividade mobile da tela do treino refinada: cards, textos, botões e descrição.
+- Cache atualizado para `ruinna-v55`.
