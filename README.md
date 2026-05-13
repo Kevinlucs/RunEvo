@@ -439,3 +439,13 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - `renderHome()` agora verifica se `#total-km` existe antes de tentar atualizar.
 - O botão `?` continua substituindo o contador de KM no header.
 - Cache atualizado para `ruinna-v46`.
+
+
+## IA Coach polish para testes - v47
+
+- Adicionado card de confiança explicando o Motor RUINNA.
+- Loading da IA agora mostra etapas: Perfil, Estratégia, Validação e Planilha.
+- Validação dos campos obrigatórios ficou mais clara e destaca o campo com erro.
+- Mensagens de erro da IA ficaram mais profissionais e orientadas à ação.
+- Adicionado resumo prévio durante a geração: prova, semanas, treinos por semana, nível e objetivo.
+- Cache atualizado para `ruinna-v47`.

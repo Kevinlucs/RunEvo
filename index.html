@@ -442,6 +442,19 @@
                     <p class="ai-hero-sub">planeje e execute com Inteligência Artificial</p>
                 </div>
 
+                <div class="ai-trust-card">
+                    <div class="ai-trust-main">
+                        <span class="ai-trust-eyebrow">Motor RUINNA</span>
+                        <h3>Planilha personalizada com validação técnica</h3>
+                        <p>A IA interpreta suas métricas, objetivo e histórico. O motor do app valida semanas, volumes, longões e distribuição antes de liberar a planilha.</p>
+                    </div>
+                    <div class="ai-trust-grid">
+                        <div><strong>1</strong><span>Análise do perfil</span></div>
+                        <div><strong>2</strong><span>Estratégia da IA</span></div>
+                        <div><strong>3</strong><span>Validação do plano</span></div>
+                    </div>
+                </div>
+
                 <!-- Main Form (always shown now) -->
                 <div id="ai-form-section" class="ai-section">
                     <!-- Adopted Plan Banner -->
@@ -609,17 +622,25 @@
                     <!-- Loading State -->
                     <div id="ai-loading" class="ai-loading hidden">
                         <div class="ai-loading-brain">🧠</div>
-                        <p class="ai-loading-text">Gerando sua planilha personalizada...</p>
-                        <p class="ai-loading-sub">Isso pode levar até 30 segundos</p>
+                        <p id="ai-loading-text" class="ai-loading-text">Analisando perfil do atleta...</p>
+                        <p id="ai-loading-sub" class="ai-loading-sub">A IA está interpretando métricas, histórico e objetivo.</p>
                         <div class="ai-loading-bar">
                             <div class="ai-loading-bar-inner"></div>
+                        </div>
+                        <div class="ai-loading-steps">
+                            <span id="ai-step-profile" class="active">Perfil</span>
+                            <span id="ai-step-strategy">Estratégia</span>
+                            <span id="ai-step-validation">Validação</span>
+                            <span id="ai-step-ready">Planilha</span>
                         </div>
                     </div>
 
                     <!-- Error State -->
                     <div id="ai-error" class="ai-error-box hidden">
                         <span class="ai-error-icon">⚠️</span>
+                        <h4>Não foi possível gerar agora</h4>
                         <p id="ai-error-msg">Erro</p>
+                        <small id="ai-error-tip">Revise os dados obrigatórios ou tente novamente em alguns instantes.</small>
                         <button class="btn btn-secondary" onclick="hideAIError()">Fechar</button>
                     </div>
 

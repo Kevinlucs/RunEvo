@@ -1975,6 +1975,147 @@ window.handle3kmPaceInput = function(input) {
   }
 };
 
+
+// ===== IA COACH UX POLISH =====
+const AI_LOADING_STEPS = [
+  {
+    key: 'profile',
+    text: 'Analisando perfil do atleta...',
+    sub: 'Interpretando idade, peso, altura, nível e histórico informado.'
+  },
+  {
+    key: 'strategy',
+    text: 'Montando estratégia da IA...',
+    sub: 'Definindo progressão, fases, longões e nível de risco do plano.'
+  },
+  {
+    key: 'validation',
+    text: 'Validando segurança da planilha...',
+    sub: 'Conferindo volumes semanais, recuperação, polimento e distribuição dos treinos.'
+  },
+  {
+    key: 'ready',
+    text: 'Finalizando planilha...',
+    sub: 'Organizando semanas e preparando a prévia para revisão.'
+  }
+];
+
+let aiLoadingTimer = null;
+
+function clearAIFieldErrors() {
+  document.querySelectorAll('.ai-field-error').forEach(el => el.classList.remove('ai-field-error'));
+}
+
+function markAIFieldError(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  const group = el.closest('.ai-form-group') || el;
+  group.classList.add('ai-field-error');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function setAILoadingStep(index = 0) {
+  const step = AI_LOADING_STEPS[Math.min(index, AI_LOADING_STEPS.length - 1)];
+  const textEl = document.getElementById('ai-loading-text');
+  const subEl = document.getElementById('ai-loading-sub');
+
+  if (textEl) textEl.textContent = step.text;
+  if (subEl) subEl.textContent = step.sub;
+
+  ['profile', 'strategy', 'validation', 'ready'].forEach((key, i) => {
+    const el = document.getElementById(`ai-step-${key}`);
+    if (!el) return;
+    el.classList.toggle('active', i === index);
+    el.classList.toggle('done', i < index);
+  });
+}
+
+function startAILoadingFlow() {
+  stopAILoadingFlow();
+  setAILoadingStep(0);
+
+  let index = 0;
+  aiLoadingTimer = setInterval(() => {
+    index = Math.min(index + 1, AI_LOADING_STEPS.length - 1);
+    setAILoadingStep(index);
+
+    if (index >= AI_LOADING_STEPS.length - 1) {
+      clearInterval(aiLoadingTimer);
+      aiLoadingTimer = null;
+    }
+  }, 4200);
+}
+
+function stopAILoadingFlow() {
+  if (aiLoadingTimer) {
+    clearInterval(aiLoadingTimer);
+    aiLoadingTimer = null;
+  }
+}
+
+function getAIErrorTip(message = '') {
+  const msg = String(message).toLowerCase();
+
+  if (msg.includes('429') || msg.includes('quota') || msg.includes('limite')) {
+    return 'A IA pode estar temporariamente ocupada. Aguarde alguns segundos e tente novamente.';
+  }
+
+  if (msg.includes('500') || msg.includes('503') || msg.includes('server')) {
+    return 'O serviço de IA respondeu com instabilidade. Seus dados foram preservados; tente novamente.';
+  }
+
+  if (msg.includes('json') || msg.includes('interpretar')) {
+    return 'A resposta da IA veio fora do formato esperado. O RUINNA bloqueou a planilha para evitar dados quebrados.';
+  }
+
+  if (msg.includes('data') || msg.includes('semana') || msg.includes('distância')) {
+    return 'Revise datas, distância da prova e quantidade de semanas antes de gerar novamente.';
+  }
+
+  return 'Revise os campos obrigatórios. Se estiver tudo certo, tente novamente em alguns instantes.';
+}
+
+function showAIPreflightSummary(data) {
+  const weeks = AICoach.calculateWeeks(data.startDate, data.raceDate);
+  const distance = data.targetDistance === 'ultra' || data.targetDistance === 'custom'
+    ? `${data.customDistance || '—'} km`
+    : document.getElementById('ai-distance')?.selectedOptions?.[0]?.textContent || `${data.targetDistance} km`;
+
+  const summary = [
+    `Prova: ${distance}`,
+    `Período: ${weeks} semanas`,
+    `Treinos: ${data.daysPerWeek}x por semana`,
+    `Nível: ${data.level}`,
+    data.test3kmTime ? `Teste 3km: ${data.test3kmTime}` : null,
+    data.objective ? `Objetivo informado` : null
+  ].filter(Boolean).join(' • ');
+
+  const subEl = document.getElementById('ai-loading-sub');
+  if (subEl) subEl.textContent = summary;
+}
+
+function normalizeAIErrorMessage(message = '') {
+  const msg = String(message || '').trim();
+
+  if (!msg) return 'A geração falhou. Tente novamente.';
+
+  if (msg.includes('Failed to fetch')) {
+    return 'Não foi possível conectar ao serviço de IA. Verifique sua internet e tente novamente.';
+  }
+
+  if (msg.includes('500')) {
+    return 'A IA encontrou uma instabilidade ao montar a planilha. Tente novamente em alguns instantes.';
+  }
+
+  if (msg.includes('429')) {
+    return 'Muitas solicitações em pouco tempo. Aguarde alguns segundos e tente novamente.';
+  }
+
+  return msg;
+}
+
+
 function getFormData() {
   const dist = document.getElementById('ai-distance').value;
   const weightStr = document.getElementById('ai-weight').value;
@@ -2011,31 +2152,67 @@ function getFormData() {
 }
 
 function validateFormData(data) {
-  if (!data.age) return 'Informe sua idade.';
-  if (!data.height) return 'Informe sua altura.';
-  if (!data.weight) return 'Informe seu peso.';
-  if (!data.startDate) return 'Informe a data de início dos treinos.';
-  if (!data.raceDate) return 'Informe a data da prova.';
-  
+  const age = Number(data.age);
+  const height = Number(data.height);
+  const weight = Number(data.weight);
+
+  if (!data.age) return { message: 'Informe sua idade.', field: 'ai-age' };
+  if (!Number.isFinite(age) || age < 10 || age > 99) return { message: 'Informe uma idade válida.', field: 'ai-age' };
+
+  if (!data.height) return { message: 'Informe sua altura.', field: 'ai-height' };
+  if (!Number.isFinite(height) || height < 100 || height > 250) return { message: 'Informe uma altura válida em centímetros.', field: 'ai-height' };
+
+  if (!data.weight) return { message: 'Informe seu peso.', field: 'ai-weight' };
+  if (!Number.isFinite(weight) || weight < 30 || weight > 250) return { message: 'Informe um peso válido em kg.', field: 'ai-weight' };
+
+  if (!data.startDate) return { message: 'Informe a data de início dos treinos.', field: 'ai-start-date' };
+  if (!data.raceDate) return { message: 'Informe a data da prova.', field: 'ai-race-date' };
+
   const startDate = new Date(data.startDate);
   const raceDate = new Date(data.raceDate);
-  const now = new Date();
-  
-  if (raceDate <= startDate) return 'A data da prova deve ser depois da data de início.';
-  
-  const weeks = AICoach.calculateWeeks(data.startDate, data.raceDate);
-  if (weeks < 4) return 'Precisa ter pelo menos 4 semanas de treino até a prova.';
-  if ((data.targetDistance === 'custom' || data.targetDistance === 'ultra') && !data.customDistance) {
-    return 'Informe a distância personalizada.';
+
+  if (raceDate <= startDate) {
+    return {
+      message: 'A data da prova deve ser depois da data de início.',
+      field: 'ai-race-date'
+    };
   }
+
+  const weeks = AICoach.calculateWeeks(data.startDate, data.raceDate);
+  if (weeks < 4) {
+    return {
+      message: 'Precisa ter pelo menos 4 semanas de treino até a prova.',
+      field: 'ai-race-date'
+    };
+  }
+
+  if ((data.targetDistance === 'custom' || data.targetDistance === 'ultra') && !data.customDistance) {
+    return {
+      message: 'Informe a distância personalizada.',
+      field: 'ai-custom-distance'
+    };
+  }
+
+  const customDistance = Number(data.customDistance || 0);
+  if ((data.targetDistance === 'custom' || data.targetDistance === 'ultra') && (!Number.isFinite(customDistance) || customDistance <= 0)) {
+    return {
+      message: 'Informe uma distância personalizada válida.',
+      field: 'ai-custom-distance'
+    };
+  }
+
   return null;
 }
 
 async function handleGeneratePlan() {
+  clearAIFieldErrors();
+
   const data = getFormData();
   const error = validateFormData(data);
+
   if (error) {
-    showAIError(error);
+    markAIFieldError(error.field);
+    showAIError(error.message);
     return;
   }
 
@@ -2048,20 +2225,35 @@ async function handleGeneratePlan() {
   document.getElementById('ai-result').classList.add('hidden');
   document.getElementById('ai-error').classList.add('hidden');
 
+  startAILoadingFlow();
+
   try {
+    showAIPreflightSummary(data);
+
     const rawPlan = await AICoach.generatePlan(data);
+
+    setAILoadingStep(2);
     const savedPlan = AICoach.savePlan(rawPlan);
+
+    setAILoadingStep(3);
     renderAIPlanResult(savedPlan);
   } catch (err) {
-    showAIError(err.message || 'Erro desconhecido. Tente novamente.');
+    console.error('Erro ao gerar planilha com IA:', err);
+    showAIError(normalizeAIErrorMessage(err.message || 'Erro desconhecido. Tente novamente.'));
   } finally {
+    stopAILoadingFlow();
     document.getElementById('ai-loading').classList.add('hidden');
     document.getElementById('btn-generate').classList.remove('hidden');
   }
 }
 
 function showAIError(msg) {
-  document.getElementById('ai-error-msg').textContent = msg;
+  const message = normalizeAIErrorMessage(msg);
+  document.getElementById('ai-error-msg').textContent = message;
+
+  const tipEl = document.getElementById('ai-error-tip');
+  if (tipEl) tipEl.textContent = getAIErrorTip(message);
+
   document.getElementById('ai-error').classList.remove('hidden');
 }
 
