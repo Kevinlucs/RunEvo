@@ -3968,29 +3968,82 @@ function saveAthleteProfileSettings() {
   };
 }
 
-function handleProfilePhotoUpload(input) {
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImageFromDataURL(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+}
+
+async function resizeProfileImage(file) {
+  const originalDataUrl = await readFileAsDataURL(file);
+  const img = await loadImageFromDataURL(originalDataUrl);
+
+  const maxSize = 720;
+  const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+  const width = Math.max(1, Math.round(img.width * scale));
+  const height = Math.max(1, Math.round(img.height * scale));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, width, height);
+
+  return canvas.toDataURL('image/jpeg', 0.82);
+}
+
+function setProfilePhotoStatus(message, type = 'info') {
+  const el = document.getElementById('settings-photo-status');
+  if (!el) return;
+
+  el.textContent = message || '';
+  el.className = `settings-photo-status ${type}`;
+}
+
+async function handleProfilePhotoUpload(input) {
   const file = input?.files?.[0];
   if (!file) return;
 
   if (!file.type.startsWith('image/')) {
-    alert('Selecione uma imagem válida.');
+    setProfilePhotoStatus('Selecione uma imagem válida.', 'error');
+    input.value = '';
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = () => {
+  try {
+    setProfilePhotoStatus('Processando foto...', 'info');
+
+    const photo = await resizeProfileImage(file);
     const current = StorageService.loadUserProfile?.() || {};
+
     StorageService.saveUserProfile?.({
       ...current,
-      photo: reader.result,
+      photo,
       updatedAt: new Date().toISOString()
     });
 
     updateHeaderUser();
     renderSettingsPage();
-  };
-
-  reader.readAsDataURL(file);
+    setProfilePhotoStatus('Foto atualizada com sucesso.', 'success');
+  } catch (error) {
+    console.error('Erro ao salvar foto do perfil:', error);
+    setProfilePhotoStatus('Não foi possível salvar a foto. Tente uma imagem menor.', 'error');
+  } finally {
+    if (input) input.value = '';
+  }
 }
 
 function removeProfilePhoto() {
@@ -4066,6 +4119,98 @@ function finishLogin(user) {
   renderPhases();
   renderStats();
   updateAdoptedBanner();
+  maybeStartOnboardingTour();
+}
+
+
+
+// ===== FIRST LOGIN TOUR =====
+const RUINNA_TOUR_STEPS = [
+  {
+    page: 'home',
+    icon: '👋',
+    title: 'Bem-vindo ao RUINNA',
+    text: 'Aqui você acompanha a semana atual, marca treinos e responde check-ins. A ideia é simples: planeje e execute.'
+  },
+  {
+    page: 'ai',
+    icon: '🤖',
+    title: 'IA Coach',
+    text: 'Nesta aba você gera a planilha personalizada. Informe seus dados, datas, objetivo e deixe a IA montar a estratégia.'
+  },
+  {
+    page: 'phases',
+    icon: '📄',
+    title: 'Treinos',
+    text: 'A aba Treinos organiza as fases da planilha e também concentra exportação, PDF, XLS e backup.'
+  },
+  {
+    page: 'stats',
+    icon: '📊',
+    title: 'Estatísticas',
+    text: 'Aqui você enxerga evolução, aderência, volume realizado, esforço médio e ajustes do Adaptive Training.'
+  },
+  {
+    page: 'settings',
+    icon: '👤',
+    title: 'Perfil',
+    text: 'No Perfil você atualiza nome e foto. O peso é solicitado automaticamente a cada 4 semanas no check-in.'
+  }
+];
+
+function renderTourStep(index = 0) {
+  const step = RUINNA_TOUR_STEPS[index];
+  if (!step) return finishOnboardingTour();
+
+  if (step.page === 'home') renderHome();
+  if (step.page === 'phases') renderPhases();
+  if (step.page === 'stats') renderStats();
+  if (step.page === 'ai') renderAICoachPage();
+  if (step.page === 'settings') renderSettingsPage();
+  showPage(step.page);
+
+  const isLast = index === RUINNA_TOUR_STEPS.length - 1;
+
+  document.getElementById('modal-icon').textContent = step.icon;
+  document.getElementById('modal-title').textContent = step.title;
+  document.getElementById('modal-message').innerHTML = `
+    <div class="tour-card">
+      <p>${escapeHTML(step.text)}</p>
+      <div class="tour-progress">
+        ${RUINNA_TOUR_STEPS.map((_, i) => `<span class="${i === index ? 'active' : ''}"></span>`).join('')}
+      </div>
+      <small>Passo ${index + 1} de ${RUINNA_TOUR_STEPS.length}</small>
+    </div>
+  `;
+
+  const cancelBtn = document.getElementById('modal-cancel');
+  const confirmBtn = document.getElementById('modal-confirm');
+
+  cancelBtn.classList.remove('hidden');
+  cancelBtn.textContent = 'Pular';
+  confirmBtn.textContent = isLast ? 'Começar' : 'Próximo';
+
+  cancelBtn.onclick = () => finishOnboardingTour();
+  confirmBtn.onclick = () => {
+    if (isLast) finishOnboardingTour();
+    else renderTourStep(index + 1);
+  };
+
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function finishOnboardingTour() {
+  StorageService.setOnboardingTourSeen?.(true);
+  document.getElementById('modal-overlay').classList.add('hidden');
+  pageHistory.length = 0;
+  showPage('home');
+  renderHome();
+}
+
+function maybeStartOnboardingTour() {
+  if (StorageService.hasSeenOnboardingTour?.()) return;
+
+  setTimeout(() => renderTourStep(0), 650);
 }
 
 
@@ -4123,6 +4268,7 @@ window.addEventListener('load', () => {
       reloadUserAdaptiveState();
       applyAdoptedPlan();
       updateHeaderUser();
+      maybeStartOnboardingTour();
     }
 
     renderHome();

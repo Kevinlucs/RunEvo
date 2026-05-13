@@ -5863,3 +5863,69 @@ input[type="date"].ai-input {
 .logo-text {
   letter-spacing: 0.08em;
 }
+
+
+/* ===== MOBILE PHOTO FIX + FIRST LOGIN TOUR V40 ===== */
+.settings-photo-status {
+  display: block;
+  margin-top: 8px;
+  min-height: 16px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+
+.settings-photo-status.success {
+  color: #8ee68e;
+}
+
+.settings-photo-status.error {
+  color: #ff9b91;
+}
+
+.settings-photo-status.info {
+  color: var(--accent-light);
+}
+
+.tour-card {
+  text-align: left;
+}
+
+.tour-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.tour-card small {
+  display: block;
+  margin-top: 12px;
+  color: var(--text-muted);
+  font-weight: 800;
+  text-align: center;
+}
+
+.tour-progress {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 16px;
+}
+
+.tour-progress span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.tour-progress span.active {
+  width: 22px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+}
+
+@media (max-width: 520px) {
+  .tour-card {
+    text-align: center;
+  }
+}

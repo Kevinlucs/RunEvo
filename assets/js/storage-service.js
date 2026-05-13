@@ -83,6 +83,7 @@ const StorageService = (() => {
       weeklyCheckins: userKey('weekly_checkins', user),
       adjustmentHistory: userKey('adjustment_history', user),
       userProfile: userKey('user_profile', user),
+      onboardingSeen: userKey('onboarding_seen', user),
       plan: userKey('ai_plan', user),
       adopted: userKey('ai_adopted', user),
 
@@ -92,6 +93,7 @@ const StorageService = (() => {
       legacyWeeklyCheckins: legacyUserKey('weekly_checkins', user),
       legacyAdjustmentHistory: legacyUserKey('adjustment_history', user),
       legacyUserProfile: legacyUserKey('user_profile', user),
+      legacyOnboardingSeen: legacyUserKey('onboarding_seen', user),
       legacyPlan: legacyUserKey('ai_plan', user),
       legacyAdopted: legacyUserKey('ai_adopted', user)
     };
@@ -111,6 +113,17 @@ const StorageService = (() => {
     removeRaw(`${APP}_current_user`);
     removeRaw(`${LEGACY_APP}_logged_in`);
     removeRaw(`${LEGACY_APP}_current_user`);
+  }
+
+  function hasSeenOnboardingTour() {
+    const keys = getKeys();
+    return getRaw(keys.onboardingSeen, getRaw(keys.legacyOnboardingSeen)) === 'true';
+  }
+
+  function setOnboardingTourSeen(value = true) {
+    const keys = getKeys();
+    if (value) return setRaw(keys.onboardingSeen, 'true');
+    return removeRaw(keys.onboardingSeen);
   }
 
   function loadUserProfile() {
@@ -228,7 +241,8 @@ const StorageService = (() => {
       workoutFeedback: loadWorkoutFeedback(),
       weeklyCheckins: loadWeeklyCheckins(),
       adjustmentHistory: loadAdjustmentHistory(),
-      userProfile: loadUserProfile()
+      userProfile: loadUserProfile(),
+      onboardingSeen: hasSeenOnboardingTour()
     };
   }
 
@@ -261,6 +275,7 @@ const StorageService = (() => {
     saveWeeklyCheckins(payload.weeklyCheckins || {});
     saveAdjustmentHistory(payload.adjustmentHistory || []);
     saveUserProfile(payload.userProfile || {});
+    if (payload.onboardingSeen) setOnboardingTourSeen(true);
     return true;
   }
 
@@ -272,6 +287,8 @@ const StorageService = (() => {
     isLoggedIn,
     login,
     logout,
+    hasSeenOnboardingTour,
+    setOnboardingTourSeen,
     getJSON,
     setJSON,
     getRaw,

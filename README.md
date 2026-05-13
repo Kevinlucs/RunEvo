@@ -370,3 +370,13 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Slogan atualizado para `planeje e execute`.
 - Título, manifesto, service worker, relatórios, exportações, backups e textos visíveis foram atualizados.
 - Cache atualizado para `ruinna-v39`.
+
+
+## Foto mobile + tour de primeiro login - v40
+
+- Corrigido upload de foto no mobile com redimensionamento/compressão antes de salvar.
+- Adicionado status visual ao selecionar foto.
+- Adicionado tour de primeiro login por usuário.
+- Tour apresenta: Início, IA Coach, Treinos, Estatísticas e Perfil.
+- O tour roda apenas uma vez por usuário e fica salvo no StorageService.
+- Cache atualizado para `ruinna-v40`.
