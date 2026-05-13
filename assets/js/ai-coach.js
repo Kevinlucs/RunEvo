@@ -830,62 +830,106 @@ REGRAS:
     return Math.max(0.5, Math.round(n * 10) / 10);
   }
 
+  function estimateWorkoutMinutes(km) {
+    const totalKm = kmPart(km);
+    return Math.max(20, Math.round(totalKm * 6.2));
+  }
+
+  function buildSimpleZonePrescription(rows) {
+    return rows
+      .filter(Boolean)
+      .join('\n');
+  }
+
   function buildProfessionalWorkoutDescription({ template, km, pace, phase, blueprint, isRaceWeek, distanceKm }) {
     const totalKm = kmPart(km);
-    const easyPace = easyPaceForWorkout(blueprint);
-    const moderatePace = moderatePaceForWorkout(blueprint);
-    const racePace = racePaceForWorkout(blueprint);
-    const targetPace = pace || moderatePace;
+    const totalMin = estimateWorkoutMinutes(totalKm);
     const dayType = template.dayType;
     const title = String(template.title || '').toLowerCase();
 
     if (isRaceWeek && dayType === 'Longão') {
-      return `Prova alvo: iniciar os primeiros 20% em ${easyPace}, estabilizar no ritmo planejado (${racePace}) e evitar acelerar antes da metade final. Fechar progressivo apenas se estiver confortável.`;
+      return buildSimpleZonePrescription([
+        '10min Z1',
+        '20min Z2',
+        'Bloco principal Z3 conforme estratégia da prova',
+        'Final progressivo apenas se estiver confortável'
+      ]);
     }
 
     if (dayType === 'Recuperação') {
-      return `Executar ${totalKm} km em ${easyPace}. Objetivo é recuperar: respiração confortável, sem disputar pace e sem tiros. Se houver dor ou fadiga alta, reduzir o ritmo ou caminhar.`;
+      return buildSimpleZonePrescription([
+        '5min Z1',
+        `${Math.max(15, totalMin - 10)}min Z1`,
+        '5min Z1'
+      ]);
     }
 
     if (dayType === 'Base') {
       if (phase === 'Polimento' || title.includes('ativação')) {
-        return `Soltura de ${totalKm} km em ${easyPace}. Incluir 4 acelerações curtas de 15s em Z3/Z4, com 60s em Z1 entre elas. Finalizar sentindo que poderia correr mais.`;
+        return buildSimpleZonePrescription([
+          '10min Z1',
+          '4x (15s Z3/Z4 + 60s Z1)',
+          '10min Z1'
+        ]);
       }
 
-      return `Rodagem contínua de ${totalKm} km em ${targetPace}. Manter esforço confortável, postura relaxada e respiração controlada. Evitar transformar o treino em tempo run; o foco é acumular base aeróbica.`;
+      return buildSimpleZonePrescription([
+        '5min Z1',
+        `${Math.max(20, totalMin - 10)}min Z2`,
+        '5min Z1'
+      ]);
     }
 
     if (dayType === 'Qualidade' && title.includes('fartlek')) {
-      const warm = totalKm >= 7 ? 1.5 : 1;
-      const cool = totalKm >= 7 ? 1 : 0.5;
-      return `Estrutura: ${warm} km de aquecimento em ${easyPace}; depois alternar 1 km em Z3/Z4 com 500 m em Z1, repetindo até completar o miolo do treino; finalizar com ${cool} km em ${easyPace}. Controle: forte, mas sem sprint.`;
+      const reps = totalKm >= 9 ? 8 : totalKm >= 7 ? 6 : 5;
+
+      return buildSimpleZonePrescription([
+        '10min Z1',
+        `${reps}x (3min Z3/Z4 + 2min Z1)`,
+        '5min Z1'
+      ]);
     }
 
     if (dayType === 'Intervalado') {
-      const warm = totalKm >= 8 ? 2 : 1.5;
-      const cool = totalKm >= 8 ? 1.5 : 1;
       const reps = totalKm >= 10 ? 6 : totalKm >= 7 ? 5 : 4;
-      const repDistance = totalKm >= 9 ? '800 m' : '600 m';
-      const recoveryDistance = totalKm >= 9 ? '400 m' : '300 m';
-      return `Estrutura: ${warm} km em ${easyPace}; depois ${reps}x ${repDistance} em ${targetPace}, recuperando ${recoveryDistance} em Z1 entre repetições; finalizar com ${cool} km em ${easyPace}. Não sprintar: terminar cansado, mas inteiro.`;
+
+      return buildSimpleZonePrescription([
+        '10min Z1',
+        `${reps}x (3min Z4 + 2min Z1)`,
+        '10min Z1'
+      ]);
     }
 
     if (dayType === 'Qualidade' && (title.includes('ritmo') || title.includes('prova'))) {
-      const warm = totalKm >= 9 ? 2 : 1.5;
-      const cool = totalKm >= 9 ? 1.5 : 1;
-      const block = Math.max(1, kmPart(totalKm - warm - cool));
-      return `Estrutura: ${warm} km em ${easyPace}; ${block} km em ${racePace}; finalizar com ${cool} km em ${easyPace}. O bloco principal deve ser sustentável, sem quebrar a técnica.`;
+      return buildSimpleZonePrescription([
+        '10min Z1',
+        `${Math.max(15, totalMin - 20)}min Z3`,
+        '10min Z1'
+      ]);
     }
 
     if (dayType === 'Longão') {
       if (phase === 'Polimento') {
-        return `Longão reduzido de ${totalKm} km em ${easyPace}. Manter sensação de sobra, sem progressão agressiva. O objetivo é preservar resistência sem acumular fadiga para a prova.`;
+        return buildSimpleZonePrescription([
+          '10min Z1',
+          `${Math.max(25, totalMin - 20)}min Z2`,
+          '10min Z1'
+        ]);
       }
 
-      return `Longão de ${totalKm} km: primeiros 70% em ${easyPace}, últimos 30% levemente progressivos até ${moderatePace} se estiver bem. Prioridade é resistência, regularidade e controle; não transformar em prova.`;
+      return buildSimpleZonePrescription([
+        '15min Z1',
+        `${Math.max(30, Math.round(totalMin * 0.70))}min Z2`,
+        `${Math.max(10, Math.round(totalMin * 0.20))}min Z2/Z3 se estiver bem`,
+        '5min Z1'
+      ]);
     }
 
-    return `Executar ${totalKm} km em ${targetPace}, respeitando aquecimento leve no início, controle de esforço no bloco principal e desaquecimento no final.`;
+    return buildSimpleZonePrescription([
+      '5min Z1',
+      `${Math.max(20, totalMin - 10)}min Z2`,
+      '5min Z1'
+    ]);
   }
 
   function allocateWorkoutDistances(daysPerWeek, weeklyKm, longRunKm, isRaceWeek, distanceKm) {

@@ -556,3 +556,20 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - A tabela mostra pace e velocidade de esteira em km/h.
 - Descrições ficam mais limpas e profissionais, usando zona em vez de excesso de pace.
 - Cache atualizado para `ruinna-v56`.
+
+
+## Zonas simplificadas + redistribuição de treino pulado - v57
+
+- Removido destaque visual da Z3 no card de zonas.
+- Card de zonas agora usa título simples “Zonas do atleta”.
+- Descrições dos treinos foram simplificadas em blocos objetivos, no estilo:
+  - 5min Z1
+  - 25min Z2
+  - 5min Z1
+- Fartlek, intervalado, tempo run, longão, recuperação e polimento usam prescrições curtas por zona.
+- Treino pulado agora aplica redistribuição prudente para a próxima semana no check-in.
+- Redistribuição usa parte da carga pulada, limitada por segurança, sem compensação agressiva.
+- Modal de concluir/pular treino ficou mais profissional.
+- Ao concluir ou pular, o app redireciona para o Início.
+- Feedback de conclusão/pulo foi melhorado.
+- Cache atualizado para `ruinna-v57`.

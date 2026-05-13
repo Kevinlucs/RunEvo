@@ -550,7 +550,7 @@ function splitWorkoutDescription(desc = '') {
   // Quebra por pontos finais e ponto-e-vírgula, mantendo textos úteis.
   return raw
     .replace(/\s+/g, ' ')
-    .split(/;\s*|(?<=\.)\s+/)
+    .split(/\n+|;\s*|(?<=\.)\s+/)
     .map(part => part.trim())
     .filter(Boolean);
 }
@@ -2412,15 +2412,12 @@ function renderTrainingZonesCard() {
       <div class="tz-header">
         <div>
           <span>Zonas de treinamento</span>
-          <h3>Referência pelo teste de 3km</h3>
+          <h3>Zonas do atleta</h3>
         </div>
-        <div class="tz-anchor">
-          <small>Z3</small>
-          <strong>${escapeHTML(zones.anchor?.pace || '-')}</strong>
-        </div>
+
       </div>
       <div class="tz-table">${rows}</div>
-      <p class="tz-note">As descrições usam zonas para orientar intensidade. O pace exato fica nesta tabela.</p>
+      <p class="tz-note">Use esta tabela para transformar as zonas do treino em pace/esteira.</p>
     </div>
   `;
 }
@@ -3077,39 +3074,56 @@ function openWorkoutFeedbackModal(id, status) {
   if (!w) return;
 
   const isComplete = status === 'completed';
-  const isPartial = status === 'partial';
-  const title = isComplete ? 'Concluir treino' : isPartial ? 'Registrar treino parcial' : 'Pular treino';
-  const icon = isComplete ? '✅' : isPartial ? '🟡' : '⏭️';
-  const defaultKm = isComplete ? Number(w.km || 0) : isPartial ? Math.max(1, Math.round(Number(w.km || 0) / 2)) : 0;
+  const title = isComplete ? 'Concluir treino' : 'Pular treino';
+  const icon = isComplete ? '✅' : '⏭️';
+  const defaultKm = isComplete ? Number(w.km || 0) : 0;
   const cancelBtn = document.getElementById('modal-cancel');
   const confirmBtn = document.getElementById('modal-confirm');
 
   document.getElementById('modal-icon').textContent = icon;
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-message').innerHTML = `
-    <div class="feedback-form">
-      <p><strong>${escapeHTML(w.title)}</strong> • ${w.km} km planejados</p>
+    <div class="feedback-form feedback-form-pro ${status}">
+      <div class="feedback-workout-summary">
+        <strong>${escapeHTML(w.title)}</strong>
+        <span>${w.km} km planejados • ${escapeHTML(w.dayType || 'Treino')}</span>
+      </div>
+
       ${status !== 'skipped' ? `
-        <label>Km realizado</label>
-        <input type="number" class="edit-field" id="feedback-km" value="${defaultKm}" min="0" step="0.1">
-        <label>Pace realizado <span>(opcional)</span></label>
-        <input type="text" class="edit-field" id="feedback-pace" placeholder="Ex: 6:20/km">
+        <div class="feedback-grid">
+          <label>
+            Km realizado
+            <input type="number" class="edit-field" id="feedback-km" value="${defaultKm}" min="0" step="0.1">
+          </label>
+          <label>
+            Pace realizado <span>(opcional)</span>
+            <input type="text" class="edit-field" id="feedback-pace" placeholder="Ex: 6:20/km">
+          </label>
+        </div>
       ` : `
-        <div class="skip-info-box">
-          <strong>Treino pulado</strong>
-          <p>Este treino contará como registrado no check-in. O Coach IA receberá essa informação para avaliar redistribuição segura da carga na próxima semana.</p>
+        <div class="skip-info-box pro">
+          <strong>Treino pulado registrado</strong>
+          <p>Ele contará para liberar o check-in. O Coach IA irá considerar esse treino pulado e redistribuir carga com prudência na próxima semana, quando for seguro.</p>
         </div>
       `}
+
       <label>Esforço percebido <span>(1 leve • 10 máximo)</span></label>
-      <input type="range" id="feedback-effort" min="1" max="10" value="${status === 'skipped' ? 7 : 6}" oninput="document.getElementById('feedback-effort-value').textContent=this.value">
-      <div class="range-value">Esforço: <strong id="feedback-effort-value">${status === 'skipped' ? 7 : 6}</strong>/10</div>
+      <input type="range" id="feedback-effort" min="1" max="10" value="${status === 'skipped' ? 6 : 6}" oninput="document.getElementById('feedback-effort-value').textContent=this.value">
+      <div class="range-value">Esforço: <strong id="feedback-effort-value">${status === 'skipped' ? 6 : 6}</strong>/10</div>
+
       <label>Observação <span>(opcional)</span></label>
-      <textarea class="edit-field" id="feedback-notes" rows="3" placeholder="Como foi o treino? Dor, cansaço, clima, etc."></textarea>
+      <textarea class="edit-field" id="feedback-notes" rows="3" placeholder="${status === 'skipped' ? 'Por que pulou? Dor, agenda, cansaço, clima...' : 'Como foi o treino? Dor, cansaço, clima, etc.'}"></textarea>
     </div>
   `;
 
+  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.classList.remove('hidden');
+  cancelBtn.disabled = false;
+  confirmBtn.textContent = isComplete ? 'Concluir treino' : 'Registrar treino pulado';
+  confirmBtn.disabled = false;
+
   document.getElementById('modal-overlay').classList.remove('hidden');
-  document.getElementById('modal-confirm').onclick = () => {
+  confirmBtn.onclick = () => {
     const completedKm = status === 'skipped' ? 0 : Number(document.getElementById('feedback-km')?.value || 0);
     const completedPace = document.getElementById('feedback-pace')?.value?.trim() || '';
     const effort = Number(document.getElementById('feedback-effort')?.value || 0);
@@ -3124,12 +3138,19 @@ function openWorkoutFeedbackModal(id, status) {
     });
 
     document.getElementById('modal-overlay').classList.add('hidden');
-    showToast(status === 'skipped' ? 'Treino marcado como pulado.' : 'Treino concluído.', status === 'skipped' ? 'info' : 'success');
-    renderWorkoutDetail(id);
+
+    pageHistory.length = 0;
+    showPage('home');
     renderHome();
     renderPhases();
     renderStats();
-    showToast('Check-in da semana recalculado após alteração do treino.', 'info');
+
+    showToast(
+      status === 'skipped'
+        ? 'Treino pulado registrado. O check-in irá considerar essa informação.'
+        : 'Treino concluído. Semana atualizada com sucesso.',
+      status === 'skipped' ? 'info' : 'success'
+    );
   };
   cancelBtn.onclick = () => {
     document.getElementById('modal-overlay').classList.add('hidden');
@@ -3491,7 +3512,7 @@ function getLocalAdjustmentRecommendation(weekIndex, feedback) {
   } else if (summary.skipped > 0 && summary.completionRate >= 0.6) {
     factor = 1;
     action = 'maintain';
-    reason = 'Houve treino pulado. O check-in considera a semana registrada e orienta redistribuição prudente sem compensar carga de forma agressiva.';
+    reason = 'Houve treino pulado. O RUINNA irá redistribuir uma parte segura da carga para a próxima semana, sem compensação agressiva.';
   } else if (summary.completionRate < 0.6) {
     factor = 0.85;
     action = 'reduce';
@@ -3725,6 +3746,82 @@ function normalizeAICheckinRecommendation(ai, feedback, localRecommendation) {
   };
 }
 
+
+function roundHalf(value) {
+  return Math.round(Number(value || 0) * 2) / 2;
+}
+
+function applySkippedWorkoutRedistribution(weekIndex, feedback) {
+  const summary = feedback?.summary || getWeekSummary(weekIndex);
+  const skippedWorkouts = (summary.workouts || []).filter(w => getWorkoutStatus(w.id) === 'skipped');
+  const skippedKm = skippedWorkouts.reduce((sum, w) => sum + Number(w.km || 0), 0);
+
+  if (!skippedWorkouts.length || skippedKm <= 0) {
+    return { applied: false, addedKm: 0, targetWeek: null };
+  }
+
+  const plan = AICoach.loadPlan();
+  if (!plan || !Array.isArray(plan.weeks)) return { applied: false, addedKm: 0, targetWeek: null };
+
+  const nextWeekIndex = weekIndex + 1;
+  const nextWeek = plan.weeks[nextWeekIndex];
+  if (!nextWeek || !Array.isArray(nextWeek.workouts) || !nextWeek.workouts.length) {
+    return { applied: false, addedKm: 0, targetWeek: null };
+  }
+
+  const effort = Number(feedback?.effort || summary.averageEffort || 6);
+  const ratio = feedback?.pain ? 0 : effort <= 5 ? 0.5 : effort <= 7 ? 0.4 : 0.3;
+  const nextTotal = nextWeek.workouts.reduce((sum, w) => sum + Number(w.km || 0), 0);
+
+  let targetAdd = roundHalf(Math.min(skippedKm * ratio, Math.max(1, nextTotal * 0.12)));
+  if (targetAdd <= 0) return { applied: false, addedKm: 0, targetWeek: null };
+
+  const editable = nextWeek.workouts
+    .map((workout, index) => ({ workout, index }))
+    .filter(item => {
+      const isRace = nextWeekIndex === plan.weeks.length - 1 && item.index === nextWeek.workouts.length - 1;
+      return !isRace && Number(item.workout.km || 0) > 0;
+    });
+
+  if (!editable.length) return { applied: false, addedKm: 0, targetWeek: null };
+
+  const priority = editable.filter(item => ['Base', 'Longão', 'Qualidade'].includes(item.workout.dayType));
+  const targets = priority.length ? priority : editable;
+  const perWorkout = roundHalf(targetAdd / targets.length);
+  let distributed = 0;
+
+  targets.forEach((item, idx) => {
+    const remaining = roundHalf(targetAdd - distributed);
+    if (remaining <= 0) return;
+
+    const add = idx === targets.length - 1 ? remaining : Math.min(perWorkout, remaining);
+    const currentKm = Number(item.workout.km || 0);
+    item.workout.km = roundHalf(currentKm + add);
+    item.workout.redistributedFromSkipped = true;
+    item.workout.redistributedKm = roundHalf(Number(item.workout.redistributedKm || 0) + add);
+    distributed = roundHalf(distributed + add);
+  });
+
+  if (distributed <= 0) return { applied: false, addedKm: 0, targetWeek: null };
+
+  nextWeek.totalKm = roundHalf(nextWeek.workouts.reduce((sum, w) => sum + Number(w.km || 0), 0));
+  nextWeek.redistributionNote = `${distributed} km redistribuídos após treino(s) pulado(s) na semana S${weekIndex + 1}.`;
+
+  StorageService.savePlan(plan);
+
+  if (AICoach.isPlanAdopted()) {
+    applyAdoptedPlan();
+  }
+
+  return {
+    applied: true,
+    addedKm: distributed,
+    targetWeek: nextWeek.week || `S${nextWeekIndex + 1}`,
+    skippedKm: roundHalf(skippedKm)
+  };
+}
+
+
 async function runSmartPlanAdjustmentEngine(weekIndex, feedback) {
   const localRecommendation = getLocalAdjustmentRecommendation(weekIndex, feedback);
   let recommendation = localRecommendation;
@@ -3736,12 +3833,28 @@ async function runSmartPlanAdjustmentEngine(weekIndex, feedback) {
     console.warn('Coach IA indisponível no check-in. Usando regra local.', error);
   }
 
-  const applied = applyAdjustmentToStoredPlan(
+  const adjustmentApplied = applyAdjustmentToStoredPlan(
     weekIndex,
     recommendation.factor,
     recommendation.action,
     recommendation.weeksToAdjust
   );
+
+  const redistribution = applySkippedWorkoutRedistribution(weekIndex, feedback);
+  const applied = Boolean(adjustmentApplied || redistribution.applied);
+
+  const hasSkipped = Number(feedback?.summary?.skipped || 0) > 0;
+  const redistributionMessage = redistribution.applied
+    ? `Treino pulado considerado: ${redistribution.addedKm} km foram redistribuídos com prudência para ${redistribution.targetWeek}.`
+    : hasSkipped
+      ? 'Treino pulado registrado. A carga não foi compensada automaticamente por segurança.'
+      : '';
+
+  const baseMessage = recommendation.action === 'maintain'
+    ? recommendation.message
+    : applied
+      ? recommendation.message
+      : 'Check-in salvo. Nenhuma semana futura disponível para ajuste.';
 
   const adjustment = {
     weekIndex,
@@ -3750,18 +3863,15 @@ async function runSmartPlanAdjustmentEngine(weekIndex, feedback) {
     factor: recommendation.factor,
     weeksToAdjust: recommendation.weeksToAdjust,
     applied,
+    skippedRedistribution: redistribution,
     reason: recommendation.reason,
     coachTip: recommendation.coachTip || '',
     confidence: recommendation.confidence,
     source: recommendation.source,
     localFallback: recommendation.source !== 'ai',
     createdAt: new Date().toISOString(),
-    title: recommendation.title,
-    message: recommendation.action === 'maintain'
-      ? recommendation.message
-      : applied
-        ? recommendation.message
-        : 'Check-in salvo. Nenhuma semana futura disponível para ajuste.'
+    title: redistribution.applied ? 'Carga redistribuída com segurança' : recommendation.title,
+    message: [baseMessage, redistributionMessage].filter(Boolean).join(' ')
   };
 
   adjustmentHistory.push(adjustment);
