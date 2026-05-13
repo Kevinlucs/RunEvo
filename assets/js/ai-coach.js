@@ -638,12 +638,12 @@ REGRAS:
   }
 
   function getTrainingDays(daysPerWeek, startDOW, isFirstWeek = false) {
-    const days = Number(daysPerWeek || 3);
+    const days = clamp(Number(daysPerWeek || 3), 2, 6);
     const preferredByCount = {
       2: ['Terça', 'Sábado'],
       3: ['Terça', 'Quinta', 'Sábado'],
-      4: ['Terça', 'Quinta', 'Sábado', 'Domingo'],
-      5: ['Segunda', 'Terça', 'Quinta', 'Sábado', 'Domingo'],
+      4: ['Segunda', 'Terça', 'Quinta', 'Sábado'],
+      5: ['Segunda', 'Terça', 'Quarta', 'Sexta', 'Sábado'],
       6: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sábado', 'Domingo']
     };
 
@@ -652,17 +652,25 @@ REGRAS:
     const startIndex = MONDAY_INDEXED_DAYS.indexOf(startDOW);
     if (startIndex === -1) return preferredByCount[clamp(days, 2, 6)] || preferredByCount[3];
 
+    // Primeira semana: o primeiro treino cai na data de início e os demais seguem espaçamento mínimo.
+    // Ex.: início no sábado com 3x/semana => Sábado, Segunda e Quarta (16, 18 e 20), nunca sábado/domingo/segunda.
+    const offsetByDays = {
+      2: [0, 3],
+      3: [0, 2, 4],
+      4: [0, 2, 4, 6],
+      5: [0, 1, 2, 4, 6],
+      6: [0, 1, 2, 3, 5, 6]
+    };
+
+    const offsets = offsetByDays[days] || offsetByDays[3];
     const slots = [];
-    const remainingDays = 7 - startIndex;
-    const step = Math.max(1, Math.floor(Math.max(1, remainingDays - 1) / Math.max(1, days - 1)));
 
-    for (let i = 0; i < days; i++) {
-      const idx = Math.min(6, startIndex + i * step);
-      const name = MONDAY_INDEXED_DAYS[idx];
+    offsets.forEach(offset => {
+      const name = MONDAY_INDEXED_DAYS[(startIndex + offset) % 7];
       if (!slots.includes(name)) slots.push(name);
-    }
+    });
 
-    for (const d of MONDAY_INDEXED_DAYS) {
+    for (const d of preferredByCount[days] || preferredByCount[3]) {
       if (slots.length >= days) break;
       if (!slots.includes(d)) slots.push(d);
     }
@@ -1041,7 +1049,7 @@ REGRAS:
 
       lastWorkout.dayType = 'Longão';
       lastWorkout.title = 'Prova alvo';
-      lastWorkout.desc = 'Execute a prova no ritmo planejado.';
+      lastWorkout.desc = 'Prova alvo: iniciar controlado, estabilizar no ritmo planejado e evitar acelerar antes da metade final. Fechar progressivo apenas se estiver confortável.';
       lastWorkout.km = roundKm(distanceKm);
       lastWorkout.pace = blueprint?.paceZones?.racePace || 'Ritmo de prova';
 
@@ -1353,6 +1361,12 @@ REGRAS:
         const workoutDate = new Date(weekStart);
         workoutDate.setDate(weekStart.getDate() + dayOffset);
 
+        // Se a primeira semana começa no meio/fim da semana, dias como Segunda/Quarta
+        // precisam cair na semana seguinte, não antes da data de início.
+        if (weekIndex === 0 && workoutDate < startDate) {
+          workoutDate.setDate(workoutDate.getDate() + 7);
+        }
+
         return {
           dayOfWeek: w.dayOfWeek,
           dayType: w.dayType,
@@ -1362,7 +1376,7 @@ REGRAS:
           pace: w.pace,
           date: workoutDate
         };
-      });
+      }).sort((a, b) => a.date - b.date);
 
       return {
         week: week.week,

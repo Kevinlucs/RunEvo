@@ -163,6 +163,34 @@
                     </div>
                 </section>
 
+
+                <section class="manual-plan-manager-card" id="manual-plan-manager-card">
+                    <div class="manual-manager-header">
+                        <div>
+                            <span class="manual-manager-eyebrow">Modificações da planilha</span>
+                            <h3>Editar treinos do ciclo</h3>
+                            <p>Escolha a semana e o treino para editar, adicionar ou remover. Toda alteração entra no app, check-in, PDF, Excel e backup.</p>
+                        </div>
+                        <div class="manual-manager-badge">Plano ativo</div>
+                    </div>
+                    <div class="manual-manager-grid">
+                        <label>
+                            Semana
+                            <select id="manual-manager-week" class="manual-manager-input" onchange="renderManualManagerWorkoutOptions()"></select>
+                        </label>
+                        <label>
+                            Treino
+                            <select id="manual-manager-workout" class="manual-manager-input"></select>
+                        </label>
+                    </div>
+                    <div class="manual-manager-actions">
+                        <button type="button" class="manual-manager-btn primary" onclick="openSelectedManualEditor()">✏️ Editar treino</button>
+                        <button type="button" class="manual-manager-btn" onclick="openSelectedAddWorkoutEditor()">➕ Adicionar na semana</button>
+                        <button type="button" class="manual-manager-btn danger" onclick="removeSelectedManualWorkout()">🗑️ Remover treino</button>
+                    </div>
+                    <small id="manual-manager-status">Selecione uma semana para gerenciar os treinos.</small>
+                </section>
+
                 <section class="phase-dashboard-card">
                     <div class="phase-dashboard-header">
                         <div>

@@ -6544,3 +6544,163 @@ input[type="date"].ai-input {
     height: 38px;
   }
 }
+
+
+/* ===== TRAINING MANAGER + ACTION SIMPLIFICATION V54 ===== */
+.manual-plan-manager-card {
+  padding: 18px;
+  margin-bottom: 16px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(252, 76, 2, 0.22);
+  background:
+    radial-gradient(circle at top right, rgba(252, 76, 2, 0.14), transparent 35%),
+    var(--bg-card);
+}
+
+.manual-manager-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.manual-manager-eyebrow {
+  display: block;
+  color: var(--accent-light);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.manual-manager-header h3 {
+  margin: 0 0 5px;
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
+.manual-manager-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  font-size: 0.86rem;
+}
+
+.manual-manager-badge {
+  flex: 0 0 auto;
+  border: 1px solid rgba(252, 76, 2, 0.28);
+  color: var(--accent-light);
+  background: rgba(252, 76, 2, 0.10);
+  border-radius: 999px;
+  padding: 8px 11px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.manual-manager-grid {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.manual-manager-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.manual-manager-input {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.30);
+  color: var(--text);
+  padding: 11px 12px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+}
+
+.manual-manager-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.manual-manager-btn {
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--text);
+  min-height: 46px;
+  border-radius: 14px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.manual-manager-btn.primary {
+  background: linear-gradient(135deg, rgba(252, 76, 2, 0.95), rgba(255, 140, 66, 0.90));
+  border-color: rgba(252, 76, 2, 0.55);
+  color: #fff;
+}
+
+.manual-manager-btn.danger {
+  color: #ffb4ad;
+  border-color: rgba(255, 59, 48, 0.24);
+  background: rgba(255, 59, 48, 0.08);
+}
+
+#manual-manager-status {
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.workout-action-grid.two-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.skip-info-box {
+  padding: 13px;
+  border-radius: 16px;
+  background: rgba(255, 193, 7, 0.10);
+  border: 1px solid rgba(255, 193, 7, 0.22);
+}
+
+.skip-info-box strong {
+  display: block;
+  color: #ffe08a;
+  margin-bottom: 4px;
+}
+
+.skip-info-box p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.4;
+}
+
+@media (max-width: 760px) {
+  .manual-manager-header,
+  .manual-manager-grid,
+  .manual-manager-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .manual-manager-header {
+    display: grid;
+  }
+
+  .workout-action-grid.two-actions {
+    grid-template-columns: 1fr;
+  }
+}

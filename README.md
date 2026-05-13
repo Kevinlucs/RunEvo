@@ -516,3 +516,18 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - O reset roda apenas uma vez por navegador usando `ruinna_release_reset_v53_done`.
 - Adicionada função `StorageService.resetAllRuinnaLocalData()` para reset manual futuro.
 - Service Worker atualizado para `ruinna-v53`.
+
+
+## Agenda da primeira semana + editor centralizado + ações simplificadas - v54
+
+- Corrigida distribuição de treinos quando o início cai no fim da semana.
+- Exemplo: início sábado com 3 treinos/semana agora gera sábado, segunda e quarta, em vez de treinos colados ou datas anteriores.
+- Datas da primeira semana agora rolam para frente quando o dia calculado ficaria antes da data de início.
+- Card de edição manual removido da tela de detalhe do treino.
+- Nova central “Modificações da planilha” adicionada na aba Treinos, acima das fases.
+- Pela aba Treinos agora é possível selecionar semana/treino para editar, adicionar ou remover.
+- Botão “Fiz parcial” removido do detalhe do treino.
+- Mantidos apenas “Concluir treino” e “Pulei”.
+- Treinos pulados continuam liberando check-in e são enviados para a IA como skippedWorkouts/skippedDetails.
+- Prompt do check-in reforçado para a IA entender treino pulado e sugerir redistribuição prudente.
+- Cache atualizado para `ruinna-v54`.

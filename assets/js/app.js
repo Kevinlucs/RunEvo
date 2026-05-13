@@ -392,6 +392,98 @@ function renderPhases() {
     if (kmEl) kmEl.textContent = `${kmDone}/${kmTotal} km`;
     if (progEl) progEl.style.width = total > 0 ? (done / total * 100) + '%' : '0%';
   });
+
+  renderManualPlanManager();
+}
+
+
+function renderManualPlanManager() {
+  const card = document.getElementById('manual-plan-manager-card');
+  const weekSelect = document.getElementById('manual-manager-week');
+  const statusEl = document.getElementById('manual-manager-status');
+
+  if (!card || !weekSelect) return;
+
+  const plan = AICoach.loadPlan();
+  const weeks = Array.isArray(plan?.weeks) ? plan.weeks : [];
+
+  if (!weeks.length) {
+    card.classList.add('is-empty');
+    weekSelect.innerHTML = '<option value="">Nenhuma planilha ativa</option>';
+    renderManualManagerWorkoutOptions();
+    if (statusEl) statusEl.textContent = 'Gere e adote uma planilha para liberar as modificações.';
+    return;
+  }
+
+  card.classList.remove('is-empty');
+  const previousValue = weekSelect.value;
+  weekSelect.innerHTML = weeks.map((week, index) => {
+    const totalKm = Math.round((week.workouts || []).reduce((sum, w) => sum + Number(w.km || 0), 0) * 10) / 10;
+    return `<option value="${index}" ${String(index) === previousValue ? 'selected' : ''}>${escapeHTML(week.week || `S${index + 1}`)} • ${escapeHTML(week.phase || 'Fase')} • ${totalKm} km</option>`;
+  }).join('');
+
+  if (!weekSelect.value) weekSelect.value = '0';
+  renderManualManagerWorkoutOptions();
+}
+
+function renderManualManagerWorkoutOptions() {
+  const weekSelect = document.getElementById('manual-manager-week');
+  const workoutSelect = document.getElementById('manual-manager-workout');
+  const statusEl = document.getElementById('manual-manager-status');
+
+  if (!weekSelect || !workoutSelect) return;
+
+  const weekIndex = Number(weekSelect.value);
+  const workouts = allWorkouts
+    .filter(w => Number(w.weekIndex) === weekIndex)
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  if (!Number.isFinite(weekIndex) || !workouts.length) {
+    workoutSelect.innerHTML = '<option value="">Nenhum treino nesta semana</option>';
+    if (statusEl) statusEl.textContent = 'Você ainda pode adicionar um novo treino na semana selecionada.';
+    return;
+  }
+
+  workoutSelect.innerHTML = workouts.map(w => `
+    <option value="${escapeHTML(w.id)}">${escapeHTML(w.week)} • ${escapeHTML(w.dateBR)} • ${escapeHTML(w.title)} • ${Number(w.km || 0)} km</option>
+  `).join('');
+
+  const plannedKm = workouts.reduce((sum, w) => sum + Number(w.km || 0), 0);
+  const resolved = workouts.filter(w => isWorkoutResolved(w.id)).length;
+  if (statusEl) statusEl.textContent = `${workouts.length} treino(s) na semana • ${Math.round(plannedKm * 10) / 10} km planejados • ${resolved}/${workouts.length} registrado(s).`;
+}
+
+function getManualManagerSelection() {
+  const weekIndex = Number(document.getElementById('manual-manager-week')?.value);
+  const workoutId = document.getElementById('manual-manager-workout')?.value || '';
+  return { weekIndex, workoutId };
+}
+
+function openSelectedManualEditor() {
+  const { workoutId } = getManualManagerSelection();
+  if (!workoutId) {
+    showToast('Selecione um treino para editar.', 'error');
+    return;
+  }
+  openManualPlanEditor(workoutId);
+}
+
+function openSelectedAddWorkoutEditor() {
+  const { weekIndex, workoutId } = getManualManagerSelection();
+  if (!Number.isFinite(weekIndex)) {
+    showToast('Selecione uma semana para adicionar treino.', 'error');
+    return;
+  }
+  openAddWorkoutEditor(weekIndex, workoutId);
+}
+
+function removeSelectedManualWorkout() {
+  const { workoutId } = getManualManagerSelection();
+  if (!workoutId) {
+    showToast('Selecione um treino para remover.', 'error');
+    return;
+  }
+  confirmRemoveWorkout(workoutId);
 }
 
 function renderPhaseDetail(phase) {
@@ -512,16 +604,6 @@ function renderWorkoutDetail(id) {
       <div class="wd-stat"><div class="wd-stat-icon">🏷️</div><div class="wd-stat-value">${w.dayType}</div><div class="wd-stat-label">Tipo</div></div>
       <div class="wd-stat"><div class="wd-stat-icon">📆</div><div class="wd-stat-value">${w.week}</div><div class="wd-stat-label">Semana</div></div>
     </div>
-    <div class="manual-editor-entry">
-      <button class="btn-manual-editor" onclick="openManualPlanEditor('${w.id}')">
-        <span>✏️</span> Editar treino completo
-      </button>
-      <div class="manual-editor-actions-row">
-        <button class="btn-manual-secondary" onclick="openAddWorkoutEditor(${w.weekIndex}, '${w.id}')">➕ Adicionar treino na semana</button>
-        <button class="btn-manual-danger" onclick="confirmRemoveWorkout('${w.id}')">🗑️ Remover treino</button>
-      </div>
-      <small>Altere, adicione ou remova treinos do plano ativo. As mudanças aparecem no app, PDF, XLS e backup.</small>
-    </div>
     <div class="wd-description wd-description-pro" id="wd-desc-block">
       <div class="wd-desc-header">
         <div>
@@ -600,9 +682,8 @@ function renderWorkoutActionButtons(w) {
   }
 
   return `
-    <div class="workout-action-grid">
+    <div class="workout-action-grid two-actions">
       <button class="btn-complete not-done" onclick="handleToggleComplete('${w.id}')">✅ Concluir treino</button>
-      <button class="btn-status partial" onclick="handleMarkPartial('${w.id}')">🟡 Fiz parcial</button>
       <button class="btn-status skipped" onclick="handleSkipWorkout('${w.id}')">⏭️ Pulei</button>
     </div>
   `;
@@ -1856,7 +1937,7 @@ function handleImportBackupFile(file) {
     `;
     document.getElementById('modal-overlay').classList.remove('hidden');
     document.getElementById('modal-cancel').classList.remove('hidden');
-    document.getElementById('modal-confirm').onclick = () => {
+    confirmBtn.onclick = () => {
       applyBackupPayload(payload);
       document.getElementById('modal-overlay').classList.add('hidden');
       setExportBackupStatus('Backup importado com sucesso.');
@@ -2747,8 +2828,14 @@ function handleUnadoptPlan() {
   document.getElementById('modal-title').textContent = 'Remover Plano da IA?';
   document.getElementById('modal-message').textContent =
     'Voltar ao plano original hardcoded? O plano gerado ficará salvo para readoção.';
+  cancelBtn.classList.remove('hidden');
+  cancelBtn.textContent = 'Fechar';
+  cancelBtn.disabled = false;
+  confirmBtn.textContent = status === 'skipped' ? 'Registrar pulo' : 'Concluir treino';
+  confirmBtn.disabled = false;
+
   document.getElementById('modal-overlay').classList.remove('hidden');
-  document.getElementById('modal-confirm').onclick = () => {
+  confirmBtn.onclick = () => {
     AICoach.unadoptPlan();
     document.getElementById('modal-overlay').classList.add('hidden');
     restoreOriginalPlan();
@@ -2861,6 +2948,8 @@ function openWorkoutFeedbackModal(id, status) {
   const title = isComplete ? 'Concluir treino' : isPartial ? 'Registrar treino parcial' : 'Pular treino';
   const icon = isComplete ? '✅' : isPartial ? '🟡' : '⏭️';
   const defaultKm = isComplete ? Number(w.km || 0) : isPartial ? Math.max(1, Math.round(Number(w.km || 0) / 2)) : 0;
+  const cancelBtn = document.getElementById('modal-cancel');
+  const confirmBtn = document.getElementById('modal-confirm');
 
   document.getElementById('modal-icon').textContent = icon;
   document.getElementById('modal-title').textContent = title;
@@ -2872,7 +2961,12 @@ function openWorkoutFeedbackModal(id, status) {
         <input type="number" class="edit-field" id="feedback-km" value="${defaultKm}" min="0" step="0.1">
         <label>Pace realizado <span>(opcional)</span></label>
         <input type="text" class="edit-field" id="feedback-pace" placeholder="Ex: 6:20/km">
-      ` : ''}
+      ` : `
+        <div class="skip-info-box">
+          <strong>Treino pulado</strong>
+          <p>Este treino contará como registrado no check-in. O Coach IA receberá essa informação para avaliar redistribuição segura da carga na próxima semana.</p>
+        </div>
+      `}
       <label>Esforço percebido <span>(1 leve • 10 máximo)</span></label>
       <input type="range" id="feedback-effort" min="1" max="10" value="${status === 'skipped' ? 7 : 6}" oninput="document.getElementById('feedback-effort-value').textContent=this.value">
       <div class="range-value">Esforço: <strong id="feedback-effort-value">${status === 'skipped' ? 7 : 6}</strong>/10</div>
@@ -2897,6 +2991,7 @@ function openWorkoutFeedbackModal(id, status) {
     });
 
     document.getElementById('modal-overlay').classList.add('hidden');
+    showToast(status === 'skipped' ? 'Treino marcado como pulado.' : 'Treino concluído.', status === 'skipped' ? 'info' : 'success');
     renderWorkoutDetail(id);
     renderHome();
     renderPhases();
@@ -2965,7 +3060,8 @@ function getWeekSummary(weekIndex) {
     resolved,
     total: workouts.length,
     averageEffort,
-    completionRate: workouts.length ? (completed + partial * 0.5) / workouts.length : 0
+    completionRate: workouts.length ? (completed + partial * 0.5) / workouts.length : 0,
+    resolvedRate: workouts.length ? resolved / workouts.length : 0
   };
 }
 
@@ -3024,7 +3120,7 @@ function renderWeeklyCheckInCard(currentWeekWorkouts) {
         ${checkin.adjustment?.source === 'ai' ? '<span class="checkin-source ai">🧠 Análise do Coach IA</span>' : '<span class="checkin-source local">⚙️ Ajuste automático local</span>'}
       </div>
     ` : `
-      <p class="checkin-hint">Finalize todos os treinos da semana como concluído, parcial ou pulado para liberar o check-in.</p>
+      <p class="checkin-hint">Registre todos os treinos da semana como concluído ou pulado para liberar o check-in.</p>
       <button class="btn-checkin" ${canCheckin ? '' : 'disabled'} onclick="openWeeklyCheckin(${weekIndex})">Responder check-in</button>
     `}
   `;
@@ -3257,6 +3353,10 @@ function getLocalAdjustmentRecommendation(weekIndex, feedback) {
     action = 'recovery';
     weeksToAdjust = 1;
     reason = 'Dor/incômodo reportado. Próxima semana reduzida e tratada como recuperação.';
+  } else if (summary.skipped > 0 && summary.completionRate >= 0.6) {
+    factor = 1;
+    action = 'maintain';
+    reason = 'Houve treino pulado. O check-in considera a semana registrada e orienta redistribuição prudente sem compensar carga de forma agressiva.';
   } else if (summary.completionRate < 0.6) {
     factor = 0.85;
     action = 'reduce';
@@ -3328,7 +3428,11 @@ function buildAICheckinPrompt(weekIndex, feedback, localRecommendation) {
     completedWorkouts: summary.completed + summary.partial,
     totalWorkouts: summary.total,
     skippedWorkouts: summary.skipped,
+    skippedDetails: summary.workouts
+      .filter(w => getWorkoutStatus(w.id) === 'skipped')
+      .map(w => ({ title: w.title, dayType: w.dayType, km: Number(w.km || 0), pace: w.pace || '-' })),
     completionRate: Math.round(summary.completionRate * 100),
+    resolvedRate: Math.round((summary.resolvedRate || 0) * 100),
     averageEffort: feedback.effort || summary.averageEffort || 0,
     feeling: feedback.feeling,
     pain: feedback.pain,
@@ -3370,6 +3474,9 @@ REGRAS DE SEGURANÇA:
 - Se pain=true, use action "recovery" ou "reduce". Nunca aumente carga.
 - Se averageEffort >= 9, nunca aumente carga.
 - Se completionRate < 60, nunca aumente carga.
+- Se skippedWorkouts > 0, explique que houve treino pulado e recomende redistribuição prudente da carga, sem compensar tudo de uma vez.
+- Se houver treino pulado mas sem dor e com esforço controlado, prefira manter ou redistribuir no máximo 30% a 50% da carga perdida na próxima semana.
+- Nunca transforme treino pulado em punição; o objetivo é continuidade segura.
 - Aumento adicional máximo permitido: 3%.
 - Não compare rigidamente o volume da próxima semana já planejada com o volume realizado da semana atual para forçar redução.
 - Se a semana foi 100% concluída, com esforço <= 5, sensação leve e sem dor, prefira "maintain"; não recomende "reduce" apenas porque a próxima semana do plano é maior.
@@ -3691,7 +3798,7 @@ function normalizePlanWeekAfterManualChange(plan, weekIndex) {
 }
 
 function invalidateWeekCheckinAfterManualChange(weekIndex) {
-  const key = String(weekIndex);
+  const key = getWeekKey(weekIndex);
   if (weeklyCheckins[key]) {
     delete weeklyCheckins[key];
     saveWeeklyCheckins();
