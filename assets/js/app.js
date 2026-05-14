@@ -243,7 +243,14 @@ function getZoneRepresentativeSeconds(zoneKey, zones) {
   const from = parseDisplayPaceToSeconds(zone.from);
   const to = parseDisplayPaceToSeconds(zone.to);
 
-  if (from && to) return Math.round((from + to) / 2);
+  // Pace planejado mais pé no chão: usa o meio termo da zona,
+  // não a ponta mais rápida.
+  if (from && to) {
+    const fast = Math.min(from, to);
+    const slow = Math.max(from, to);
+    return Math.round((fast + slow) / 2);
+  }
+
   if (to) return to;
   if (from) return from;
 
@@ -253,6 +260,8 @@ function getZoneRepresentativeSeconds(zoneKey, zones) {
 function estimateWorkoutPaceFromDescription(desc = '') {
   const zones = getActiveTrainingZones();
   if (!zones) return null;
+
+  desc = formatPrescriptionText(String(desc || '').replace(/\\n/g, '\n'));
 
   let weightedSeconds = 0;
   let totalKm = 0;
@@ -304,12 +313,16 @@ function formatPrescriptionText(text = '') {
 
 
 function getPace(w) {
-  const customPace = customizations[w.id] && customizations[w.id].pace;
-  if (customPace) return customPace;
-
   const desc = getDesc(w);
   const estimated = estimateWorkoutPaceFromDescription(desc);
+
+  // Prioridade absoluta: se o treino tem prescrição por zona, o pace planejado
+  // deve ser recalculado pelo meio termo das zonas do atleta.
+  // Isso evita carregar paces antigos/salvos na ponta rápida da zona.
   if (estimated) return estimated;
+
+  const customPace = customizations[w.id] && customizations[w.id].pace;
+  if (customPace) return customPace;
 
   return w.pace || '-';
 }

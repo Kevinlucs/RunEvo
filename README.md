@@ -624,3 +624,12 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
   - 500m em Z2
   - 1km em Z1
 - Cache atualizado para `ruinna-v61`.
+
+
+## Pace planejado pelo meio termo da zona - v62
+
+- Pace planejado agora usa o meio termo da faixa de cada zona.
+- Exemplo: se Z1 for 5:16/km até 6:40/km, o pace planejado para blocos em Z1 será ~5:58/km.
+- O app agora prioriza o cálculo pela prescrição do treino antes de usar pace salvo antigo.
+- Isso evita que o atleta seja condicionado a correr sempre na ponta mais rápida da zona.
+- Cache atualizado para `ruinna-v62`.

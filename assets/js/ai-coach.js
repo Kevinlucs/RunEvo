@@ -843,7 +843,14 @@ REGRAS:
     const from = parsePaceToSeconds(zone.from);
     const to = parsePaceToSeconds(zone.to);
 
-    if (from && to) return Math.round((from + to) / 2);
+    // Pace planejado conservador: usa sempre o meio termo da faixa da zona.
+    // Ex.: Z1 5:16 até 6:40 => 5:58/km.
+    if (from && to) {
+      const fast = Math.min(from, to);
+      const slow = Math.max(from, to);
+      return Math.round((fast + slow) / 2);
+    }
+
     if (to) return to;
     if (from) return from;
 
