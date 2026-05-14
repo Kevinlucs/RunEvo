@@ -7194,3 +7194,26 @@ input[type="date"].ai-input {
     padding: 9px 13px;
   }
 }
+
+
+/* ===== WORKOUT FLOW + CLEAN READABILITY V59 ===== */
+@media (min-width: 768px) {
+  .wd-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.wd-stats .wd-stat:nth-child(n+3) {
+  display: none !important;
+}
+
+.prescription-line {
+  text-transform: none !important;
+  letter-spacing: 0.005em !important;
+  font-size: clamp(1rem, 2.3vw, 1.08rem) !important;
+  line-height: 1.42 !important;
+}
+
+.prescription-label {
+  letter-spacing: 0.08em !important;
+}

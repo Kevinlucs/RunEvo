@@ -586,3 +586,15 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
   - 1KM EM Z1
 - Descrições antigas verbosas são simplificadas na renderização.
 - Cache atualizado para `ruinna-v58`.
+
+
+## Fluxo semanal e prescrição legível - v59
+
+- Semana atual agora avança quando os treinos estão resolvidos e o check-in já foi feito, mesmo com treinos pulados.
+- `getNextWorkout()` passou a considerar treino pulado como resolvido.
+- Tela de detalhe removeu os cards redundantes de Tipo/Base e Semana.
+- Pace planejado usa zonas únicas por padrão, evitando Z2-Z3 em treinos simples.
+- Prescrições deixaram de aparecer em caixa alta.
+- Fartlek passou a seguir formato mais claro: aquecimento + blocos completos + desaquecimento.
+- Exemplo: 1km em Z1 / 3x (1km em Z3 + 1km em Z1) / 1km em Z1.
+- Cache atualizado para `ruinna-v59`.

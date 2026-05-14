@@ -258,11 +258,11 @@ const AICoach = (() => {
     }
 
     return {
-      easy: 'Z1-Z2',
-      moderate: 'Z2-Z3',
+      easy: 'Z1',
+      moderate: 'Z2',
       threshold: 'Z3',
       interval: 'Z4',
-      long: 'Z1-Z2',
+      long: 'Z2',
       racePace: 'Z3',
       trainingZones,
       zoneMethod: '3km'
@@ -832,22 +832,39 @@ REGRAS:
 
   function formatKmValue(value) {
     const n = kmPart(value);
-    return Number.isInteger(n) ? `${n}KM` : `${String(n).replace('.', ',')}KM`;
+    return Number.isInteger(n) ? `${n}km` : `${String(n).replace('.', ',')}km`;
   }
 
   function buildSimpleZonePrescription(rows) {
     return rows
       .filter(Boolean)
-      .map(row => String(row).trim().toUpperCase())
+      .map(row => String(row).trim())
       .join('\n');
   }
 
   function splitDistance(totalKm, warmDefault = 1, coolDefault = 1) {
     const total = kmPart(totalKm);
-    const warm = total >= 10 ? 2 : total >= 7 ? 1.5 : warmDefault;
+    const warm = total >= 10 ? 2 : total >= 7 ? 1 : warmDefault;
     const cool = total >= 10 ? 2 : total >= 7 ? 1 : coolDefault;
     const main = Math.max(1, kmPart(total - warm - cool));
     return { total, warm, main, cool };
+  }
+
+  function buildFartlekBlock(totalKm) {
+    const warm = totalKm >= 7 ? 1 : 1;
+    const cool = totalKm >= 7 ? 1 : 1;
+    const main = Math.max(2, kmPart(totalKm - warm - cool));
+    const reps = Math.max(1, Math.floor(main / 2));
+    const leftover = kmPart(main - reps * 2);
+
+    const rows = [
+      `${formatKmValue(warm)} em Z1`,
+      `${reps}x (1km em Z3 + 1km em Z1)`
+    ];
+
+    if (leftover >= 0.5) rows.push(`${formatKmValue(leftover)} em Z2`);
+    rows.push(`${formatKmValue(cool)} em Z1`);
+    return rows;
   }
 
   function buildProfessionalWorkoutDescription({ template, km, pace, phase, blueprint, isRaceWeek, distanceKm }) {
@@ -857,98 +874,90 @@ REGRAS:
 
     if (isRaceWeek && dayType === 'Longão') {
       return buildSimpleZonePrescription([
-        `${formatKmValue(Math.max(2, Math.round(totalKm * 0.20)))} EM Z1`,
-        `${formatKmValue(Math.max(3, Math.round(totalKm * 0.60)))} EM Z2/Z3`,
-        `${formatKmValue(Math.max(1, Math.round(totalKm * 0.20)))} PROGRESSIVO SE ESTIVER BEM`
+        `${formatKmValue(Math.max(2, Math.round(totalKm * 0.20)))} em Z1`,
+        `${formatKmValue(Math.max(3, Math.round(totalKm * 0.60)))} em Z3`,
+        `${formatKmValue(Math.max(1, Math.round(totalKm * 0.20)))} progressivo se estiver bem`
       ]);
     }
 
     if (dayType === 'Recuperação') {
       const { warm, main, cool } = splitDistance(totalKm, 1, 1);
       return buildSimpleZonePrescription([
-        `${formatKmValue(warm)} EM Z1`,
-        `${formatKmValue(main)} EM Z1`,
-        `${formatKmValue(cool)} EM Z1`
+        `${formatKmValue(warm)} em Z1`,
+        `${formatKmValue(main)} em Z1`,
+        `${formatKmValue(cool)} em Z1`
       ]);
     }
 
     if (dayType === 'Base') {
       if (phase === 'Polimento' || title.includes('ativação')) {
         return buildSimpleZonePrescription([
-          `${formatKmValue(Math.min(2, Math.max(1, totalKm * 0.35)))} EM Z1`,
-          `4X (15S EM Z3/Z4 + 60S EM Z1)`,
-          `${formatKmValue(Math.min(2, Math.max(1, totalKm * 0.35)))} EM Z1`
+          `${formatKmValue(Math.min(2, Math.max(1, totalKm * 0.35)))} em Z1`,
+          `4x (15s em Z4 + 60s em Z1)`,
+          `${formatKmValue(Math.min(2, Math.max(1, totalKm * 0.35)))} em Z1`
         ]);
       }
 
       const { warm, main, cool } = splitDistance(totalKm, 1, 1);
       return buildSimpleZonePrescription([
-        `${formatKmValue(warm)} EM Z1`,
-        `${formatKmValue(main)} EM Z2`,
-        `${formatKmValue(cool)} EM Z1`
+        `${formatKmValue(warm)} em Z1`,
+        `${formatKmValue(main)} em Z2`,
+        `${formatKmValue(cool)} em Z1`
       ]);
     }
 
     if (dayType === 'Qualidade' && title.includes('fartlek')) {
-      const { warm, main, cool } = splitDistance(totalKm, 1.5, 1);
-      const reps = Math.max(2, Math.floor(main / 1.5));
-      const blockKm = Math.max(0.5, kmPart((main / reps) / 2));
-
-      return buildSimpleZonePrescription([
-        `${formatKmValue(warm)} EM Z1`,
-        `${reps}X (${formatKmValue(blockKm)} EM Z3/Z4 + ${formatKmValue(blockKm)} EM Z1)`,
-        `${formatKmValue(cool)} EM Z1`
-      ]);
+      return buildSimpleZonePrescription(buildFartlekBlock(totalKm));
     }
 
     if (dayType === 'Intervalado') {
-      const { warm, main, cool } = splitDistance(totalKm, 1.5, 1);
+      const { warm, cool } = splitDistance(totalKm, 1, 1);
       const reps = totalKm >= 10 ? 6 : totalKm >= 7 ? 5 : 4;
-      const shot = totalKm >= 9 ? '800M' : '600M';
-      const recovery = totalKm >= 9 ? '400M' : '300M';
+      const shot = totalKm >= 9 ? '800m' : '600m';
+      const recovery = totalKm >= 9 ? '400m' : '300m';
 
       return buildSimpleZonePrescription([
-        `${formatKmValue(warm)} EM Z1`,
-        `${reps}X (${shot} EM Z4 + ${recovery} EM Z1)`,
-        `${formatKmValue(cool)} EM Z1`
+        `${formatKmValue(warm)} em Z1`,
+        `${reps}x (${shot} em Z4 + ${recovery} em Z1)`,
+        `${formatKmValue(cool)} em Z1`
       ]);
     }
 
     if (dayType === 'Qualidade' && (title.includes('ritmo') || title.includes('prova'))) {
-      const { warm, main, cool } = splitDistance(totalKm, 1.5, 1);
+      const { warm, main, cool } = splitDistance(totalKm, 1, 1);
       return buildSimpleZonePrescription([
-        `${formatKmValue(warm)} EM Z1`,
-        `${formatKmValue(main)} EM Z3`,
-        `${formatKmValue(cool)} EM Z1`
+        `${formatKmValue(warm)} em Z1`,
+        `${formatKmValue(main)} em Z3`,
+        `${formatKmValue(cool)} em Z1`
       ]);
     }
 
     if (dayType === 'Longão') {
       const total = kmPart(totalKm);
-      const warm = Math.max(2, Math.round(total * 0.15));
-      const main = Math.max(3, Math.round(total * 0.70));
+      const warm = Math.max(1, Math.round(total * 0.15));
+      const main = Math.max(2, Math.round(total * 0.70));
       const final = Math.max(1, kmPart(total - warm - main));
 
       if (phase === 'Polimento') {
         return buildSimpleZonePrescription([
-          `${formatKmValue(warm)} EM Z1`,
-          `${formatKmValue(main + final)} EM Z2`,
-          `${formatKmValue(1)} EM Z1`
+          `${formatKmValue(warm)} em Z1`,
+          `${formatKmValue(main + final)} em Z2`,
+          `1km em Z1`
         ]);
       }
 
       return buildSimpleZonePrescription([
-        `${formatKmValue(warm)} EM Z1`,
-        `${formatKmValue(main)} EM Z2`,
-        `${formatKmValue(final)} EM Z2/Z3 SE ESTIVER BEM`
+        `${formatKmValue(warm)} em Z1`,
+        `${formatKmValue(main)} em Z2`,
+        `${formatKmValue(final)} em Z3 se estiver bem`
       ]);
     }
 
     const { warm, main, cool } = splitDistance(totalKm, 1, 1);
     return buildSimpleZonePrescription([
-      `${formatKmValue(warm)} EM Z1`,
-      `${formatKmValue(main)} EM Z2`,
-      `${formatKmValue(cool)} EM Z1`
+      `${formatKmValue(warm)} em Z1`,
+      `${formatKmValue(main)} em Z2`,
+      `${formatKmValue(cool)} em Z1`
     ]);
   }
 

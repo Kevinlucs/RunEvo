@@ -242,7 +242,8 @@ function getDaysToRace() {
 }
 function getNextWorkout() {
   const today = new Date(); today.setHours(0, 0, 0, 0);
-  return allWorkouts.find(w => !isCompleted(w.id) && w.date >= today) || allWorkouts.find(w => !isCompleted(w.id));
+  return allWorkouts.find(w => !isWorkoutResolved(w.id) && w.date >= today)
+    || allWorkouts.find(w => !isWorkoutResolved(w.id));
 }
 function getCurrentWeekWorkouts() {
   const next = getNextWorkout();
@@ -574,7 +575,6 @@ function splitWorkoutDescription(desc = '') {
       .replace(/^finalizar\s+com\s+/i, '')
       .replace(/^executar\s+/i, '')
       .replace(/\.$/, '')
-      .toUpperCase()
     );
 }
 
@@ -628,8 +628,6 @@ function renderWorkoutDetail(id) {
     <div class="wd-stats">
       <div class="wd-stat"><div class="wd-stat-icon">📏</div><div class="wd-stat-value">${w.km} km</div><div class="wd-stat-label">Distância</div></div>
       <div class="wd-stat"><div class="wd-stat-icon">⏱️</div><div class="wd-stat-value" style="font-size:1rem">${pace}</div><div class="wd-stat-label">Pace planejado</div></div>
-      <div class="wd-stat"><div class="wd-stat-icon">🏷️</div><div class="wd-stat-value">${w.dayType}</div><div class="wd-stat-label">Tipo</div></div>
-      <div class="wd-stat"><div class="wd-stat-icon">📆</div><div class="wd-stat-value">${w.week}</div><div class="wd-stat-label">Semana</div></div>
     </div>
     ${renderTrainingZonesCard()}
     <div class="wd-description wd-description-pro" id="wd-desc-block">
