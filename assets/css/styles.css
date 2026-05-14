@@ -7235,3 +7235,19 @@ input[type="date"].ai-input {
 .workout-meta {
   grid-template-columns: repeat(2, minmax(0, auto));
 }
+
+
+/* ===== FIX REAL LINE BREAKS IN PRESCRIPTION V61 ===== */
+.prescription-lines {
+  display: grid !important;
+}
+
+.prescription-line {
+  display: block !important;
+  white-space: normal !important;
+  word-break: normal !important;
+}
+
+.prescription-line + .prescription-line {
+  border-top: 1px solid rgba(255,255,255,0.08);
+}

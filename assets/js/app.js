@@ -293,10 +293,12 @@ function estimateWorkoutPaceFromDescription(desc = '') {
 
 function formatPrescriptionText(text = '') {
   return String(text || '')
+    // Corrige descrições salvas com "\\n" literal de versões anteriores.
+    .replace(/\\n/g, '\n')
     .replace(/\s+/g, ' ')
-    .replace(/(\d+(?:[,.]\d+)?\s*(?:km|m)\s+em\s+Z[1-5])\s+(?=(?:\d+\s*x\s*\(|\d+(?:[,.]\d+)?\s*(?:km|m)\s+em\s+Z[1-5]))/gi, '$1\\n')
-    .replace(/(\))\s+(?=\d+(?:[,.]\d+)?\s*(?:km|m)\s+em\s+Z[1-5])/gi, '$1\\n')
-    .replace(/\s*(Ajustado após check-in semanal\.?|Carga reduzida após check-in\.?)\s*/gi, '\\nOBS: $1')
+    .replace(/(\d+(?:[,.]\d+)?\s*(?:km|m)\s+em\s+Z[1-5])\s+(?=(?:\d+\s*x\s*\(|\d+(?:[,.]\d+)?\s*(?:km|m)\s+em\s+Z[1-5]))/gi, '$1\n')
+    .replace(/(\))\s+(?=\d+(?:[,.]\d+)?\s*(?:km|m)\s+em\s+Z[1-5])/gi, '$1\n')
+    .replace(/\s*(Ajustado após check-in semanal\.?|Carga reduzida após check-in\.?)\s*/gi, '\nOBS: $1')
     .trim();
 }
 
@@ -661,7 +663,7 @@ function normalizeLegacyWorkoutDescription(desc = '') {
 }
 
 function splitWorkoutDescription(desc = '') {
-  const raw = formatPrescriptionText(normalizeLegacyWorkoutDescription(desc));
+  const raw = formatPrescriptionText(normalizeLegacyWorkoutDescription(desc)).replace(/\\n/g, '\n');
   if (!raw) return [];
 
   return raw

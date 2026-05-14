@@ -611,3 +611,16 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
   - na distância de cada bloco.
 - Exemplo: `5km em Z2` usa o pace representativo da Z2 para estimar o pace planejado final.
 - Cache atualizado para `ruinna-v60`.
+
+
+## Correção de quebra de linha na prescrição - v61
+
+- Corrigido bug visual em que `\n` aparecia literalmente na descrição do treino.
+- Prescrição agora renderiza cada bloco em uma linha real.
+- Descrições antigas que já foram salvas com `\n` literal são corrigidas na renderização.
+- Mantido formato:
+  - 1km em Z1
+  - 3x (1km em Z3 + 1km em Z1)
+  - 500m em Z2
+  - 1km em Z1
+- Cache atualizado para `ruinna-v61`.
