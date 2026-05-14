@@ -212,7 +212,105 @@ function clearProgress() {
   saveAdjustmentHistory();
 }
 function getDesc(w) { return (customizations[w.id] && customizations[w.id].desc) || w.desc; }
-function getPace(w) { return (customizations[w.id] && customizations[w.id].pace) || w.pace; }
+
+function parseDisplayPaceToSeconds(value = '') {
+  const match = String(value || '').match(/(\d{1,2}):(\d{2})/);
+  if (!match) return null;
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
+function secondsToDisplayPace(seconds) {
+  if (!Number.isFinite(seconds)) return '-';
+  const s = Math.max(180, Math.round(seconds));
+  const min = Math.floor(s / 60);
+  const sec = String(s % 60).padStart(2, '0');
+  return `${min}:${sec}/km`;
+}
+
+function distanceTokenToKm(token = '') {
+  const raw = String(token || '').trim().toLowerCase().replace(',', '.');
+  const match = raw.match(/(\d+(?:\.\d+)?)\s*(km|m)/i);
+  if (!match) return 0;
+  const value = Number(match[1]);
+  if (!Number.isFinite(value)) return 0;
+  return match[2].toLowerCase() === 'm' ? value / 1000 : value;
+}
+
+function getZoneRepresentativeSeconds(zoneKey, zones) {
+  const zone = zones?.[zoneKey];
+  if (!zone) return null;
+
+  const from = parseDisplayPaceToSeconds(zone.from);
+  const to = parseDisplayPaceToSeconds(zone.to);
+
+  if (from && to) return Math.round((from + to) / 2);
+  if (to) return to;
+  if (from) return from;
+
+  return null;
+}
+
+function estimateWorkoutPaceFromDescription(desc = '') {
+  const zones = getActiveTrainingZones();
+  if (!zones) return null;
+
+  let weightedSeconds = 0;
+  let totalKm = 0;
+
+  const addSegment = (distanceToken, zoneToken, multiplier = 1) => {
+    const zone = String(zoneToken || '').toUpperCase().match(/Z[1-5]/)?.[0];
+    const km = distanceTokenToKm(distanceToken) * multiplier;
+    const seconds = getZoneRepresentativeSeconds(zone, zones);
+
+    if (!km || !seconds) return;
+
+    weightedSeconds += km * seconds;
+    totalKm += km;
+  };
+
+  const withoutRepeats = String(desc || '').replace(/(\d+)\s*x\s*\(([^)]+)\)/gi, (full, reps, inside) => {
+    const multiplier = Number(reps) || 1;
+    let segment;
+    const regex = /(\d+(?:[,.]\d+)?\s*(?:km|m))\s*em\s*(Z[1-5])/gi;
+
+    while ((segment = regex.exec(inside)) !== null) {
+      addSegment(segment[1], segment[2], multiplier);
+    }
+
+    return ' ';
+  });
+
+  let simple;
+  const simpleRegex = /(\d+(?:[,.]\d+)?\s*(?:km|m))\s*em\s*(Z[1-5])/gi;
+  while ((simple = simpleRegex.exec(withoutRepeats)) !== null) {
+    addSegment(simple[1], simple[2], 1);
+  }
+
+  if (!totalKm) return null;
+
+  return secondsToDisplayPace(weightedSeconds / totalKm);
+}
+
+function formatPrescriptionText(text = '') {
+  return String(text || '')
+    .replace(/\s+/g, ' ')
+    .replace(/(\d+(?:[,.]\d+)?\s*(?:km|m)\s+em\s+Z[1-5])\s+(?=(?:\d+\s*x\s*\(|\d+(?:[,.]\d+)?\s*(?:km|m)\s+em\s+Z[1-5]))/gi, '$1\\n')
+    .replace(/(\))\s+(?=\d+(?:[,.]\d+)?\s*(?:km|m)\s+em\s+Z[1-5])/gi, '$1\\n')
+    .replace(/\s*(Ajustado após check-in semanal\.?|Carga reduzida após check-in\.?)\s*/gi, '\\nOBS: $1')
+    .trim();
+}
+
+
+function getPace(w) {
+  const customPace = customizations[w.id] && customizations[w.id].pace;
+  if (customPace) return customPace;
+
+  const desc = getDesc(w);
+  const estimated = estimateWorkoutPaceFromDescription(desc);
+  if (estimated) return estimated;
+
+  return w.pace || '-';
+}
 
 // Progresso inicial vazio: cada usuário marca seus próprios treinos.
 
@@ -367,7 +465,7 @@ function renderHome() {
       <div class="workout-meta">
         <div class="meta-item"><span class="meta-icon">📏</span><span class="meta-value">${next.km} km</span></div>
         <div class="meta-item"><span class="meta-icon">⏱️</span><span class="meta-value">${getPace(next)}</span></div>
-        <div class="meta-item"><span class="meta-icon">🏷️</span><span class="meta-value">${next.dayType}</span></div>
+
       </div>
       <span class="hero-arrow">›</span>`;
     hero.onclick = () => openWorkout(next.id);
@@ -563,11 +661,11 @@ function normalizeLegacyWorkoutDescription(desc = '') {
 }
 
 function splitWorkoutDescription(desc = '') {
-  const raw = normalizeLegacyWorkoutDescription(desc);
+  const raw = formatPrescriptionText(normalizeLegacyWorkoutDescription(desc));
   if (!raw) return [];
 
   return raw
-    .split(/\n+|;\s*|(?<=\))\s*(?=\d+X|\d+(?:[,.]\d+)?KM|[0-9]+MIN)|(?<=\.)\s+/i)
+    .split(/\n+/)
     .map(part => part.trim())
     .filter(Boolean)
     .map(part => part
@@ -590,9 +688,10 @@ function renderWorkoutDescriptionHTML(desc = '', isRecoveryWeek = false) {
     `;
   }
 
-  const rows = steps.map(step => `
-    <div class="prescription-line">${escapeHTML(step)}</div>
-  `).join('');
+  const rows = steps.map(step => {
+    const isObs = /^OBS:/i.test(step);
+    return `<div class="prescription-line ${isObs ? 'obs' : ''}">${escapeHTML(step)}</div>`;
+  }).join('');
 
   return `
     <div class="prescription-card">

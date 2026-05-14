@@ -598,3 +598,16 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Fartlek passou a seguir formato mais claro: aquecimento + blocos completos + desaquecimento.
 - Exemplo: 1km em Z1 / 3x (1km em Z3 + 1km em Z1) / 1km em Z1.
 - Cache atualizado para `ruinna-v59`.
+
+
+## Prescrição quebrada por linha + pace planejado calculado - v60
+
+- Descrição do treino agora quebra linha sempre que inicia novo bloco de distância/zona.
+- Observações de check-in aparecem como linha `OBS:` separada.
+- Card de tipo/Base foi removido do hero/treino em destaque.
+- Pace planejado deixou de mostrar zona; agora calcula o pace médio estimado com base:
+  - na prescrição do treino;
+  - nas zonas do atleta;
+  - na distância de cada bloco.
+- Exemplo: `5km em Z2` usa o pace representativo da Z2 para estimar o pace planejado final.
+- Cache atualizado para `ruinna-v60`.

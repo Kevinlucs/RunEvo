@@ -824,6 +824,86 @@ REGRAS:
     return zones.racePace || zones.threshold || DEFAULT_PACE_ZONES.racePace;
   }
 
+
+  function stripPaceSuffix(value = '') {
+    return String(value || '').replace('/km', '').trim();
+  }
+
+  function parsePaceToSeconds(value = '') {
+    const clean = stripPaceSuffix(value);
+    const match = clean.match(/(\d{1,2}):(\d{2})/);
+    if (!match) return null;
+    return Number(match[1]) * 60 + Number(match[2]);
+  }
+
+  function zoneRepresentativeSeconds(zoneKey, trainingZones) {
+    const zone = trainingZones?.[zoneKey];
+    if (!zone) return null;
+
+    const from = parsePaceToSeconds(zone.from);
+    const to = parsePaceToSeconds(zone.to);
+
+    if (from && to) return Math.round((from + to) / 2);
+    if (to) return to;
+    if (from) return from;
+
+    return null;
+  }
+
+  function parseDistanceTokenToKm(token = '') {
+    const raw = String(token || '').trim().toLowerCase().replace(',', '.');
+    const match = raw.match(/(\d+(?:\.\d+)?)\s*(km|m)/i);
+    if (!match) return 0;
+
+    const value = Number(match[1]);
+    if (!Number.isFinite(value)) return 0;
+
+    return match[2].toLowerCase() === 'm' ? value / 1000 : value;
+  }
+
+  function estimatePaceFromPrescription(desc = '', trainingZones = null) {
+    if (!trainingZones) return null;
+
+    const text = String(desc || '');
+    let weightedSeconds = 0;
+    let totalKm = 0;
+
+    const processSegment = (distanceToken, zoneToken, multiplier = 1) => {
+      const km = parseDistanceTokenToKm(distanceToken) * multiplier;
+      const zone = String(zoneToken || '').toUpperCase().match(/Z[1-5]/)?.[0];
+      const seconds = zoneRepresentativeSeconds(zone, trainingZones);
+
+      if (!km || !seconds) return;
+
+      weightedSeconds += km * seconds;
+      totalKm += km;
+    };
+
+    // Repetition blocks: 3x (1km em Z3 + 1km em Z1)
+    const repRegex = /(\d+)\s*x\s*\(([^)]+)\)/gi;
+    let repMatch;
+    const withoutRepeats = text.replace(repRegex, (full, reps, inside) => {
+      const multiplier = Number(reps) || 1;
+      const segmentRegex = /(\d+(?:[,.]\d+)?\s*(?:km|m))\s*em\s*(Z[1-5])/gi;
+      let seg;
+      while ((seg = segmentRegex.exec(inside)) !== null) {
+        processSegment(seg[1], seg[2], multiplier);
+      }
+      return ' ';
+    });
+
+    const simpleRegex = /(\d+(?:[,.]\d+)?\s*(?:km|m))\s*em\s*(Z[1-5])/gi;
+    let simple;
+    while ((simple = simpleRegex.exec(withoutRepeats)) !== null) {
+      processSegment(simple[1], simple[2], 1);
+    }
+
+    if (!totalKm) return null;
+
+    return secondsToPace(Math.round(weightedSeconds / totalKm));
+  }
+
+
   function kmPart(value, fallback = 1) {
     const n = Number(value);
     if (!Number.isFinite(n)) return fallback;
@@ -851,8 +931,8 @@ REGRAS:
   }
 
   function buildFartlekBlock(totalKm) {
-    const warm = totalKm >= 7 ? 1 : 1;
-    const cool = totalKm >= 7 ? 1 : 1;
+    const warm = 1;
+    const cool = 1;
     const main = Math.max(2, kmPart(totalKm - warm - cool));
     const reps = Math.max(1, Math.floor(main / 2));
     const leftover = kmPart(main - reps * 2);
@@ -1011,27 +1091,31 @@ REGRAS:
     const workouts = dayNames.map((dayOfWeek, index) => {
       const isLastWorkout = index === dayNames.length - 1;
       const template = getWorkoutTemplate(targets.phase, index, daysPerWeek, targets.off, isRaceWeek, isLastWorkout);
-      const pace = isRaceWeek && isLastWorkout
-        ? (blueprint.paceZones?.racePace || 'Ritmo de prova')
+      const zoneTarget = isRaceWeek && isLastWorkout
+        ? (blueprint.paceZones?.racePace || 'Z3')
         : paceForWorkout(template.dayType, blueprint);
 
       const km = distances[index] || 0;
+      const desc = buildProfessionalWorkoutDescription({
+        template,
+        km,
+        pace: zoneTarget,
+        phase: targets.phase,
+        blueprint,
+        isRaceWeek,
+        distanceKm
+      });
+
+      const estimatedPace = estimatePaceFromPrescription(desc, blueprint.paceZones?.trainingZones) || zoneTarget;
 
       return {
         dayOfWeek,
         dayType: template.dayType,
         title: template.title,
-        desc: buildProfessionalWorkoutDescription({
-          template,
-          km,
-          pace,
-          phase: targets.phase,
-          blueprint,
-          isRaceWeek,
-          distanceKm
-        }),
+        desc,
         km,
-        pace
+        pace: estimatedPace,
+        zoneTarget
       };
     });
 

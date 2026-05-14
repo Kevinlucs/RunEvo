@@ -7217,3 +7217,21 @@ input[type="date"].ai-input {
 .prescription-label {
   letter-spacing: 0.08em !important;
 }
+
+
+/* ===== PLANNED PACE + CLEAN LINE BREAKS V60 ===== */
+.prescription-line {
+  text-transform: none !important;
+  white-space: pre-wrap;
+}
+
+.prescription-line.obs {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.workout-meta {
+  grid-template-columns: repeat(2, minmax(0, auto));
+}
