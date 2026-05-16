@@ -2664,6 +2664,66 @@ function validateFormData(data) {
   return null;
 }
 
+
+function resetAIFormForNewPlan() {
+  const idsToClear = [
+    'ai-age', 'ai-height', 'ai-weight', 'ai-custom-distance',
+    'ai-start-date', 'ai-race-date',
+    'ai-time5k', 'ai-time10k', 'ai-time21k', 'ai-time42k',
+    'ai-test3km-time', 'ai-objective'
+  ];
+
+  idsToClear.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = '';
+      el.disabled = false;
+      el.classList.remove('disabled');
+    }
+  });
+
+  ['5k', '10k', '21k', '42k'].forEach(key => {
+    const check = document.getElementById(`ai-no-${key}`);
+    if (check) check.checked = false;
+  });
+
+  const distance = document.getElementById('ai-distance');
+  if (distance) distance.value = '10k';
+
+  const days = document.getElementById('ai-days');
+  if (days) days.value = '3';
+
+  const level = document.querySelector('input[name="ai-level"][value="intermediario"]');
+  if (level) level.checked = true;
+
+  const result = document.getElementById('ai-result');
+  if (result) result.classList.add('hidden');
+
+  const loading = document.getElementById('ai-loading');
+  if (loading) loading.classList.add('hidden');
+
+  const error = document.getElementById('ai-error');
+  if (error) error.classList.add('hidden');
+
+  const generateBtn = document.getElementById('btn-generate');
+  if (generateBtn) generateBtn.classList.remove('hidden');
+
+  toggleCustomDistance();
+  updateWeeksInfo();
+  clearAIFieldErrors();
+}
+
+function resetAIFormAndGenerateAnother() {
+  resetAIFormForNewPlan();
+  pageHistory.length = 0;
+  showPage('ai');
+
+  setTimeout(() => {
+    document.getElementById('ai-form-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 80);
+}
+
+
 async function handleGeneratePlan() {
   clearAIFieldErrors();
 
@@ -2697,6 +2757,8 @@ async function handleGeneratePlan() {
 
     setAILoadingStep(3);
     renderAIPlanResult(savedPlan);
+    pageHistory.length = 0;
+    showPage('plan-preview');
   } catch (err) {
     console.error('Erro ao gerar planilha com IA:', err);
     showAIError(normalizeAIErrorMessage(err.message || 'Erro desconhecido. Tente novamente.'));
@@ -3010,6 +3072,10 @@ function renderAIPlanResult(plan) {
   `;
 
   document.getElementById('ai-result').classList.remove('hidden');
+  setTimeout(() => {
+    document.querySelector('.plan-preview-page')?.scrollTo?.(0, 0);
+    window.scrollTo?.(0, 0);
+  }, 50);
 }
 
 function toggleAIAllWeeks() {

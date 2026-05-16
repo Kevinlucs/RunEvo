@@ -842,9 +842,26 @@
                         <small id="ai-error-tip">Revise os dados obrigatórios ou tente novamente em alguns instantes.</small>
                         <button class="btn btn-secondary" onclick="hideAIError()">Fechar</button>
                     </div>
+                </div>
+            </div>
+        </main>
 
-                    <!-- Generated Plan Result -->
-                    <div id="ai-result" class="ai-result hidden">
+
+        <!-- PLAN PREVIEW PAGE -->
+        <main id="page-plan-preview" class="page plan-preview-page">
+            <div class="plan-preview-shell">
+                <button class="profile-hub-back plan-preview-back" onclick="resetAIFormAndGenerateAnother()" aria-label="Voltar para IA Coach">
+                    ←
+                </button>
+
+                <section class="plan-preview-hero">
+                    <span>Prévia da planilha</span>
+                    <h2>Revise antes de adotar</h2>
+                    <p>Confira os ajustes técnicos, alertas e semanas geradas. Depois escolha se deseja adotar esta planilha ou gerar outra.</p>
+                </section>
+
+                <!-- Generated Plan Result -->
+                <div id="ai-result" class="ai-result hidden">
                         <div class="ai-result-header">
                             <h3 id="ai-result-title">Plano Gerado</h3>
                             <p id="ai-result-meta"></p>
@@ -855,15 +872,13 @@
                         <div class="ai-result-actions">
                             <button class="btn-generate adopt" onclick="handleAdoptPlan()">
                                 <span class="btn-generate-icon">✅</span>
-                                <span class="btn-generate-text">Adotar Este Plano</span>
+                                <span class="btn-generate-text">Adotar esta Planilha</span>
                             </button>
-                            <button class="btn btn-secondary ai-btn-full" onclick="handleGeneratePlan()">
-                                🔄 Gerar Outro Plano
-                            </button>
+                            <button class="btn btn-secondary ai-btn-full" onclick="resetAIFormAndGenerateAnother()">Gerar outra Planilha</button>
                         </div>
                     </div>
 
-                </div>
+                
             </div>
         </main>
 

@@ -8156,3 +8156,116 @@ body::before {
     border-radius: 22px;
   }
 }
+
+
+/* ===== PLAN PREVIEW STANDALONE PAGE V68 ===== */
+.plan-preview-page {
+  padding-bottom: calc(var(--nav-height) + 28px);
+}
+
+.plan-preview-shell {
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: 16px 0 32px;
+}
+
+.plan-preview-back {
+  margin-bottom: 10px;
+}
+
+.plan-preview-hero {
+  padding: 20px;
+  margin-bottom: 16px;
+  border-radius: 24px;
+  background: var(--bg-card);
+  border: 1px solid rgba(204, 255, 0, 0.18);
+}
+
+.plan-preview-hero span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-size: 0.74rem;
+  font-weight: 950;
+}
+
+.plan-preview-hero h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+}
+
+.plan-preview-hero p {
+  margin: 8px 0 0;
+  max-width: 720px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.plan-preview-page .ai-result {
+  display: grid;
+  gap: 16px;
+}
+
+.plan-preview-page .ai-result.hidden {
+  display: none !important;
+}
+
+.plan-preview-page .ai-result-header {
+  text-align: center;
+  padding: 4px 0 6px;
+}
+
+.plan-preview-page .ai-result-header h3 {
+  color: var(--accent);
+  font-size: clamp(1.25rem, 4.5vw, 1.8rem);
+}
+
+.plan-preview-page .ai-result-actions {
+  position: sticky;
+  bottom: calc(var(--nav-height) + 10px);
+  z-index: 20;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 22px;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.plan-preview-page .ai-result-actions .btn-generate,
+.plan-preview-page .ai-result-actions .ai-btn-full {
+  min-height: 54px;
+  border-radius: 16px;
+  font-weight: 950;
+}
+
+.plan-preview-page .ai-result-actions .btn-generate {
+  background: var(--accent) !important;
+  color: var(--text-on-accent) !important;
+}
+
+.plan-preview-page .ai-result-actions .ai-btn-full {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  color: #fff !important;
+}
+
+@media (max-width: 680px) {
+  .plan-preview-shell {
+    padding-inline: 0;
+  }
+
+  .plan-preview-hero {
+    margin-inline: 0;
+  }
+
+  .plan-preview-page .ai-result-actions {
+    grid-template-columns: 1fr;
+    bottom: calc(var(--nav-height) + 8px);
+  }
+}

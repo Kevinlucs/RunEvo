@@ -714,3 +714,16 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Objetivo agora é obrigatório e reforçado no motor RunEvo.
 - Botão de geração ficou “Gerar Planilha”, sem robô e sem degradê.
 - Cache atualizado para `runevo-v67`.
+
+
+## Plan Preview Page - v68
+
+- Resultado da geração de planilha saiu debaixo do botão do IA Coach.
+- Após gerar, a planilha abre em uma tela própria: Prévia da planilha.
+- A tela mantém os detalhes técnicos, validação, ajustes e semanas geradas.
+- Botões preservados na tela:
+  - Adotar esta Planilha
+  - Gerar outra Planilha
+- Ao adotar a planilha, o app redireciona para Início.
+- Ao gerar outra planilha, o app volta para IA Coach com o formulário zerado.
+- Cache atualizado para `runevo-v68`.
