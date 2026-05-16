@@ -1,6 +1,6 @@
 // ===== AI COACH MODULE =====
 // IA = gestora estratégica. Código = motor determinístico da planilha.
-// A IA gera um blueprint pequeno; o RUINNA monta todas as semanas localmente.
+// A IA gera um blueprint pequeno; o RunEvo monta todas as semanas localmente.
 
 const AICoach = (() => {
   function getPlanKey() { return StorageService.keys().plan; }
@@ -156,7 +156,7 @@ const AICoach = (() => {
   }
 
   function inferBasePaceSeconds(userData) {
-    // No RUINNA, o teste de 3km é a âncora: o pace médio do teste vira a referência da Z3.
+    // No RunEvo, o teste de 3km é a âncora: o pace médio do teste vira a referência da Z3.
     const fromPace = paceToSeconds(userData.test3kmPace);
     if (fromPace) return fromPace;
 
@@ -200,7 +200,7 @@ const AICoach = (() => {
 
     const baseSpeed = speedFromPaceSeconds(base);
 
-    // Método inspirado na tabela do RUINNA:
+    // Método inspirado na tabela do RunEvo:
     // - O pace médio do teste de 3km é a referência da Z3.
     // - As zonas são derivadas por percentuais de velocidade em relação à Z3.
     // - Z1/Z2 são abaixo da Z3; Z4/Z5 acima da Z3.

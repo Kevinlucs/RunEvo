@@ -1,12 +1,12 @@
 // ===== STORAGE SERVICE =====
-// Camada central de persistência do RUINNA.
+// Camada central de persistência do RunEvo.
 // Hoje usa localStorage; no futuro pode trocar por Supabase/Firebase sem reescrever o app.
 
 const StorageService = (() => {
-  const APP = 'ruinna';
+  const APP = 'runevo';
   const LEGACY_APP = 'planebsb';
   const SCHEMA_VERSION = 1;
-  const RELEASE_RESET_KEY = 'ruinna_release_reset_v53_done';
+  const RELEASE_RESET_KEY = 'runevo_release_reset_v53_done';
 
   function runReleaseResetIfNeeded() {
     try {
@@ -19,7 +19,7 @@ const StorageService = (() => {
 
         if (!key) continue;
 
-        const belongsToRuinna =
+        const belongsToRunEvo =
           key === `${APP}_logged_in` ||
           key === `${APP}_current_user` ||
           key === `${LEGACY_APP}_logged_in` ||
@@ -29,7 +29,7 @@ const StorageService = (() => {
           key.includes(`_${APP}_`) ||
           key.includes(`_${LEGACY_APP}_`);
 
-        if (belongsToRuinna && key !== RELEASE_RESET_KEY) {
+        if (belongsToRunEvo && key !== RELEASE_RESET_KEY) {
           keysToRemove.push(key);
         }
       }
@@ -37,10 +37,10 @@ const StorageService = (() => {
       keysToRemove.forEach(key => localStorage.removeItem(key));
       localStorage.setItem(RELEASE_RESET_KEY, 'true');
 
-      console.info(`RUINNA: reset de lançamento aplicado. ${keysToRemove.length} chave(s) removida(s).`);
+      console.info(`RunEvo: reset de lançamento aplicado. ${keysToRemove.length} chave(s) removida(s).`);
       return true;
     } catch (error) {
-      console.warn('RUINNA: não foi possível aplicar reset de lançamento.', error);
+      console.warn('RunEvo: não foi possível aplicar reset de lançamento.', error);
       return false;
     }
   }
@@ -155,7 +155,7 @@ const StorageService = (() => {
     removeRaw(`${LEGACY_APP}_current_user`);
   }
 
-  function resetAllRuinnaLocalData() {
+  function resetAllRunEvoLocalData() {
     try {
       const keysToRemove = [];
 
@@ -182,7 +182,7 @@ const StorageService = (() => {
       keysToRemove.forEach(key => localStorage.removeItem(key));
       return true;
     } catch (error) {
-      console.warn('RUINNA: falha ao limpar dados locais.', error);
+      console.warn('RunEvo: falha ao limpar dados locais.', error);
       return false;
     }
   }
@@ -303,7 +303,7 @@ const StorageService = (() => {
   function getUserSnapshot() {
     return {
       schemaVersion: SCHEMA_VERSION,
-      app: 'RUINNA',
+      app: 'RunEvo',
       exportedAt: new Date().toISOString(),
       user: getCurrentUser(),
       isAdopted: isPlanAdopted(),
@@ -359,7 +359,7 @@ const StorageService = (() => {
     isLoggedIn,
     login,
     logout,
-    resetAllRuinnaLocalData,
+    resetAllRunEvoLocalData,
     hasSeenOnboardingTour,
     setOnboardingTourSeen,
     getJSON,

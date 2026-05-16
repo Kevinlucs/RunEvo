@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <meta name="description" content="RUINNA - planeje e execute">
-    <meta name="theme-color" content="#000000">
+    <meta name="description" content="RunEvo - evolua sua corrida com inteligência">
+    <meta name="theme-color" content="#0A0E1A">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
-    <title>RUINNA - planeje e execute</title>
+    <title>RunEvo - evolua sua corrida com inteligência</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
@@ -25,7 +25,7 @@
     <div id="splash-screen" class="splash-screen">
         <div class="splash-content">
             <div class="splash-logo">
-                <h1 class="logo-text">RUINNA</h1>
+                <h1 class="logo-text">Run<span class="brand-evo">Evo</span></h1>
             </div>
             <p class="splash-subtitle">Planeje e se desafie.</p>
             <div class="splash-loader">
@@ -38,9 +38,9 @@
     <div id="login-screen" class="login-screen hidden">
         <div class="login-container">
             <div class="login-logo">
-                <h1 class="logo-text">RUINNA</h1>
+                <h1 class="logo-text">Run<span class="brand-evo">Evo</span></h1>
             </div>
-            <p class="login-subtitle">planeje e execute</p><p class="login-access">Acesso Exclusivo</p>
+            <p class="login-subtitle">evolua sua corrida com inteligência</p><p class="login-access">Acesso Exclusivo</p>
             
             <form id="login-form" class="login-form">
                 <div class="form-group">
@@ -74,7 +74,7 @@
                         <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
                 </button>
-                <h1 class="header-title">RUINNA</h1>
+                <h1 class="header-title">RunEvo</h1>
             </div>
             <div class="header-right">
                 <button id="header-user-profile" class="header-user-profile" onclick="goToProfilePage()" title="Perfil do atleta">
@@ -291,7 +291,7 @@
                         <button type="button" class="export-action-card" onclick="handleImportBackupClick()">
                             <span>📥</span>
                             <strong>Importar backup</strong>
-                            <small>Restaure um arquivo JSON exportado pelo RUINNA.</small>
+                            <small>Restaure um arquivo JSON exportado pelo RunEvo.</small>
                         </button>
                     </div>
                     <input type="file" id="backup-import-input" accept="application/json,.json" class="hidden">
@@ -373,7 +373,7 @@
                 <section class="profile-hero-v2">
                     <div class="profile-avatar-xl" id="settings-photo-preview">A</div>
                     <h2 id="profile-hub-name">Atleta</h2>
-                    <p id="profile-joined-date">Entrou no RUINNA</p>
+                    <p id="profile-joined-date">Entrou no RunEvo</p>
                     <button class="profile-edit-btn" onclick="toggleProfileEditPanel()">Editar perfil</button>
                 </section>
 
@@ -467,7 +467,7 @@
                 <section class="profile-legal-links">
                     <button onclick="showProfileComingSoon('Termos e condições')">Termos e condições</button>
                     <button onclick="showProfileComingSoon('Política de privacidade')">Política de privacidade</button>
-                    <small id="profile-app-version">versão RUINNA</small>
+                    <small id="profile-app-version">versão RunEvo</small>
                 </section>
 
                 <!-- IDs preservados para o motor atual de perfil/plano -->
@@ -626,7 +626,7 @@
 
                 <section class="privacy-card">
                     <h3>Política de Privacidade</h3>
-                    <p>O RUINNA salva seus dados localmente neste navegador nesta fase de testes. Informações como planilha, progresso, perfil e tênis não são enviadas para um banco externo nesta versão.</p>
+                    <p>O RunEvo salva seus dados localmente neste navegador nesta fase de testes. Informações como planilha, progresso, perfil e tênis não são enviadas para um banco externo nesta versão.</p>
 
                     <h3>Termos e Condições</h3>
                     <p>O app oferece apoio para organização de treinos, mas não substitui avaliação médica, treinador presencial ou acompanhamento profissional. Use os treinos com responsabilidade.</p>
@@ -644,12 +644,12 @@
                 <div class="ai-hero">
                     <div class="ai-hero-icon">🤖</div>
                     <h2 class="ai-hero-title">IA Coach</h2>
-                    <p class="ai-hero-sub">planeje e execute com Inteligência Artificial</p>
+                    <p class="ai-hero-sub">evolua sua corrida com inteligência com Inteligência Artificial</p>
                 </div>
 
                 <div class="ai-trust-card">
                     <div class="ai-trust-main">
-                        <span class="ai-trust-eyebrow">Motor RUINNA</span>
+                        <span class="ai-trust-eyebrow">Motor RunEvo</span>
                         <h3>Planilha personalizada com validação técnica</h3>
                         <p>A IA interpreta suas métricas, objetivo e histórico. O motor do app valida semanas, volumes, longões e distribuição antes de liberar a planilha.</p>
                     </div>

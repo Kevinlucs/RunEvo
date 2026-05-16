@@ -1,5 +1,5 @@
-const RUINNA_BUILD_VERSION = 'v53-release-reset';
-console.info('RUINNA build carregado:', RUINNA_BUILD_VERSION);
+const RunEvo_BUILD_VERSION = 'v65-runevo-rebrand';
+console.info('RunEvo build carregado:', RunEvo_BUILD_VERSION);
 
 // ===== DADOS DOS TREINOS =====
 let RACE_DATE = new Date(2026, 9, 17); // Sábado S24
@@ -154,7 +154,7 @@ function invalidateWeekAnalysis(weekIndex, reason = 'status_change') {
   }
 
   if (changed) {
-    console.info(`RUINNA: check-in da semana ${Number(weekIndex) + 1} invalidado por ${reason}.`);
+    console.info(`RunEvo: check-in da semana ${Number(weekIndex) + 1} invalidado por ${reason}.`);
   }
 
   return changed;
@@ -418,7 +418,7 @@ function getConsecutiveWeeks() {
 
 // ===== RENDER HELPERS =====
 function phaseColor(phase) {
-  if (phase === 'Base') return '#FC4C02';
+  if (phase === 'Base') return '#CCFF00';
   if (phase === 'Resistência') return '#FF6B2B';
   return '#FF8C42';
 }
@@ -1078,7 +1078,7 @@ function renderAdjustmentTimeline(rows) {
       ${adjustedRows.map(row => {
         const action = row.adjustment?.action || 'maintain';
         const source = row.checkin?.feedbackSource === 'ai' ? 'Coach IA' : row.checkin ? 'Regra local' : 'Sistema';
-        const message = row.checkin?.aiFeedback?.messageToUser || row.checkin?.resultMessage || row.adjustment?.reason || 'Semana analisada pelo RUINNA.';
+        const message = row.checkin?.aiFeedback?.messageToUser || row.checkin?.resultMessage || row.adjustment?.reason || 'Semana analisada pelo RunEvo.';
 
         return `
           <div class="adjustment-compact-row ${action}">
@@ -1426,13 +1426,13 @@ function renderEvolutionHistory() {
 
 // ===== EXPORT & BACKUP ENGINE =====
 function sanitizeFileName(value) {
-  return String(value || 'ruinna')
+  return String(value || 'runevo')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9-_]+/gi, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')
-    .toLowerCase() || 'ruinna';
+    .toLowerCase() || 'runevo';
 }
 
 function getTodayFileStamp() {
@@ -1458,7 +1458,7 @@ function setExportBackupStatus(message) {
 
 function getExportPlanName() {
   const plan = AICoach.loadPlan();
-  return plan?.planName || plan?.raceName || 'ruinna';
+  return plan?.planName || plan?.raceName || 'runevo';
 }
 
 function formatExportDate(value) {
@@ -1652,7 +1652,7 @@ function buildProfessionalExcelHTML() {
     <x:ExcelWorkbook>
       <x:ExcelWorksheets>
         <x:ExcelWorksheet>
-          <x:Name>RUINNA</x:Name>
+          <x:Name>RunEvo</x:Name>
           <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
         </x:ExcelWorksheet>
       </x:ExcelWorksheets>
@@ -1662,12 +1662,12 @@ function buildProfessionalExcelHTML() {
   <style>
     body { font-family: Arial, sans-serif; color: #1f2937; }
     table { border-collapse: collapse; width: 100%; }
-    .cover-title { background: #FC4C02; color: #ffffff; font-size: 22px; font-weight: 800; text-align: center; height: 36px; }
+    .cover-title { background: #CCFF00; color: #ffffff; font-size: 22px; font-weight: 800; text-align: center; height: 36px; }
     .cover-subtitle { background: #111827; color: #ffffff; font-size: 13px; text-align: center; height: 26px; }
     .section-title { background: #111827; color: #ffffff; font-size: 14px; font-weight: 800; height: 28px; }
     .kpi-label { background: #f3f4f6; color: #6b7280; font-weight: 700; border: 1px solid #d1d5db; }
     .kpi-value { background: #ffffff; color: #111827; font-weight: 800; border: 1px solid #d1d5db; }
-    th { background: #FC4C02; color: #ffffff; font-weight: 800; border: 1px solid #c2410c; height: 26px; }
+    th { background: #CCFF00; color: #ffffff; font-weight: 800; border: 1px solid #c2410c; height: 26px; }
     td { border: 1px solid #d1d5db; padding: 6px; vertical-align: top; }
     tr:nth-child(even) td { background: #fff7ed; }
     .number { text-align: center; mso-number-format:"0.0"; }
@@ -1686,7 +1686,7 @@ function buildProfessionalExcelHTML() {
       <col style="width: 110px"><col style="width: 110px"><col style="width: 95px"><col style="width: 110px">
       <col style="width: 80px"><col style="width: 280px">
     </colgroup>
-    <tr><td colspan="14" class="cover-title">RUINNA — RELATÓRIO PROFISSIONAL DE TREINOS</td></tr>
+    <tr><td colspan="14" class="cover-title">RunEvo — RELATÓRIO PROFISSIONAL DE TREINOS</td></tr>
     <tr><td colspan="14" class="cover-subtitle">${excelCell(summary.planName)} • Exportado em ${excelCell(new Date(summary.exportedAt).toLocaleString('pt-BR'))}</td></tr>
     <tr><td colspan="14"></td></tr>
 
@@ -1868,14 +1868,14 @@ function buildProfessionalPDFHTML() {
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>${pdfCell(summary.planName)} - RUINNA</title>
+  <title>${pdfCell(summary.planName)} - RunEvo</title>
   <style>
     @page { size: A4 landscape; margin: 12mm; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: #111827; background: #f3f4f6; }
     .pdf-page { max-width: 1180px; margin: 0 auto; background: #fff; padding: 28px; }
     .hero { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; align-items: stretch; margin-bottom: 22px; }
-    .hero-main { background: linear-gradient(135deg, #FC4C02, #111827); color: #fff; border-radius: 22px; padding: 26px; }
+    .hero-main { background: linear-gradient(135deg, #CCFF00, #111827); color: #fff; border-radius: 22px; padding: 26px; }
     .hero-main .brand { font-size: 13px; letter-spacing: .18em; font-weight: 900; opacity: .85; }
     .hero-main h1 { margin: 10px 0 8px; font-size: 34px; line-height: 1.05; }
     .hero-main p { margin: 0; font-size: 14px; opacity: .9; }
@@ -1902,12 +1902,12 @@ function buildProfessionalPDFHTML() {
     .coach-warning-pdf li { margin: 3px 0; }
     .week-card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #e5e7eb; border-radius: 18px; margin: 0 0 16px; overflow: hidden; background: #fff; }
     .week-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
-    .eyebrow { display: block; color: #FC4C02; font-size: 10px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .eyebrow { display: block; color: #CCFF00; font-size: 10px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
     .week-head h2 { margin: 2px 0 0; font-size: 22px; }
     .week-kpis { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
     .week-kpis span { padding: 7px 10px; border-radius: 999px; background: #111827; color: #fff; font-size: 11px; font-weight: 800; }
     table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-    th { background: #FC4C02; color: #fff; text-align: left; font-size: 11px; padding: 8px; }
+    th { background: #CCFF00; color: #fff; text-align: left; font-size: 11px; padding: 8px; }
     td { border-top: 1px solid #e5e7eb; padding: 8px; font-size: 11px; vertical-align: top; word-wrap: break-word; }
     td span { color: #6b7280; }
     .num { text-align: center; font-weight: 800; white-space: nowrap; }
@@ -1924,7 +1924,7 @@ function buildProfessionalPDFHTML() {
   <div class="pdf-page">
     <section class="hero">
       <div class="hero-main">
-        <div class="brand">RUINNA</div>
+        <div class="brand">RunEvo</div>
         <h1>${pdfCell(summary.planName)}</h1>
         <p>Relatório profissional de treinos gerado em ${pdfCell(new Date(summary.exportedAt).toLocaleString('pt-BR'))}</p>
       </div>
@@ -1952,7 +1952,7 @@ function buildProfessionalPDFHTML() {
     <h2 class="section-title">Planilha detalhada</h2>
     ${weekCards}
 
-    <p class="footer">RUINNA • Relatório gerado localmente pelo navegador. Use Ctrl/Cmd + P para salvar novamente em PDF.</p>
+    <p class="footer">RunEvo • Relatório gerado localmente pelo navegador. Use Ctrl/Cmd + P para salvar novamente em PDF.</p>
   </div>
 </body>
 </html>`;
@@ -1967,7 +1967,7 @@ function handleExportPDF() {
   const printWindow = window.open('', '_blank');
 
   if (!printWindow) {
-    showSimpleModal('⚠️', 'Pop-up bloqueado', 'Permita pop-ups para o RUINNA e tente gerar o PDF novamente.');
+    showSimpleModal('⚠️', 'Pop-up bloqueado', 'Permita pop-ups para o RunEvo e tente gerar o PDF novamente.');
     return;
   }
 
@@ -1986,7 +1986,7 @@ function handleExportPDF() {
 function buildBackupPayload() {
   const snapshot = StorageService.getUserSnapshot();
   return {
-    app: 'RUINNA',
+    app: 'RunEvo',
     version: '1.0',
     ...snapshot
   };
@@ -2000,7 +2000,7 @@ function handleExportBackup() {
     return;
   }
 
-  const planName = sanitizeFileName(payload.plan?.planName || 'ruinna-backup');
+  const planName = sanitizeFileName(payload.plan?.planName || 'runevo-backup');
   const filename = `${planName}-backup-${getTodayFileStamp()}.json`;
   const json = JSON.stringify(payload, null, 2);
 
@@ -2018,7 +2018,7 @@ function handleImportBackupClick() {
 
 function validateBackupPayload(payload) {
   if (!payload || typeof payload !== 'object') return 'Arquivo inválido.';
-  if (payload.app !== 'RUINNA') return 'Este arquivo não parece ser um backup do RUINNA.';
+  if (payload.app !== 'RunEvo') return 'Este arquivo não parece ser um backup do RunEvo.';
   if (!payload.plan && !payload.workoutFeedback && !payload.weeklyCheckins) return 'Backup sem dados úteis para restaurar.';
 
   return null;
@@ -2072,7 +2072,7 @@ function handleImportBackupFile(file) {
     document.getElementById('modal-title').textContent = 'Importar backup?';
     document.getElementById('modal-message').innerHTML = `
       <p>Isso substituirá o plano, progresso, check-ins e ajustes salvos neste navegador.</p>
-      <p><strong>${escapeHTML(payload.plan?.planName || 'Backup RUINNA')}</strong></p>
+      <p><strong>${escapeHTML(payload.plan?.planName || 'Backup RunEvo')}</strong></p>
       <p>${payload.exportedAt ? `Exportado em ${new Date(payload.exportedAt).toLocaleString('pt-BR')}` : ''}</p>
     `;
     document.getElementById('modal-overlay').classList.remove('hidden');
@@ -2404,7 +2404,7 @@ function getAIErrorTip(message = '') {
   }
 
   if (msg.includes('json') || msg.includes('interpretar')) {
-    return 'A resposta da IA veio fora do formato esperado. O RUINNA bloqueou a planilha para evitar dados quebrados.';
+    return 'A resposta da IA veio fora do formato esperado. O RunEvo bloqueou a planilha para evitar dados quebrados.';
   }
 
   if (msg.includes('data') || msg.includes('semana') || msg.includes('distância')) {
@@ -3021,7 +3021,7 @@ function handleAdoptPlan() {
   document.getElementById('modal-title').textContent = 'Adotar esta planilha?';
   document.getElementById('modal-message').innerHTML = `
     <p>Seu plano atual será substituído pela planilha gerada pela IA.</p>
-    <p><strong>${escapeHTML(plan.planName || plan.raceName || 'Planilha RUINNA')}</strong></p>
+    <p><strong>${escapeHTML(plan.planName || plan.raceName || 'Planilha RunEvo')}</strong></p>
     <p>O progresso de treinos concluídos será zerado para iniciar a nova jornada.</p>
   `;
 
@@ -3631,7 +3631,7 @@ function getLocalAdjustmentRecommendation(weekIndex, feedback) {
   } else if (summary.skipped > 0 && summary.completionRate >= 0.6) {
     factor = 1;
     action = 'maintain';
-    reason = 'Houve treino pulado. O RUINNA irá redistribuir uma parte segura da carga para a próxima semana, sem compensação agressiva.';
+    reason = 'Houve treino pulado. O RunEvo irá redistribuir uma parte segura da carga para a próxima semana, sem compensação agressiva.';
   } else if (summary.completionRate < 0.6) {
     factor = 0.85;
     action = 'reduce';
@@ -3740,7 +3740,7 @@ function buildAICheckinPrompt(weekIndex, feedback, localRecommendation) {
   };
 
   return `
-Você é o Coach IA do RUINNA. Analise o check-in semanal e recomende um ajuste prudente para a próxima semana.
+Você é o Coach IA do RunEvo. Analise o check-in semanal e recomende um ajuste prudente para a próxima semana.
 
 DADOS DO CHECK-IN:
 ${JSON.stringify(payload, null, 2)}
@@ -4983,7 +4983,7 @@ function formatProfileJoinDate(profile = null) {
   const date = new Date(source);
   const months = ['jan.', 'fev.', 'mar.', 'abr.', 'mai.', 'jun.', 'jul.', 'ago.', 'set.', 'out.', 'nov.', 'dez.'];
 
-  if (Number.isNaN(date.getTime())) return 'Entrou no RUINNA';
+  if (Number.isNaN(date.getTime())) return 'Entrou no RunEvo';
 
   return `Entrou em ${months[date.getMonth()]} de ${date.getFullYear()}`;
 }
@@ -5028,7 +5028,7 @@ function confirmDeleteLocalAccount() {
 
   cancelBtn.onclick = () => document.getElementById('modal-overlay').classList.add('hidden');
   confirmBtn.onclick = () => {
-    if (StorageService.resetAllRuinnaLocalData) StorageService.resetAllRuinnaLocalData();
+    if (StorageService.resetAllRunEvoLocalData) StorageService.resetAllRunEvoLocalData();
     else localStorage.clear();
     location.reload();
   };
@@ -5057,7 +5057,7 @@ function renderSettingsPage() {
 
   setText('profile-hub-name', profile?.displayName || plan?.userData?.name || profile?.username || 'Atleta');
   setText('profile-joined-date', formatProfileJoinDate(profile));
-  setText('profile-app-version', 'versão RUINNA v63');
+  setText('profile-app-version', 'versão RunEvo v63');
   setText('settings-adopted', summary.isAdopted ? 'Adotada' : 'Livre');
 
   setText('settings-plan-name', plan?.planName || 'Sem plano');
@@ -5311,12 +5311,12 @@ function finishLogin(user) {
 
 
 // ===== FIRST LOGIN TOUR =====
-const RUINNA_TOUR_STEPS = [
+const RunEvo_TOUR_STEPS = [
   {
     page: 'home',
     icon: '👋',
-    title: 'Bem-vindo ao RUINNA',
-    text: 'Aqui você acompanha a semana atual, registra treinos e libera check-ins. O RUINNA transforma o plano em execução diária.'
+    title: 'Bem-vindo ao RunEvo',
+    text: 'Aqui você acompanha a semana atual, registra treinos e libera check-ins. O RunEvo transforma o plano em execução diária.'
   },
   {
     page: 'ai',
@@ -5345,7 +5345,7 @@ const RUINNA_TOUR_STEPS = [
 ];
 
 function renderTourStep(index = 0) {
-  const step = RUINNA_TOUR_STEPS[index];
+  const step = RunEvo_TOUR_STEPS[index];
   if (!step) return finishOnboardingTour();
 
   if (step.page === 'home') renderHome();
@@ -5355,7 +5355,7 @@ function renderTourStep(index = 0) {
   if (step.page === 'settings') renderSettingsPage();
   showPage(step.page);
 
-  const isLast = index === RUINNA_TOUR_STEPS.length - 1;
+  const isLast = index === RunEvo_TOUR_STEPS.length - 1;
 
   document.getElementById('modal-icon').textContent = step.icon;
   document.getElementById('modal-title').textContent = step.title;
@@ -5363,9 +5363,9 @@ function renderTourStep(index = 0) {
     <div class="tour-card">
       <p>${escapeHTML(step.text)}</p>
       <div class="tour-progress">
-        ${RUINNA_TOUR_STEPS.map((_, i) => `<span class="${i === index ? 'active' : ''}"></span>`).join('')}
+        ${RunEvo_TOUR_STEPS.map((_, i) => `<span class="${i === index ? 'active' : ''}"></span>`).join('')}
       </div>
-      <small>Passo ${index + 1} de ${RUINNA_TOUR_STEPS.length}</small>
+      <small>Passo ${index + 1} de ${RunEvo_TOUR_STEPS.length}</small>
     </div>
   `;
 
@@ -5447,7 +5447,7 @@ function confirmReplayTour(event) {
   }
 
   document.getElementById('modal-icon').textContent = '❔';
-  document.getElementById('modal-title').textContent = 'Rever tour do RUINNA?';
+  document.getElementById('modal-title').textContent = 'Rever tour do RunEvo?';
   document.getElementById('modal-message').innerHTML = `
     <div class="tour-card">
       <p>Deseja rever a apresentação rápida do app? O tour mostra como usar Início, IA Coach, Treinos, Estatísticas e Perfil.</p>

@@ -1,25 +1,23 @@
 {
-  "name": "RUINNA",
-  "short_name": "RUINNA",
-  "description": "planeje e execute",
+  "name": "RunEvo",
+  "short_name": "RunEvo",
+  "description": "evolua sua corrida com inteligência",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#0A0E1A",
+  "theme_color": "#CCFF00",
   "icons": [
     {
-      "src": "assets/img/ruinna-icon-192.png",
+      "src": "./assets/img/runevo-icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "assets/img/ruinna-icon-512.png",
+      "src": "./assets/img/runevo-icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }

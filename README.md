@@ -1,6 +1,6 @@
-# RUINNA
+# RunEvo
 
-O **RUINNA** é um Progressive Web App (PWA) para gerar, organizar e acompanhar planos de treino de corrida. A arquitetura atual usa um modelo híbrido: a IA atua como gestora estratégica e o motor local do app monta a planilha completa com semanas, treinos, volumes, paces e datas.
+O **RunEvo** é um Progressive Web App (PWA) para gerar, organizar e acompanhar planos de treino de corrida. A arquitetura atual usa um modelo híbrido: a IA atua como gestora estratégica e o motor local do app monta a planilha completa com semanas, treinos, volumes, paces e datas.
 
 ## ✨ Principais Funcionalidades
 
@@ -16,8 +16,8 @@ O **RUINNA** é um Progressive Web App (PWA) para gerar, organizar e acompanhar 
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/Kevinlucs/RUINNA.git
-cd RUINNA
+git clone https://github.com/Kevinlucs/RunEvo.git
+cd RunEvo
 ```
 
 2. Configure suas credenciais:
@@ -130,7 +130,7 @@ Esta versão adiciona a camada de exportação e backup local:
 - Importação de backup JSON para restaurar o plano e o histórico no navegador.
 - Mantém a estratégia sem banco de dados para o MVP fechado com poucos usuários.
 
-Após publicar, limpe o Service Worker/cache do navegador para carregar o `ruinna-v13`.
+Após publicar, limpe o Service Worker/cache do navegador para carregar o `runevo-v13`.
 
 
 ## Atualização v14
@@ -161,7 +161,7 @@ Nesta versão, o Adaptive Training Engine passou a consultar o Coach IA no fecha
 1. O usuário registra todos os treinos da semana.
 2. O check-in envia um resumo compacto para a IA: aderência, km planejado, km realizado, esforço, dor/incômodo e próxima semana.
 3. A IA recomenda manter, reduzir, aplicar recuperação ou aumentar levemente a carga.
-4. O RUINNA aplica guardrails locais para impedir aumentos quando houver dor, esforço extremo ou baixa aderência.
+4. O RunEvo aplica guardrails locais para impedir aumentos quando houver dor, esforço extremo ou baixa aderência.
 5. Se a IA falhar, o motor local continua funcionando normalmente.
 
 A IA não reescreve a planilha inteira; ela apenas interpreta o check-in e justifica o ajuste semanal.
@@ -204,7 +204,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 
 - Remove a redundância entre gráficos e histórico.
 - A parte inferior agora mostra leitura inteligente do ciclo, últimos check-ins e ajustes recentes.
-- Cache atualizado para `ruinna-v22`.
+- Cache atualizado para `runevo-v22`.
 
 
 ## Lapidação de responsividade e UX - v24
@@ -217,7 +217,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Resultado do plano gerado mostra a revisão primeiro e deixa as semanas recolhidas em “Exibir todas as semanas”.
 - Após adotar o plano, o app redireciona para o Início.
 - Tela de treino ganhou botão “Voltar ao início”.
-- Cache atualizado para `ruinna-v24`.
+- Cache atualizado para `runevo-v24`.
 
 
 ## Ajustes de Stats e Adaptive Training - v25
@@ -227,7 +227,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Regras do check-in ajustadas: semana 100% concluída, leve e sem dor não reduz a próxima semana automaticamente.
 - A IA foi orientada a não cortar carga apenas porque a próxima semana planejada é maior que a semana recém-concluída.
 - Modal de feedback do check-in agora tem altura controlada e scroll interno.
-- Cache atualizado para `ruinna-v25`.
+- Cache atualizado para `runevo-v25`.
 
 
 ## Ajustes de longões e datepicker - v26
@@ -236,7 +236,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Campo extra de distância para Ultra/Personalizado ficou mais responsivo no desktop.
 - Corrigido `openNativeDatePicker is not defined`.
 - Ícone nativo preto do datepicker foi ocultado; fica somente o botão colorido do app.
-- Cache atualizado para `ruinna-v26`.
+- Cache atualizado para `runevo-v26`.
 
 
 ## Responsividade do campo de distância e datepicker - v27
@@ -246,7 +246,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Removido `style="display:none"` do campo de distância customizada; agora o controle é por classe.
 - Removido clique no input date para evitar disparo duplo do datepicker.
 - Ícone nativo preto do datepicker ocultado com regras adicionais.
-- Cache atualizado para `ruinna-v27`.
+- Cache atualizado para `runevo-v27`.
 
 
 ## Storage Service - v28
@@ -256,7 +256,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Dados passaram a ser salvos por usuário com fallback de leitura para chaves antigas.
 - Backup/importação usa snapshot centralizado do usuário.
 - Preparação para futura migração para Supabase/Firebase sem reescrever o app inteiro.
-- Cache atualizado para `ruinna-v28`.
+- Cache atualizado para `runevo-v28`.
 
 
 ## Lapidação final do campo de distância - v29
@@ -264,7 +264,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Para 5K, 10K, 21K e 42K, o campo “Distância da Prova” ocupa a largura útil do card.
 - Para Ultra/Personalizado, o campo “Distância (km)” aparece ao lado no desktop e empilha corretamente no mobile.
 - Regras CSS reforçadas com responsividade web/mobile.
-- Cache atualizado para `ruinna-v29`.
+- Cache atualizado para `runevo-v29`.
 
 
 ## User/Profile Manager - v30
@@ -276,7 +276,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Modal de perfil mostra plano, semanas, treinos, check-ins e ajustes do usuário atual.
 - Login passou a validar pelo `UserProfileService`, mantendo compatibilidade com `CONFIG.ALLOWED_USERS`.
 - `config/config.js` agora suporta `USER_PROFILES`.
-- Cache atualizado para `ruinna-v30`.
+- Cache atualizado para `runevo-v30`.
 
 
 ## Correção do header no desktop - v31
@@ -284,7 +284,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Corrigido desalinhamento do perfil do usuário na versão desktop.
 - Header agora usa flex layout consistente para perfil, km total e botão sair.
 - Mobile preservado com avatar compacto.
-- Cache atualizado para `ruinna-v31`.
+- Cache atualizado para `runevo-v31`.
 
 
 ## Settings Page - v32
@@ -294,7 +294,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Permite editar nome, objetivo, dias por semana e data da prova nos metadados do plano.
 - Adicionada ação para limpar dados locais somente do usuário logado.
 - Bottom navigation ajustada para 5 itens.
-- Cache atualizado para `ruinna-v32`.
+- Cache atualizado para `runevo-v32`.
 
 
 ## Ajustes: perfil sem alterar planilha - v33
@@ -304,7 +304,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Objetivo e quantidade de treinos ficaram somente como leitura/resumo.
 - Adicionado upload/remover foto do atleta, salvo localmente por usuário.
 - Dados do perfil ajudam a preencher o IA Coach, mas não recalculam a planilha ativa.
-- Cache atualizado para `ruinna-v33`.
+- Cache atualizado para `runevo-v33`.
 
 
 ## Perfil lapidado + peso no check-in - v34
@@ -318,7 +318,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Removido botão “Restaurar”.
 - A cada 4 semanas concluídas, o check-in exige peso atual.
 - Peso do check-in atualiza o perfil, recalcula IMC e alimenta a análise do Coach IA.
-- Cache atualizado para `ruinna-v34`.
+- Cache atualizado para `runevo-v34`.
 
 
 ## Polimento perfil, modal e navegação - v35
@@ -330,7 +330,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Card da foto ocupa melhor o grid esquerdo no desktop.
 - Navegação reordenada: Início | Treinos | IA Coach | Estatísticas | Perfil.
 - “Stats” virou “Estatísticas”; “Ajustes” virou “Perfil”.
-- Cache atualizado para `ruinna-v35`.
+- Cache atualizado para `runevo-v35`.
 
 
 ## Polimento final da aba Perfil - v36
@@ -340,7 +340,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Modal antigo de perfil foi desativado.
 - Card de foto centralizado para ocupar melhor o espaço do grid esquerdo.
 - Label/campo de nome alinhado ao padrão dos demais cards no desktop e mobile.
-- Cache atualizado para `ruinna-v36`.
+- Cache atualizado para `runevo-v36`.
 
 
 ## Perfil final - v37
@@ -350,7 +350,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Planilha atual foi movida para baixo.
 - Campo “Nome do atleta” alinhado visualmente com os demais cards.
 - Ajuste responsivo aplicado para web e mobile.
-- Cache atualizado para `ruinna-v37`.
+- Cache atualizado para `runevo-v37`.
 
 
 ## Treinos Hub + Exportação - v38
@@ -361,15 +361,15 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Aba Estatísticas ficou focada apenas em análise/performance.
 - Cards de fase mostram treinos concluídos e km realizado/planejado.
 - Layout responsivo para web e mobile.
-- Cache atualizado para `ruinna-v38`.
+- Cache atualizado para `runevo-v38`.
 
 
 ## Rebrand - v39
 
-- Nome do app atualizado para `RUINNA`.
-- Slogan atualizado para `planeje e execute`.
+- Nome do app atualizado para `RunEvo`.
+- Slogan atualizado para `evolua sua corrida com inteligência`.
 - Título, manifesto, service worker, relatórios, exportações, backups e textos visíveis foram atualizados.
-- Cache atualizado para `ruinna-v39`.
+- Cache atualizado para `runevo-v39`.
 
 
 ## Foto mobile + tour de primeiro login - v40
@@ -379,7 +379,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Adicionado tour de primeiro login por usuário.
 - Tour apresenta: Início, IA Coach, Treinos, Estatísticas e Perfil.
 - O tour roda apenas uma vez por usuário e fica salvo no StorageService.
-- Cache atualizado para `ruinna-v40`.
+- Cache atualizado para `runevo-v40`.
 
 
 ## Logos/PWA + tour + navegação - v41
@@ -388,10 +388,10 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
   - favicon.ico
   - favicon.png
   - apple-touch-icon.png
-  - ruinna-icon-192.png
-  - ruinna-icon-512.png
+  - runevo-icon-192.png
+  - runevo-icon-512.png
 - `index.html` e `manifest.json` atualizados para usar os novos ícones.
-- Service Worker atualizado para `ruinna-v41`.
+- Service Worker atualizado para `runevo-v41`.
 - Texto do tour da IA Coach atualizado com explicação mais profissional sobre personalização por métricas.
 - Ícones da bottom navigation centralizados para mobile e desktop.
 
@@ -402,7 +402,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Tela de login agora tem fundo opaco e z-index isolado.
 - Logout agora oculta o app de forma explícita e reseta navegação para Início.
 - Login limpa o display inline e restaura o app corretamente.
-- Cache atualizado para `ruinna-v42`.
+- Cache atualizado para `runevo-v42`.
 
 
 ## Botão de tour recorrente - v43
@@ -412,7 +412,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Adicionado botão `?` ao lado do ícone Perfil na bottom nav mobile.
 - O tour agora pode ser revisitado a qualquer momento, não apenas no primeiro login.
 - Texto do Perfil no tour ajustado para explicar peso/IMC e análise da IA.
-- Cache atualizado para `ruinna-v43`.
+- Cache atualizado para `runevo-v43`.
 
 
 ## Ajuste do botão de tour - v44
@@ -421,7 +421,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Removido o botão `?` da bottom navigation mobile.
 - Corrigido fluxo do botão “Rever tour” para abrir a apresentação corretamente após confirmação.
 - Botões do modal do tour agora são resetados antes de cada etapa.
-- Cache atualizado para `ruinna-v44`.
+- Cache atualizado para `runevo-v44`.
 
 
 ## Correção definitiva do replay do tour - v45
@@ -430,7 +430,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - O botão agora usa `data-action="start-tour"` e listener em captura para evitar conflito com handlers antigos do modal.
 - O modal de confirmação é fechado antes de abrir o primeiro passo do tour.
 - Botões do modal limpam ações antigas antes de cada etapa.
-- Cache atualizado para `ruinna-v45`.
+- Cache atualizado para `runevo-v45`.
 
 
 ## Correção do tour após remover KM do header - v46
@@ -438,17 +438,17 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Corrigido erro ao iniciar/rever tour causado pela remoção do elemento `#total-km`.
 - `renderHome()` agora verifica se `#total-km` existe antes de tentar atualizar.
 - O botão `?` continua substituindo o contador de KM no header.
-- Cache atualizado para `ruinna-v46`.
+- Cache atualizado para `runevo-v46`.
 
 
 ## IA Coach polish para testes - v47
 
-- Adicionado card de confiança explicando o Motor RUINNA.
+- Adicionado card de confiança explicando o Motor RunEvo.
 - Loading da IA agora mostra etapas: Perfil, Estratégia, Validação e Planilha.
 - Validação dos campos obrigatórios ficou mais clara e destaca o campo com erro.
 - Mensagens de erro da IA ficaram mais profissionais e orientadas à ação.
 - Adicionado resumo prévio durante a geração: prova, semanas, treinos por semana, nível e objetivo.
-- Cache atualizado para `ruinna-v47`.
+- Cache atualizado para `runevo-v47`.
 
 
 ## Correção crítica: adotar planilha - v48
@@ -457,13 +457,13 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Botão de confirmação agora mostra “Adotar planilha”.
 - Adição de validação para garantir que existe uma planilha salva antes de adotar.
 - Adotação agora trata erro e exibe feedback ao usuário.
-- Cache atualizado para `ruinna-v48`.
+- Cache atualizado para `runevo-v48`.
 
 
 ## Cache guard - v49
 
-- Adicionado marcador `RUINNA_BUILD_VERSION = v49-cache-guard` no console.
-- Service Worker atualizado para `ruinna-v49`.
+- Adicionado marcador `RunEvo_BUILD_VERSION = v49-cache-guard` no console.
+- Service Worker atualizado para `runevo-v49`.
 - Registro do service worker agora chama `registration.update()`.
 - Confirmado que o bug antigo `isComplete/isPartial` não existe mais no `handleAdoptPlan()`.
 - Esta versão serve para evitar confusão com cache antigo do navegador/PWA.
@@ -476,7 +476,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - O fluxo de adoção agora pode exibir feedback de sucesso sem quebrar.
 - A função também atende check-ins que já chamavam `showToast`.
 - Adicionado CSS do toast.
-- Cache atualizado para `ruinna-v50`.
+- Cache atualizado para `runevo-v50`.
 
 
 ## Descrições profissionais dos treinos - v51
@@ -489,7 +489,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Validação foi ajustada para substituir descrições curtas/vagas por descrições profissionais.
 - Limite de descrição ampliado de 120 para 650 caracteres.
 - Prompt da IA reforçado para estratégia com linguagem de treinador.
-- Cache atualizado para `ruinna-v51`.
+- Cache atualizado para `runevo-v51`.
 
 
 ## UI da descrição do treino - v52
@@ -499,12 +499,12 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Distâncias, paces e repetições agora recebem destaque visual.
 - Layout responsivo em grid no desktop e empilhado no mobile.
 - Semana de recuperação ganhou alerta visual próprio.
-- Cache atualizado para `ruinna-v52`.
+- Cache atualizado para `runevo-v52`.
 
 
 ## Reset de lançamento para testes - v53
 
-- Adicionado reset automático de dados locais do RUINNA na primeira abertura desta versão.
+- Adicionado reset automático de dados locais do RunEvo na primeira abertura desta versão.
 - O reset remove dados de todas as contas salvas neste navegador:
   - login atual
   - planos gerados/adotados
@@ -513,9 +513,9 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
   - feedbacks
   - perfil/foto/peso
   - dados legados `planebsb`
-- O reset roda apenas uma vez por navegador usando `ruinna_release_reset_v53_done`.
-- Adicionada função `StorageService.resetAllRuinnaLocalData()` para reset manual futuro.
-- Service Worker atualizado para `ruinna-v53`.
+- O reset roda apenas uma vez por navegador usando `runevo_release_reset_v53_done`.
+- Adicionada função `StorageService.resetAllRunEvoLocalData()` para reset manual futuro.
+- Service Worker atualizado para `runevo-v53`.
 
 
 ## Agenda da primeira semana + editor centralizado + ações simplificadas - v54
@@ -530,7 +530,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Mantidos apenas “Concluir treino” e “Pulei”.
 - Treinos pulados continuam liberando check-in e são enviados para a IA como skippedWorkouts/skippedDetails.
 - Prompt do check-in reforçado para a IA entender treino pulado e sugerir redistribuição prudente.
-- Cache atualizado para `ruinna-v54`.
+- Cache atualizado para `runevo-v54`.
 
 
 ## Check-in consistente + treino mobile limpo - v55
@@ -543,7 +543,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Check-in considera apenas treinos concluídos ou pulados como resolvidos.
 - Treino pulado continua entrando na análise do check-in para redistribuição segura da carga.
 - Responsividade mobile da tela do treino refinada: cards, textos, botões e descrição.
-- Cache atualizado para `ruinna-v55`.
+- Cache atualizado para `runevo-v55`.
 
 
 ## Zonas de treinamento pelo teste de 3km - v56
@@ -555,7 +555,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Tela de detalhe do treino ganhou card com tabela de zonas do atleta.
 - A tabela mostra pace e velocidade de esteira em km/h.
 - Descrições ficam mais limpas e profissionais, usando zona em vez de excesso de pace.
-- Cache atualizado para `ruinna-v56`.
+- Cache atualizado para `runevo-v56`.
 
 
 ## Zonas simplificadas + redistribuição de treino pulado - v57
@@ -572,7 +572,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Modal de concluir/pular treino ficou mais profissional.
 - Ao concluir ou pular, o app redireciona para o Início.
 - Feedback de conclusão/pulo foi melhorado.
-- Cache atualizado para `ruinna-v57`.
+- Cache atualizado para `runevo-v57`.
 
 
 ## Descrição em prescrição limpa - v58
@@ -585,7 +585,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
   - 3X (500M EM Z3/Z4 + 500M EM Z1)
   - 1KM EM Z1
 - Descrições antigas verbosas são simplificadas na renderização.
-- Cache atualizado para `ruinna-v58`.
+- Cache atualizado para `runevo-v58`.
 
 
 ## Fluxo semanal e prescrição legível - v59
@@ -597,7 +597,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Prescrições deixaram de aparecer em caixa alta.
 - Fartlek passou a seguir formato mais claro: aquecimento + blocos completos + desaquecimento.
 - Exemplo: 1km em Z1 / 3x (1km em Z3 + 1km em Z1) / 1km em Z1.
-- Cache atualizado para `ruinna-v59`.
+- Cache atualizado para `runevo-v59`.
 
 
 ## Prescrição quebrada por linha + pace planejado calculado - v60
@@ -610,7 +610,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
   - nas zonas do atleta;
   - na distância de cada bloco.
 - Exemplo: `5km em Z2` usa o pace representativo da Z2 para estimar o pace planejado final.
-- Cache atualizado para `ruinna-v60`.
+- Cache atualizado para `runevo-v60`.
 
 
 ## Correção de quebra de linha na prescrição - v61
@@ -623,7 +623,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
   - 3x (1km em Z3 + 1km em Z1)
   - 500m em Z2
   - 1km em Z1
-- Cache atualizado para `ruinna-v61`.
+- Cache atualizado para `runevo-v61`.
 
 
 ## Pace planejado pelo meio termo da zona - v62
@@ -632,7 +632,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Exemplo: se Z1 for 5:16/km até 6:40/km, o pace planejado para blocos em Z1 será ~5:58/km.
 - O app agora prioriza o cálculo pela prescrição do treino antes de usar pace salvo antigo.
 - Isso evita que o atleta seja condicionado a correr sempre na ponta mais rápida da zona.
-- Cache atualizado para `ruinna-v62`.
+- Cache atualizado para `runevo-v62`.
 
 
 ## Profile hub redesign - v63
@@ -652,7 +652,7 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
   - Termos e Política
 - Não foram incluídos cards riscados nas referências: premium, níveis, produtos, eventos, redes sociais etc.
 - Edição de foto/nome mantida em painel simples dentro do perfil.
-- Cache atualizado para `ruinna-v63`.
+- Cache atualizado para `runevo-v63`.
 
 
 ## Perfil: Tênis e Geral - v64
@@ -676,4 +676,23 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
   - Privacidade
 - Itens riscados nas referências não foram incluídos.
 - Aplicativos conectados permanece como placeholder para futura integração Strava/calendário/relógios.
-- Cache atualizado para `ruinna-v64`.
+- Cache atualizado para `runevo-v64`.
+
+
+## Rebrand RunEvo - v65
+
+- Nome do app alterado de RUINNA para RunEvo.
+- Slogan alterado para: “evolua sua corrida com inteligência”.
+- Paleta atualizada:
+  - Primary: #CCFF00
+  - Secondary: #0A0E1A
+  - Tertiary: #00D1FF
+  - Neutral: #F8F9FA
+- Logo e ícones atualizados para a nova marca RunEvo.
+- Manifest, favicon, apple-touch-icon e ícones PWA atualizados.
+- Cabeçalho/brand com “Evo” em #CCFF00.
+- Cache atualizado para `runevo-v65`.
+
+
+### v66
+- Correção da marca: logo principal e ícones regenerados usando a imagem correta enviada pelo usuário.

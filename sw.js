@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ruinna-v64';
+const CACHE_NAME = 'runevo-v65';
 const ASSETS = [
   './',
   './index.html',
@@ -9,12 +9,12 @@ const ASSETS = [
   './assets/js/ai-coach.js',
   './config/config.js',
   './manifest.json',
-  './assets/img/logo.jpeg',
+  './assets/img/logo.png',
   './assets/img/favicon.ico',
   './assets/img/favicon.png',
   './assets/img/apple-touch-icon.png',
-  './assets/img/ruinna-icon-192.png',
-  './assets/img/ruinna-icon-512.png',
+  './assets/img/runevo-icon-192.png',
+  './assets/img/runevo-icon-512.png',
   'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap'
 ];
 

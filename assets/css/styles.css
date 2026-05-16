@@ -8,16 +8,16 @@
 }
 
 :root {
-  --primary: #FC4C02;
+  --primary: #CCFF00;
   --bg: #000000;
-  --bg-card: #1a1a1a;
-  --bg-card-hover: #242424;
-  --accent: #FC4C02;
-  --accent-light: #FF6B2B;
-  --accent-glow: rgba(252, 76, 2, 0.3);
+  --bg-card: #171A1A;
+  --bg-card-hover: #1F2424;
+  --accent: #CCFF00;
+  --accent-light: #D9FF4D;
+  --accent-glow: rgba(204, 255, 0, 0.3);
   --green: #4CD964;
   --green-glow: rgba(76, 217, 100, 0.3);
-  --orange: #FC4C02;
+  --orange: #CCFF00;
   --red: #FF3B30;
   --text: #F5F5F5;
   --text-secondary: #999999;
@@ -111,7 +111,7 @@ body {
 .loader-bar {
   width: 0;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), #FF8C42);
+  background: linear-gradient(90deg, var(--accent), #D9FF4D);
   border-radius: 3px;
   animation: loadBar 1.8s ease forwards;
 }
@@ -189,7 +189,7 @@ body {
 }
 
 .stat-km {
-  background: linear-gradient(135deg, var(--accent), #FF8C42);
+  background: linear-gradient(135deg, var(--accent), #D9FF4D);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
@@ -230,8 +230,8 @@ body {
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  background: rgba(252, 76, 2, 0.12);
-  border: 1px solid rgba(252, 76, 2, 0.3);
+  background: rgba(204, 255, 0, 0.12);
+  border: 1px solid rgba(204, 255, 0, 0.3);
   border-radius: 20px;
   font-size: 0.7rem;
   font-weight: 700;
@@ -412,7 +412,7 @@ body {
   height: 100%;
   border-radius: 6px;
   transition: width 0.8s ease;
-  background: linear-gradient(90deg, var(--accent), #FF8C42);
+  background: linear-gradient(90deg, var(--accent), #D9FF4D);
 }
 
 /* ===== WEEKLY ===== */
@@ -468,7 +468,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(252, 76, 2, 0.12);
+  background: rgba(204, 255, 0, 0.12);
   border-radius: 10px;
   font-size: 0.65rem;
   font-weight: 700;
@@ -584,7 +584,7 @@ body {
 .phase-progress-bar {
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--accent), #FF8C42);
+  background: linear-gradient(90deg, var(--accent), #D9FF4D);
   transition: width 0.5s;
 }
 
@@ -713,8 +713,8 @@ body {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(252, 76, 2, 0.12);
-  border: 1px solid rgba(252, 76, 2, 0.25);
+  background: rgba(204, 255, 0, 0.12);
+  border: 1px solid rgba(204, 255, 0, 0.25);
   color: var(--accent-light);
   border-radius: 8px;
   padding: 5px 10px;
@@ -728,7 +728,7 @@ body {
 
 .btn-edit-inline:active {
   transform: scale(0.95);
-  background: rgba(252, 76, 2, 0.25);
+  background: rgba(204, 255, 0, 0.25);
 }
 
 .edit-field {
@@ -838,7 +838,7 @@ body {
 .stat-card-accent {
   grid-column: 1 / -1;
   background: linear-gradient(135deg, #1a1a1a, #2a1508);
-  border-color: rgba(252, 76, 2, 0.3);
+  border-color: rgba(204, 255, 0, 0.3);
 }
 
 .stat-card-icon {
@@ -1059,7 +1059,7 @@ body {
   font-size: 1.8rem;
   font-weight: 900;
   letter-spacing: 2px;
-  background: linear-gradient(135deg, var(--accent), #FF8C42, #FFB347);
+  background: linear-gradient(135deg, var(--accent), #D9FF4D, #FFB347);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -1204,7 +1204,7 @@ select.ai-input {
 }
 
 .ai-radio-option input:checked+.ai-radio-btn {
-  background: rgba(252, 76, 2, 0.15);
+  background: rgba(204, 255, 0, 0.15);
   border-color: var(--accent);
   color: var(--accent-light);
   box-shadow: 0 0 12px var(--accent-glow);
@@ -1220,8 +1220,8 @@ select.ai-input {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(252, 76, 2, 0.08);
-  border: 1px solid rgba(252, 76, 2, 0.2);
+  background: rgba(204, 255, 0, 0.08);
+  border: 1px solid rgba(204, 255, 0, 0.2);
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
   color: var(--accent-light);
@@ -1239,7 +1239,7 @@ select.ai-input {
   padding: 18px;
   border: none;
   border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--accent) 0%, #FF6B2B 50%, #FF8C42 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, #FF6B2B 50%, #D9FF4D 100%);
   color: white;
   font-family: 'Outfit', sans-serif;
   font-size: 1.1rem;
@@ -1334,7 +1334,7 @@ select.ai-input {
   width: 40%;
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--accent), #FF8C42);
+  background: linear-gradient(90deg, var(--accent), #D9FF4D);
   animation: loadingSlide 1.5s ease-in-out infinite;
 }
 
@@ -1392,7 +1392,7 @@ select.ai-input {
 .ai-result-header h3 {
   font-size: 1.3rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--accent), #FF8C42);
+  background: linear-gradient(135deg, var(--accent), #D9FF4D);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -1414,8 +1414,8 @@ select.ai-input {
 
 /* Plan Review / Validation Details */
 .plan-review-card {
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.10), rgba(255, 255, 255, 0.035));
-  border: 1px solid rgba(252, 76, 2, 0.22);
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.10), rgba(255, 255, 255, 0.035));
+  border: 1px solid rgba(204, 255, 0, 0.22);
   border-radius: var(--radius);
   padding: 16px;
   margin-bottom: 4px;
@@ -1636,13 +1636,13 @@ select.ai-input {
 }
 
 .ai-week-badge.phase-Resistência {
-  background: rgba(252, 76, 2, 0.15);
+  background: rgba(204, 255, 0, 0.15);
   color: var(--accent-light);
 }
 
 .ai-week-badge.phase-Pico {
   background: rgba(255, 140, 66, 0.15);
-  color: #FF8C42;
+  color: #D9FF4D;
 }
 
 .ai-week-badge.phase-Polimento {
@@ -2268,7 +2268,7 @@ select.ai-input {
 
 .feedback-form input[type="range"] {
   width: 100%;
-  accent-color: #fc4c02;
+  accent-color: #CCFF00;
 }
 
 .range-value {
@@ -2281,8 +2281,8 @@ select.ai-input {
   margin: 0 16px 24px;
   padding: 18px;
   border-radius: 22px;
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.16), rgba(255, 255, 255, 0.06));
-  border: 1px solid rgba(252, 76, 2, 0.28);
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.16), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(204, 255, 0, 0.28);
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.24);
 }
 
@@ -2296,7 +2296,7 @@ select.ai-input {
 
 .checkin-eyebrow {
   display: block;
-  color: #fc4c02;
+  color: #CCFF00;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 900;
@@ -2367,7 +2367,7 @@ select.ai-input {
   border: none;
   border-radius: 16px;
   padding: 14px 16px;
-  background: linear-gradient(135deg, #fc4c02, #ff7a2f);
+  background: linear-gradient(135deg, #CCFF00, #CCFF00);
   color: #fff;
   font-family: inherit;
   font-weight: 900;
@@ -2412,8 +2412,8 @@ select.ai-input {
 
 .checkin-source.ai {
   color: #fed7aa;
-  background: rgba(252, 76, 2, 0.14);
-  border: 1px solid rgba(252, 76, 2, 0.28);
+  background: rgba(204, 255, 0, 0.14);
+  border: 1px solid rgba(204, 255, 0, 0.28);
 }
 
 .checkin-source.local {
@@ -2658,7 +2658,7 @@ select.ai-input {
 @media (min-width: 1180px) {
   body {
     background:
-      radial-gradient(circle at top left, rgba(252, 76, 2, 0.12), transparent 32rem),
+      radial-gradient(circle at top left, rgba(204, 255, 0, 0.12), transparent 32rem),
       var(--bg);
   }
 
@@ -2775,9 +2775,9 @@ select.ai-input {
   padding: 20px;
   border-radius: 22px;
   background:
-    linear-gradient(135deg, rgba(252, 76, 2, 0.10), rgba(255, 255, 255, 0.035)),
+    linear-gradient(135deg, rgba(204, 255, 0, 0.10), rgba(255, 255, 255, 0.035)),
     var(--bg-card);
-  border: 1px solid rgba(252, 76, 2, 0.22);
+  border: 1px solid rgba(204, 255, 0, 0.22);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
 }
 
@@ -2816,9 +2816,9 @@ select.ai-input {
   flex: 0 0 auto;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(252, 76, 2, 0.16);
+  background: rgba(204, 255, 0, 0.16);
   color: var(--primary);
-  border: 1px solid rgba(252, 76, 2, 0.28);
+  border: 1px solid rgba(204, 255, 0, 0.28);
   font-weight: 900;
   font-size: 0.74rem;
   text-transform: uppercase;
@@ -2845,8 +2845,8 @@ select.ai-input {
 
 .export-action-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(252, 76, 2, 0.42);
-  background: rgba(252, 76, 2, 0.08);
+  border-color: rgba(204, 255, 0, 0.42);
+  background: rgba(204, 255, 0, 0.08);
 }
 
 .export-action-card span {
@@ -2897,10 +2897,10 @@ select.ai-input {
 /* ===== PROFESSIONAL EXPORT BUTTON ===== */
 .export-action-card.featured {
   background:
-    linear-gradient(135deg, rgba(252, 76, 2, 0.22), rgba(255, 255, 255, 0.06)),
+    linear-gradient(135deg, rgba(204, 255, 0, 0.22), rgba(255, 255, 255, 0.06)),
     rgba(0, 0, 0, 0.24);
-  border-color: rgba(252, 76, 2, 0.52);
-  box-shadow: 0 14px 32px rgba(252, 76, 2, 0.12);
+  border-color: rgba(204, 255, 0, 0.52);
+  box-shadow: 0 14px 32px rgba(204, 255, 0, 0.12);
 }
 
 .export-action-card.featured strong {
@@ -2915,7 +2915,7 @@ select.ai-input {
 
 /* IA Coach Strategy 2.0 */
 .coach-analysis-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(252, 76, 2, 0.08));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(204, 255, 0, 0.08));
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: var(--radius-sm);
   padding: 14px;
@@ -3011,8 +3011,8 @@ select.ai-input {
 }
 
 .coach-strategy-strip span {
-  background: rgba(252, 76, 2, 0.10);
-  border: 1px solid rgba(252, 76, 2, 0.18);
+  background: rgba(204, 255, 0, 0.10);
+  border: 1px solid rgba(204, 255, 0, 0.18);
   color: var(--text-secondary);
   border-radius: 999px;
   padding: 7px 10px;
@@ -3066,8 +3066,8 @@ select.ai-input {
 .checkin-feedback-hero {
   padding: 16px;
   border-radius: 20px;
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.16), rgba(255, 122, 47, 0.06));
-  border: 1px solid rgba(252, 76, 2, 0.24);
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.16), rgba(204, 255, 0, 0.06));
+  border: 1px solid rgba(204, 255, 0, 0.24);
 }
 
 .checkin-feedback-hero h4 {
@@ -3144,8 +3144,8 @@ select.ai-input {
   margin: 18px 0;
   padding: 16px;
   border-radius: 18px;
-  background: rgba(252, 76, 2, 0.08);
-  border: 1px solid rgba(252, 76, 2, 0.2);
+  background: rgba(204, 255, 0, 0.08);
+  border: 1px solid rgba(204, 255, 0, 0.2);
 }
 
 .btn-manual-editor {
@@ -3158,7 +3158,7 @@ select.ai-input {
   font-weight: 800;
   font-size: 0.98rem;
   cursor: pointer;
-  box-shadow: 0 12px 28px rgba(252, 76, 2, 0.24);
+  box-shadow: 0 12px 28px rgba(204, 255, 0, 0.24);
 }
 
 .btn-manual-editor span {
@@ -3301,9 +3301,9 @@ select.ai-input {
   padding: 20px;
   border-radius: 24px;
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.22), transparent 18rem),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.22), transparent 18rem),
     linear-gradient(135deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025));
-  border: 1px solid rgba(252, 76, 2, 0.22);
+  border: 1px solid rgba(204, 255, 0, 0.22);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.26);
 }
 
@@ -3614,7 +3614,7 @@ select.ai-input {
   margin-top: 4px;
   border-radius: 999px;
   background: var(--accent);
-  box-shadow: 0 0 0 4px rgba(252, 76, 2, 0.12);
+  box-shadow: 0 0 0 4px rgba(204, 255, 0, 0.12);
 }
 
 .adjustment-compact-row.reduce .adjustment-dot,
@@ -3702,7 +3702,7 @@ select.ai-input {
   padding: 18px;
   border-radius: 22px;
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.16), transparent 32%),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.16), transparent 32%),
     linear-gradient(135deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035));
   border: 1px solid rgba(255, 255, 255, 0.10);
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
@@ -3743,8 +3743,8 @@ select.ai-input {
 
 .insight-card.featured {
   grid-column: 1 / -1;
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.18), rgba(255, 255, 255, 0.045));
-  border-color: rgba(252, 76, 2, 0.24);
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.18), rgba(255, 255, 255, 0.045));
+  border-color: rgba(204, 255, 0, 0.24);
 }
 
 .insight-card span,
@@ -3827,9 +3827,9 @@ select.ai-input {
 .review-list-row > span {
   padding: 7px 10px;
   border-radius: 999px;
-  background: rgba(252, 76, 2, 0.12);
+  background: rgba(204, 255, 0, 0.12);
   color: var(--accent-light);
-  border: 1px solid rgba(252, 76, 2, 0.24);
+  border: 1px solid rgba(204, 255, 0, 0.24);
   font-weight: 900;
   font-size: 0.76rem;
   white-space: nowrap;
@@ -4033,7 +4033,7 @@ select.ai-input {
 
 .date-picker-btn:hover {
   color: var(--accent-light);
-  background: rgba(252, 76, 2, 0.10);
+  background: rgba(204, 255, 0, 0.10);
 }
 
 .time-input {
@@ -4049,8 +4049,8 @@ select.ai-input {
 
 .ai-toggle-weeks-btn {
   width: 100%;
-  border: 1px solid rgba(252, 76, 2, 0.24);
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.14), rgba(255, 255, 255, 0.045));
+  border: 1px solid rgba(204, 255, 0, 0.24);
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.14), rgba(255, 255, 255, 0.045));
   color: var(--text);
   border-radius: var(--radius);
   padding: 14px 16px;
@@ -4067,7 +4067,7 @@ select.ai-input {
 }
 
 .ai-toggle-weeks-btn:hover {
-  border-color: rgba(252, 76, 2, 0.42);
+  border-color: rgba(204, 255, 0, 0.42);
 }
 
 .ai-toggle-weeks-btn:active {
@@ -4093,7 +4093,7 @@ select.ai-input {
 }
 
 .ai-toggle-weeks-btn.open {
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.22), rgba(255, 255, 255, 0.055));
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.22), rgba(255, 255, 255, 0.055));
 }
 
 .ai-all-weeks-container {
@@ -4108,8 +4108,8 @@ select.ai-input {
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
-  border: 1px solid rgba(252, 76, 2, 0.22);
-  background: rgba(252, 76, 2, 0.10);
+  border: 1px solid rgba(204, 255, 0, 0.22);
+  background: rgba(204, 255, 0, 0.10);
   color: var(--accent-light);
   border-radius: 999px;
   padding: 9px 13px;
@@ -4260,7 +4260,7 @@ select.ai-input {
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(252, 76, 2, 0.45) rgba(255, 255, 255, 0.06);
+  scrollbar-color: rgba(204, 255, 0, 0.45) rgba(255, 255, 255, 0.06);
 }
 
 /* Modal de feedback: evita estourar a tela em celulares quando a IA escrever mais. */
@@ -4323,9 +4323,9 @@ input[type="date"].ai-input {
 
 .date-picker-btn {
   color: #fff;
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.95), rgba(255, 140, 66, 0.95));
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.95), rgba(255, 140, 66, 0.95));
   border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 6px 14px rgba(252, 76, 2, 0.18);
+  box-shadow: 0 6px 14px rgba(204, 255, 0, 0.18);
 }
 
 .date-picker-btn:hover,
@@ -4359,7 +4359,7 @@ input[type="date"].ai-input {
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(252, 76, 2, 0.45) rgba(255, 255, 255, 0.06);
+  scrollbar-color: rgba(204, 255, 0, 0.45) rgba(255, 255, 255, 0.06);
 }
 
 .longrun-horizontal-row {
@@ -4519,7 +4519,7 @@ input[type="date"].ai-input {
   color: #fff;
   background: linear-gradient(135deg, var(--accent), var(--accent-light));
   border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 18px rgba(252, 76, 2, 0.22);
+  box-shadow: 0 8px 18px rgba(204, 255, 0, 0.22);
 }
 
 .date-picker-btn:hover,
@@ -4599,8 +4599,8 @@ input[type="date"].ai-input {
   display: none;
   align-items: center;
   gap: 8px;
-  border: 1px solid rgba(252, 76, 2, 0.22);
-  background: rgba(252, 76, 2, 0.08);
+  border: 1px solid rgba(204, 255, 0, 0.22);
+  background: rgba(204, 255, 0, 0.08);
   color: var(--text);
   border-radius: 999px;
   padding: 6px 10px 6px 6px;
@@ -4610,8 +4610,8 @@ input[type="date"].ai-input {
 }
 
 .header-user-profile:hover {
-  border-color: rgba(252, 76, 2, 0.42);
-  background: rgba(252, 76, 2, 0.13);
+  border-color: rgba(204, 255, 0, 0.42);
+  background: rgba(204, 255, 0, 0.13);
 }
 
 .header-user-profile:active {
@@ -4673,7 +4673,7 @@ input[type="date"].ai-input {
 
 .header-logout-btn:hover {
   color: var(--accent-light);
-  border-color: rgba(252, 76, 2, 0.28);
+  border-color: rgba(204, 255, 0, 0.28);
 }
 
 .profile-manager-card {
@@ -4689,8 +4689,8 @@ input[type="date"].ai-input {
   gap: 12px;
   padding: 14px;
   border-radius: 18px;
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.15), rgba(255, 255, 255, 0.045));
-  border: 1px solid rgba(252, 76, 2, 0.22);
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.15), rgba(255, 255, 255, 0.045));
+  border: 1px solid rgba(204, 255, 0, 0.22);
 }
 
 .profile-manager-avatar {
@@ -4909,7 +4909,7 @@ input[type="date"].ai-input {
   padding: 18px;
   border-radius: 22px;
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.16), transparent 34%),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.16), transparent 34%),
     var(--bg-card);
   border: 1px solid var(--border);
   margin-bottom: 14px;
@@ -4937,8 +4937,8 @@ input[type="date"].ai-input {
 }
 
 .settings-logout-mobile {
-  border: 1px solid rgba(252, 76, 2, 0.26);
-  background: rgba(252, 76, 2, 0.10);
+  border: 1px solid rgba(204, 255, 0, 0.26);
+  background: rgba(204, 255, 0, 0.10);
   color: var(--accent-light);
   border-radius: 999px;
   padding: 8px 12px;
@@ -4997,8 +4997,8 @@ input[type="date"].ai-input {
 .settings-mini-btn,
 .settings-note-pill {
   flex: 0 0 auto;
-  border: 1px solid rgba(252, 76, 2, 0.24);
-  background: rgba(252, 76, 2, 0.10);
+  border: 1px solid rgba(204, 255, 0, 0.24);
+  background: rgba(204, 255, 0, 0.10);
   color: var(--accent-light);
   border-radius: 999px;
   padding: 7px 10px;
@@ -5233,8 +5233,8 @@ input[type="date"].ai-input {
 .settings-readonly-grid div {
   padding: 12px;
   border-radius: 15px;
-  background: rgba(252, 76, 2, 0.075);
-  border: 1px solid rgba(252, 76, 2, 0.16);
+  background: rgba(204, 255, 0, 0.075);
+  border: 1px solid rgba(204, 255, 0, 0.16);
 }
 
 .settings-readonly-grid span {
@@ -5291,7 +5291,7 @@ input[type="date"].ai-input {
 
 .settings-card-plan {
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.12), transparent 35%),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.12), transparent 35%),
     var(--bg-card);
 }
 
@@ -5342,8 +5342,8 @@ input[type="date"].ai-input {
 .checkin-weight-box {
   padding: 14px;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.14), rgba(255, 255, 255, 0.045));
-  border: 1px solid rgba(252, 76, 2, 0.24);
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.14), rgba(255, 255, 255, 0.045));
+  border: 1px solid rgba(204, 255, 0, 0.24);
 }
 
 .checkin-weight-box strong {
@@ -5410,8 +5410,8 @@ input[type="date"].ai-input {
 }
 
 .settings-readonly-field.locked-weight {
-  border-color: rgba(252, 76, 2, 0.22);
-  background: rgba(252, 76, 2, 0.075);
+  border-color: rgba(204, 255, 0, 0.22);
+  background: rgba(204, 255, 0, 0.075);
 }
 
 .settings-readonly-field small {
@@ -5640,7 +5640,7 @@ input[type="date"].ai-input {
   padding: 18px;
   border-radius: 22px;
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.18), transparent 36%),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.18), transparent 36%),
     var(--bg-card);
   border: 1px solid var(--border);
 }
@@ -5671,8 +5671,8 @@ input[type="date"].ai-input {
   min-width: 116px;
   padding: 12px 14px;
   border-radius: 18px;
-  background: rgba(252, 76, 2, 0.10);
-  border: 1px solid rgba(252, 76, 2, 0.24);
+  background: rgba(204, 255, 0, 0.10);
+  border: 1px solid rgba(204, 255, 0, 0.24);
   text-align: right;
 }
 
@@ -5748,8 +5748,8 @@ input[type="date"].ai-input {
 }
 
 .phase-card.compact:hover {
-  border-color: rgba(252, 76, 2, 0.30);
-  background: rgba(252, 76, 2, 0.07) !important;
+  border-color: rgba(204, 255, 0, 0.30);
+  background: rgba(204, 255, 0, 0.07) !important;
 }
 
 .phase-card.compact .phase-card-top {
@@ -5765,7 +5765,7 @@ input[type="date"].ai-input {
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: rgba(252, 76, 2, 0.13);
+  background: rgba(204, 255, 0, 0.13);
   font-size: 1.25rem;
 }
 
@@ -5849,7 +5849,7 @@ input[type="date"].ai-input {
 }
 
 
-/* ===== RUINNA REBRAND V39 ===== */
+/* ===== RunEvo REBRAND V39 ===== */
 .login-access {
   margin-top: 4px;
   color: var(--text-secondary);
@@ -6015,7 +6015,7 @@ input[type="date"].ai-input {
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.12), transparent 35%),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.12), transparent 35%),
     #000;
 }
 
@@ -6037,8 +6037,8 @@ input[type="date"].ai-input {
   width: 36px;
   height: 36px;
   border-radius: 999px;
-  border: 1px solid rgba(252, 76, 2, 0.35);
-  background: rgba(252, 76, 2, 0.10);
+  border: 1px solid rgba(204, 255, 0, 0.35);
+  background: rgba(204, 255, 0, 0.10);
   color: var(--accent-light);
   font-family: 'Outfit', sans-serif;
   font-weight: 900;
@@ -6051,8 +6051,8 @@ input[type="date"].ai-input {
 }
 
 .header-tour-help:hover {
-  background: rgba(252, 76, 2, 0.18);
-  border-color: rgba(252, 76, 2, 0.55);
+  background: rgba(204, 255, 0, 0.18);
+  border-color: rgba(204, 255, 0, 0.55);
 }
 
 .header-tour-help:active {
@@ -6089,8 +6089,8 @@ input[type="date"].ai-input {
   width: 19px;
   height: 19px;
   border-radius: 999px;
-  border: 1px solid rgba(252, 76, 2, 0.40);
-  background: rgba(252, 76, 2, 0.13);
+  border: 1px solid rgba(204, 255, 0, 0.40);
+  background: rgba(204, 255, 0, 0.13);
   color: var(--accent-light);
   font-size: 0.72rem;
   font-weight: 900;
@@ -6181,9 +6181,9 @@ input[type="date"].ai-input {
   padding: 18px;
   margin-bottom: 16px;
   border-radius: var(--radius);
-  border: 1px solid rgba(252, 76, 2, 0.22);
+  border: 1px solid rgba(204, 255, 0, 0.22);
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.15), transparent 32%),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.15), transparent 32%),
     var(--bg-card);
 }
 
@@ -6243,9 +6243,9 @@ input[type="date"].ai-input {
 }
 
 .ai-loading {
-  border: 1px solid rgba(252, 76, 2, 0.20);
+  border: 1px solid rgba(204, 255, 0, 0.20);
   background:
-    radial-gradient(circle at top, rgba(252, 76, 2, 0.10), transparent 38%),
+    radial-gradient(circle at top, rgba(204, 255, 0, 0.10), transparent 38%),
     rgba(255, 255, 255, 0.035);
   border-radius: var(--radius);
 }
@@ -6271,8 +6271,8 @@ input[type="date"].ai-input {
 
 .ai-loading-steps span.active {
   color: #fff;
-  background: rgba(252, 76, 2, 0.22);
-  border-color: rgba(252, 76, 2, 0.42);
+  background: rgba(204, 255, 0, 0.22);
+  border-color: rgba(204, 255, 0, 0.42);
 }
 
 .ai-loading-steps span.done {
@@ -6365,8 +6365,8 @@ input[type="date"].ai-input {
 }
 
 .app-toast.info {
-  border-color: rgba(252, 76, 2, 0.30);
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.20), rgba(28, 28, 28, 0.96));
+  border-color: rgba(204, 255, 0, 0.30);
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.20), rgba(28, 28, 28, 0.96));
 }
 
 @media (max-width: 767px) {
@@ -6383,9 +6383,9 @@ input[type="date"].ai-input {
   padding: 16px;
   border-radius: var(--radius);
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.10), transparent 35%),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.10), transparent 35%),
     var(--bg-card);
-  border: 1px solid rgba(252, 76, 2, 0.18);
+  border: 1px solid rgba(204, 255, 0, 0.18);
 }
 
 .wd-desc-header {
@@ -6433,8 +6433,8 @@ input[type="date"].ai-input {
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.20), rgba(255, 255, 255, 0.055));
-  border: 1px solid rgba(252, 76, 2, 0.18);
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.20), rgba(255, 255, 255, 0.055));
+  border: 1px solid rgba(204, 255, 0, 0.18);
   font-size: 1.1rem;
 }
 
@@ -6466,8 +6466,8 @@ input[type="date"].ai-input {
 
 .desc-highlight.km {
   color: #fff;
-  background: rgba(252, 76, 2, 0.20);
-  border: 1px solid rgba(252, 76, 2, 0.26);
+  background: rgba(204, 255, 0, 0.20);
+  border: 1px solid rgba(204, 255, 0, 0.26);
 }
 
 .desc-highlight.pace {
@@ -6551,9 +6551,9 @@ input[type="date"].ai-input {
   padding: 18px;
   margin-bottom: 16px;
   border-radius: var(--radius);
-  border: 1px solid rgba(252, 76, 2, 0.22);
+  border: 1px solid rgba(204, 255, 0, 0.22);
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.14), transparent 35%),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.14), transparent 35%),
     var(--bg-card);
 }
 
@@ -6590,9 +6590,9 @@ input[type="date"].ai-input {
 
 .manual-manager-badge {
   flex: 0 0 auto;
-  border: 1px solid rgba(252, 76, 2, 0.28);
+  border: 1px solid rgba(204, 255, 0, 0.28);
   color: var(--accent-light);
-  background: rgba(252, 76, 2, 0.10);
+  background: rgba(204, 255, 0, 0.10);
   border-radius: 999px;
   padding: 8px 11px;
   font-size: 0.72rem;
@@ -6650,8 +6650,8 @@ input[type="date"].ai-input {
 }
 
 .manual-manager-btn.primary {
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.95), rgba(255, 140, 66, 0.90));
-  border-color: rgba(252, 76, 2, 0.55);
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.95), rgba(255, 140, 66, 0.90));
+  border-color: rgba(204, 255, 0, 0.55);
   color: #fff;
 }
 
@@ -6850,9 +6850,9 @@ input[type="date"].ai-input {
   padding: 16px;
   border-radius: var(--radius);
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.11), transparent 36%),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.11), transparent 36%),
     var(--bg-card);
-  border: 1px solid rgba(252, 76, 2, 0.22);
+  border: 1px solid rgba(204, 255, 0, 0.22);
 }
 
 .training-zones-card.compact {
@@ -6888,8 +6888,8 @@ input[type="date"].ai-input {
   padding: 10px 12px;
   border-radius: 14px;
   text-align: center;
-  background: rgba(252, 76, 2, 0.14);
-  border: 1px solid rgba(252, 76, 2, 0.28);
+  background: rgba(204, 255, 0, 0.14);
+  border: 1px solid rgba(204, 255, 0, 0.28);
 }
 
 .tz-anchor small,
@@ -6926,8 +6926,8 @@ input[type="date"].ai-input {
 }
 
 .tz-row.z3 {
-  background: rgba(252, 76, 2, 0.13);
-  border-color: rgba(252, 76, 2, 0.30);
+  background: rgba(204, 255, 0, 0.13);
+  border-color: rgba(204, 255, 0, 0.30);
 }
 
 .tz-name strong {
@@ -6979,8 +6979,8 @@ input[type="date"].ai-input {
 
 .desc-highlight.zone {
   color: #fff;
-  background: linear-gradient(135deg, rgba(252, 76, 2, 0.36), rgba(255, 145, 77, 0.22));
-  border: 1px solid rgba(252, 76, 2, 0.36);
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.36), rgba(255, 145, 77, 0.22));
+  border: 1px solid rgba(204, 255, 0, 0.36);
 }
 
 @media (max-width: 680px) {
@@ -7027,8 +7027,8 @@ input[type="date"].ai-input {
   padding: 13px;
   margin-bottom: 14px;
   border-radius: 16px;
-  background: rgba(252, 76, 2, 0.10);
-  border: 1px solid rgba(252, 76, 2, 0.22);
+  background: rgba(204, 255, 0, 0.10);
+  border: 1px solid rgba(204, 255, 0, 0.22);
 }
 
 .feedback-workout-summary strong {
@@ -7122,7 +7122,7 @@ input[type="date"].ai-input {
 /* ===== CLEAN PRESCRIPTION DESCRIPTION V58 ===== */
 .wd-description-pro {
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.08), transparent 34%),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.08), transparent 34%),
     var(--bg-card) !important;
 }
 
@@ -7140,8 +7140,8 @@ input[type="date"].ai-input {
 .prescription-label {
   padding: 10px 14px;
   color: var(--accent-light);
-  background: rgba(252, 76, 2, 0.12);
-  border-bottom: 1px solid rgba(252, 76, 2, 0.18);
+  background: rgba(204, 255, 0, 0.12);
+  border-bottom: 1px solid rgba(204, 255, 0, 0.18);
   font-size: 0.72rem;
   font-weight: 950;
   text-transform: uppercase;
@@ -7292,9 +7292,9 @@ input[type="date"].ai-input {
   color: #fff;
   font-size: 2.5rem;
   font-weight: 950;
-  background: linear-gradient(135deg, var(--accent), #ff7a2f);
-  border: 5px solid rgba(252, 76, 2, 0.78);
-  box-shadow: 0 0 0 6px rgba(252, 76, 2, 0.10), 0 18px 40px rgba(0,0,0,0.35);
+  background: linear-gradient(135deg, var(--accent), #CCFF00);
+  border: 5px solid rgba(204, 255, 0, 0.78);
+  box-shadow: 0 0 0 6px rgba(204, 255, 0, 0.10), 0 18px 40px rgba(0,0,0,0.35);
   overflow: hidden;
   margin-bottom: 18px;
 }
@@ -7339,9 +7339,9 @@ input[type="date"].ai-input {
 .profile-edit-card {
   padding: 18px;
   border-radius: 26px;
-  border: 1px solid rgba(252, 76, 2, 0.24);
+  border: 1px solid rgba(204, 255, 0, 0.24);
   background:
-    radial-gradient(circle at top right, rgba(252, 76, 2, 0.14), transparent 36%),
+    radial-gradient(circle at top right, rgba(204, 255, 0, 0.14), transparent 36%),
     var(--bg-card);
 }
 
@@ -7371,8 +7371,8 @@ input[type="date"].ai-input {
 .profile-photo-picker {
   min-height: 48px;
   border-radius: 16px;
-  border: 1px solid rgba(252, 76, 2, 0.30);
-  background: rgba(252, 76, 2, 0.12);
+  border: 1px solid rgba(204, 255, 0, 0.30);
+  background: rgba(204, 255, 0, 0.12);
   color: var(--accent-light);
   display: grid;
   place-items: center;
@@ -7728,7 +7728,7 @@ input[type="date"].ai-input {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--accent), #ff9b57);
+  background: linear-gradient(90deg, var(--accent), #D9FF4D);
 }
 
 .shoe-form-card {
@@ -7899,4 +7899,54 @@ input[type="date"].ai-input {
   .profile-list-card .profile-list-item small {
     display: none;
   }
+}
+
+
+/* ===== RUNEVO REBRAND V65 ===== */
+.brand-logo,
+.logo-text,
+.app-title,
+.header-logo {
+  letter-spacing: 0.08em;
+}
+
+.brand-evo,
+.logo-evo {
+  color: #CCFF00;
+}
+
+.btn-primary,
+.profile-photo-picker,
+.settings-mini-btn:not(.ghost),
+.profile-list-item.danger .profile-item-icon {
+  color: #0A0E1A;
+}
+
+.btn-primary,
+.profile-photo-picker,
+.profile-edit-btn,
+.profile-logout-large {
+  box-shadow: 0 14px 34px rgba(204, 255, 0, 0.14);
+}
+
+.nav-item.active,
+.nav-item.active .nav-icon,
+.nav-item.active .nav-label,
+.profile-legal-links small,
+.ai-trust-eyebrow,
+.wd-desc-eyebrow,
+.profile-subpage-head span,
+.profile-list-section h3,
+.tz-header span {
+  color: #CCFF00 !important;
+}
+
+.progress-fill,
+.shoe-progress i,
+.ai-loading-bar-inner {
+  background: linear-gradient(90deg, #CCFF00, #00D1FF) !important;
+}
+
+body {
+  background: #000000;
 }
