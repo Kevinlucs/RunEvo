@@ -813,3 +813,12 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Removido/ocultado o ícone “?” do header.
 - Mantidas as melhorias do v74.
 - Cache atualizado para `runevo-v75`.
+
+
+## RunEvo v76 - correção visual do suporte
+
+- Ao entrar em Suporte, o título da seção agora é “Aplicativo”.
+- O card dentro da seção agora é “Tour pelo app”.
+- Removida a tela intermediária desnecessária “Aplicativo”.
+- Removido comentário quebrado/visível `<!-- IA EVO PAGE -->` que aparecia em algumas telas.
+- Cache atualizado para `runevo-v76`.

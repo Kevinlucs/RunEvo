@@ -5118,9 +5118,6 @@ function openSupportPage() {
   showPage('support');
 }
 
-function openSupportAppPage() {
-  showPage('support-app');
-}
 
 
 function openGeneralSettingsPage() {

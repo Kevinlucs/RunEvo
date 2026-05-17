@@ -8739,3 +8739,13 @@ body,
   font-family: 'Outfit', sans-serif;
   font-weight: 950;
 }
+
+
+/* ===== V76 SUPPORT LABEL + COMMENT FIX ===== */
+#page-support .profile-list-section h3 {
+  color: #CCFF00 !important;
+}
+
+#page-support .profile-list-item .profile-item-icon {
+  color: #CCFF00 !important;
+}
