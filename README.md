@@ -758,3 +758,13 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Terreno entra no formulário, no perfil salvo e na análise do Motor Evo.
 - O Motor Evo passa a tratar terreno como fator técnico para volume, longões, recuperação e orientação por zona.
 - Cache atualizado para `runevo-v70`.
+
+
+## RunEvo v71 - Mobile layout fix e suporte
+
+- Corrigido problema de tela preta/offset alto ao abrir IA Evo no celular.
+- Corrigido o mesmo problema na tela Perfil.
+- Navegação inferior reduzida para ocupar menos altura no mobile.
+- Adicionada nova categoria “Suporte” no Perfil.
+- Dentro de Suporte foi adicionada a opção “Tour pelo app”, reaproveitando o ícone/fluxo do tutorial.
+- Cache atualizado para `runevo-v71`.

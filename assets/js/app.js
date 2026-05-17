@@ -2130,6 +2130,22 @@ function showToast(message, type = 'info') {
 
 
 // ===== NAVIGATION =====
+
+function forcePageScrollTop() {
+  const reset = () => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    document.scrollingElement && (document.scrollingElement.scrollTop = 0);
+  };
+
+  reset();
+  requestAnimationFrame(reset);
+  setTimeout(reset, 80);
+  setTimeout(reset, 220);
+}
+
+
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(`page-${page}`).classList.add('active');
@@ -2161,9 +2177,14 @@ function showPage(page) {
 
   if (page === 'ai') {
     updateAdoptedBanner();
+    document.getElementById('page-ai')?.classList.add('compact-mobile-page');
   }
 
-  window.scrollTo(0, 0);
+  if (page === 'settings') {
+    document.getElementById('page-settings')?.classList.add('compact-mobile-page');
+  }
+
+  forcePageScrollTop();
 }
 
 // ===== AI COACH FUNCTIONS =====

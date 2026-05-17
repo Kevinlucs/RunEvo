@@ -8479,3 +8479,130 @@ body,
   align-items: center !important;
   text-align: center !important;
 }
+
+
+/* ===== V71 MOBILE LAYOUT FIX + SUPPORT ===== */
+:root {
+  --nav-height: 58px;
+  --header-height: 74px;
+}
+
+.bottom-nav {
+  height: calc(var(--nav-height) + var(--safe-bottom)) !important;
+  padding: 4px 10px var(--safe-bottom) !important;
+}
+
+.nav-item {
+  gap: 2px !important;
+  padding: 5px 12px !important;
+  min-width: 0 !important;
+  font-size: 0.58rem !important;
+}
+
+.nav-item svg {
+  width: 21px !important;
+  height: 21px !important;
+}
+
+.app-header {
+  height: calc(var(--header-height) + var(--safe-top)) !important;
+  min-height: calc(var(--header-height) + var(--safe-top)) !important;
+}
+
+.page {
+  padding-top: calc(var(--header-height) + var(--safe-top) + 10px) !important;
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 14px) !important;
+  min-height: auto !important;
+}
+
+#page-ai,
+#page-settings {
+  min-height: calc(100dvh - var(--header-height) - var(--nav-height)) !important;
+  background: #000 !important;
+}
+
+#page-ai.active,
+#page-settings.active {
+  display: block !important;
+  align-content: start !important;
+}
+
+#page-ai .ai-container,
+#page-settings .profile-hub {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  transform: none !important;
+}
+
+#page-ai .ai-hero,
+#page-settings .profile-hero-v2 {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  transform: none !important;
+}
+
+.profile-list-section h3 {
+  color: #CCFF00 !important;
+}
+
+.profile-item-icon {
+  color: #CCFF00;
+  font-weight: 950;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --nav-height: 56px;
+    --header-height: 76px;
+  }
+
+  .bottom-nav {
+    border-radius: 0 !important;
+  }
+
+  .nav-item span {
+    font-size: 0.68rem !important;
+    line-height: 1 !important;
+  }
+
+  .app-header {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  #page-ai {
+    padding-top: calc(var(--header-height) + var(--safe-top) + 12px) !important;
+  }
+
+  #page-settings {
+    padding-top: calc(var(--header-height) + var(--safe-top) + 12px) !important;
+  }
+
+  #page-ai .ai-hero {
+    padding: 0 14px 14px !important;
+  }
+
+  #page-ai .ai-hero-icon {
+    font-size: 3.1rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  #page-ai .ai-hero-title {
+    font-size: 2.45rem !important;
+  }
+
+  #page-settings .profile-hub-back {
+    margin-top: 0 !important;
+    margin-bottom: 6px !important;
+  }
+
+  #page-settings .profile-hero-v2 {
+    padding: 0 14px 22px !important;
+  }
+
+  #page-settings .profile-avatar-xl {
+    width: 112px !important;
+    height: 112px !important;
+    margin-bottom: 14px !important;
+  }
+}
