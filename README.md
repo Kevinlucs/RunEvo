@@ -822,3 +822,13 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Removida a tela intermediária desnecessária “Aplicativo”.
 - Removido comentário quebrado/visível `<!-- IA EVO PAGE -->` que aparecia em algumas telas.
 - Cache atualizado para `runevo-v76`.
+
+
+## RunEvo v77 - secondary color black fix
+
+- Cor secundária antiga `#0A0E1A` substituída por preto absoluto `#000000`.
+- Reforço aplicado em CSS global, mobile, PWA e páginas internas.
+- `manifest.json` atualizado com `background_color` e `theme_color` em preto.
+- `theme-color` do HTML atualizado para preto.
+- Objetivo: remover o fundo azulado que aparecia no mobile.
+- Cache atualizado para `runevo-v77`.

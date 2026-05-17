@@ -7919,7 +7919,7 @@ input[type="date"].ai-input {
 .profile-photo-picker,
 .settings-mini-btn:not(.ghost),
 .profile-list-item.danger .profile-item-icon {
-  color: #0A0E1A;
+  color: #000000;
 }
 
 .btn-primary,
@@ -7960,7 +7960,7 @@ body {
   --bg: #000000;
   --bg-card: #171A1A;
   --bg-card-hover: #202525;
-  --text-on-accent: #0A0E1A;
+  --text-on-accent: #000000;
 }
 
 html,
@@ -8011,7 +8011,7 @@ body::before {
 .btn-generate,
 .login-btn {
   background: #CCFF00 !important;
-  color: #0A0E1A !important;
+  color: #000000 !important;
   border-color: #CCFF00 !important;
   box-shadow: 0 12px 28px rgba(204, 255, 0, 0.16) !important;
 }
@@ -8060,7 +8060,7 @@ body::before {
 
 .header-user-avatar {
   background: #CCFF00 !important;
-  color: #0A0E1A !important;
+  color: #000000 !important;
 }
 
 /* Card do Motor RunEvo */
@@ -8748,4 +8748,39 @@ body,
 
 #page-support .profile-list-item .profile-item-icon {
   color: #CCFF00 !important;
+}
+
+
+/* ===== V77 BLACK SECONDARY FIX ===== */
+:root {
+  --secondary: #000000;
+  --bg: #000000;
+  --background: #000000;
+  --app-bg: #000000;
+  --text-on-accent: #000000;
+  color-scheme: dark;
+}
+
+html,
+body,
+#root,
+.app,
+.page,
+.splash-screen,
+.login-screen,
+.app-shell,
+.mobile-shell {
+  background: #000000 !important;
+  background-color: #000000 !important;
+}
+
+@media (display-mode: standalone), (max-width: 767px) {
+  html,
+  body,
+  #root,
+  .app,
+  .page {
+    background: #000000 !important;
+    background-color: #000000 !important;
+  }
 }
