@@ -2203,8 +2203,16 @@ function forcePageScrollTop(page = currentPage) {
 }
 
 
+function getProfileFullscreenPages() {
+  return new Set(['settings','shoes','shoe-form','general-settings','support','support-app','privacy']);
+}
+
+function isProfileFullscreenPage(page = currentPage) {
+  return getProfileFullscreenPages().has(page);
+}
+
 function showPage(page) {
-  const profileSubPages = new Set(['settings','shoes','shoe-form','general-settings','support','support-app','privacy']);
+  const profileSubPages = getProfileFullscreenPages();
   document.body.classList.toggle('profile-fullscreen-mode', profileSubPages.has(page));
   document.getElementById('app')?.classList.toggle('profile-fullscreen-mode', profileSubPages.has(page));
 
@@ -2247,6 +2255,71 @@ function showPage(page) {
 
   forcePageScrollTop(page);
 }
+
+
+function goBackFromProfileScreen() {
+  switch (currentPage) {
+    case 'shoe-form':
+      openShoesPage();
+      break;
+    case 'shoes':
+    case 'general-settings':
+    case 'support':
+    case 'privacy':
+      goToProfilePage();
+      break;
+    case 'support-app':
+      openSupportPage();
+      break;
+    case 'settings':
+      showPage('home');
+      break;
+    default:
+      if (isProfileFullscreenPage(currentPage)) {
+        goToProfilePage();
+      }
+  }
+}
+
+function initProfileSwipeGestures() {
+  if (window.__runevoProfileSwipeInit) return;
+  window.__runevoProfileSwipeInit = true;
+
+  let startX = 0;
+  let startY = 0;
+  let startTime = 0;
+
+  document.addEventListener('touchstart', (event) => {
+    if (!isProfileFullscreenPage(currentPage)) return;
+    const touch = event.touches?.[0];
+    if (!touch) return;
+
+    startX = touch.clientX;
+    startY = touch.clientY;
+    startTime = Date.now();
+  }, { passive: true });
+
+  document.addEventListener('touchend', (event) => {
+    if (!isProfileFullscreenPage(currentPage)) return;
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
+    const elapsed = Date.now() - startTime;
+
+    const horizontalSwipe = Math.abs(dx) > 90 && Math.abs(dx) > Math.abs(dy) * 1.7;
+    const fastEnough = elapsed < 650;
+
+    // Aceita os dois sentidos para ficar natural no Android/browser e no PWA.
+    if (horizontalSwipe && fastEnough) {
+      goBackFromProfileScreen();
+    }
+  }, { passive: true });
+}
+
+initProfileSwipeGestures();
+
 
 // ===== AI COACH FUNCTIONS =====
 function renderAICoachPage() {

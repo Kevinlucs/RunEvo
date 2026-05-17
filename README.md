@@ -857,3 +857,20 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Ao entrar no Perfil e nas telas internas do Perfil, a bottom nav é ocultada.
 - A área da tela do Perfil passa a ocupar o espaço inteiro, usando a seta de voltar como navegação.
 - Cache atualizado para `runevo-v79`.
+
+
+## RunEvo v80 - perfil fullscreen real e gestos
+
+- Ao abrir Perfil, o header superior e a bottom nav são ocultados.
+- Telas internas do Perfil também ficam sem header/nav:
+  - Tênis
+  - Adicionar/editar tênis
+  - Geral
+  - Suporte
+  - Aplicativo
+  - Privacidade
+- Páginas internas do Perfil agora usam a tela inteira e a seta de voltar.
+- Botões “Alterar foto” e “Remover foto” padronizados.
+- Botão “Adicionar” em Tênis padronizado.
+- Adicionado gesto horizontal no mobile/PWA para voltar nas telas do Perfil.
+- Cache atualizado para `runevo-v80`.

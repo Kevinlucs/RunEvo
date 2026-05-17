@@ -9064,3 +9064,94 @@ body.profile-fullscreen-mode .page.active,
     word-break: break-word;
   }
 }
+
+
+/* ===== V80 PROFILE TRUE FULLSCREEN + STANDARD BUTTONS + SWIPE ===== */
+
+/* Perfil e todas as telas internas realmente sem header/nav */
+body.profile-fullscreen-mode .app-header,
+.app.profile-fullscreen-mode .app-header,
+body.profile-fullscreen-mode .bottom-nav,
+.app.profile-fullscreen-mode .bottom-nav {
+  display: none !important;
+}
+
+body.profile-fullscreen-mode .page.active,
+.app.profile-fullscreen-mode .page.active {
+  padding-top: calc(var(--safe-top) + 14px) !important;
+  padding-bottom: calc(var(--safe-bottom) + 18px) !important;
+  min-height: 100dvh !important;
+}
+
+@media (max-width: 767px) {
+  body.profile-fullscreen-mode .page.active,
+  .app.profile-fullscreen-mode .page.active {
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100dvh !important;
+    padding-top: calc(var(--safe-top) + 14px) !important;
+    padding-bottom: calc(var(--safe-bottom) + 18px) !important;
+  }
+
+  body.profile-fullscreen-mode #page-settings.active,
+  body.profile-fullscreen-mode #page-shoes.active,
+  body.profile-fullscreen-mode #page-shoe-form.active,
+  body.profile-fullscreen-mode #page-general-settings.active,
+  body.profile-fullscreen-mode #page-support.active,
+  body.profile-fullscreen-mode #page-support-app.active,
+  body.profile-fullscreen-mode #page-privacy.active {
+    top: 0 !important;
+    bottom: 0 !important;
+  }
+}
+
+/* Botões de foto no padrão RunEvo */
+.profile-photo-picker {
+  background: #CCFF00 !important;
+  background-image: none !important;
+  color: #000000 !important;
+  border: 1px solid #CCFF00 !important;
+  box-shadow: 0 10px 26px rgba(204, 255, 0, 0.14) !important;
+  border-radius: 18px !important;
+  min-height: 54px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 950 !important;
+  text-align: center !important;
+}
+
+.profile-photo-picker span {
+  color: #000000 !important;
+}
+
+.profile-photo-picker.ghost {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+}
+
+.profile-photo-picker.ghost span,
+.profile-photo-picker.ghost {
+  color: #ffffff !important;
+}
+
+/* Botão adicionar tênis no padrão RunEvo */
+.settings-mini-btn,
+.shoes-list-state .settings-mini-btn,
+.profile-subpage-head .settings-mini-btn {
+  background: #CCFF00 !important;
+  background-image: none !important;
+  color: #000000 !important;
+  border: 1px solid #CCFF00 !important;
+  border-radius: 999px !important;
+  min-height: 46px !important;
+  padding: 0 22px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 10px 26px rgba(204, 255, 0, 0.14) !important;
+}
+
+.settings-mini-btn * {
+  color: #000000 !important;
+}
