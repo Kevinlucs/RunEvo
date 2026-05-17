@@ -148,20 +148,7 @@
         <!-- PHASES PAGE -->
         <main id="page-phases" class="page">
             <div class="training-hub-container">
-                <section class="training-hub-hero">
-                    <div>
-                        <span class="training-hub-eyebrow">Centro de treinos</span>
-                        <h2>Treinos & Exportação</h2>
-                        <p>Acesse as fases da planilha, acompanhe o progresso e exporte tudo em PDF, Excel ou backup.</p>
-                    </div>
-                    <div class="training-hub-kpi">
-                        <span>Total feito</span>
-                        <strong id="training-hub-km">0 km</strong>
-                    </div>
-                </section>
-
-
-                <section class="manual-plan-manager-card" id="manual-plan-manager-card">
+<section class="manual-plan-manager-card" id="manual-plan-manager-card">
                     <div class="manual-manager-header">
                         <div>
                             <span class="manual-manager-eyebrow">Modificações da planilha</span>
@@ -270,22 +257,22 @@
                         <div class="export-backup-badge">Treinos</div>
                     </div>
                     <div class="export-backup-grid training-export-grid">
-                        <button type="button" class="export-action-card featured" onclick="handleExportExcel()">
+                        <button type="button" class="export-action-card" data-export-type="excel" onclick="selectExportCard('excel'); handleExportExcel()">
                             <span>📈</span>
                             <strong>Excel profissional</strong>
                             <small>Resumo, semanas e treinos em relatório editável.</small>
                         </button>
-                        <button type="button" class="export-action-card" onclick="handleExportPDF()">
+                        <button type="button" class="export-action-card" data-export-type="pdf" onclick="selectExportCard('pdf'); handleExportPDF()">
                             <span>📄</span>
                             <strong>PDF profissional</strong>
                             <small>Versão visual para imprimir ou compartilhar.</small>
                         </button>
-                        <button type="button" class="export-action-card" onclick="handleExportBackup()">
+                        <button type="button" class="export-action-card" data-export-type="backup" onclick="selectExportCard('backup'); handleExportBackup()">
                             <span>🧳</span>
                             <strong>Backup JSON</strong>
                             <small>Plano, check-ins, ajustes e progresso completo.</small>
                         </button>
-                        <button type="button" class="export-action-card" onclick="handleImportBackupClick()">
+                        <button type="button" class="export-action-card" data-export-type="import" onclick="selectExportCard('import'); handleImportBackupClick()">
                             <span>📥</span>
                             <strong>Importar backup</strong>
                             <small>Restaure um arquivo JSON exportado pelo RunEvo.</small>

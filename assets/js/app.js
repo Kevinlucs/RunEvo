@@ -1787,6 +1787,14 @@ function buildProfessionalExcelHTML() {
 </html>`;
 }
 
+
+function selectExportCard(type) {
+  document.querySelectorAll('.export-action-card').forEach(card => {
+    card.classList.toggle('selected', card.dataset.exportType === type);
+  });
+}
+
+
 function handleExportExcel() {
   if (!allWorkouts.length) {
     showSimpleModal('⚠️', 'Nenhum treino para exportar', 'Gere ou adote uma planilha antes de exportar em Excel.');
@@ -3441,14 +3449,10 @@ function openWorkoutFeedbackModal(id, status) {
       </div>
 
       ${status !== 'skipped' ? `
-        <div class="feedback-grid">
+        <div class="feedback-grid feedback-grid-single">
           <label>
             Km realizado
             <input type="number" class="edit-field" id="feedback-km" value="${defaultKm}" min="0" step="0.1">
-          </label>
-          <label>
-            Pace realizado <span>(opcional)</span>
-            <input type="text" class="edit-field" id="feedback-pace" placeholder="Ex: 6:20/km">
           </label>
         </div>
         ${renderShoeSelectHTML(status)}
@@ -3477,7 +3481,7 @@ function openWorkoutFeedbackModal(id, status) {
   document.getElementById('modal-overlay').classList.remove('hidden');
   confirmBtn.onclick = () => {
     const completedKm = status === 'skipped' ? 0 : Number(document.getElementById('feedback-km')?.value || 0);
-    const completedPace = document.getElementById('feedback-pace')?.value?.trim() || '';
+    const completedPace = '';
     const effort = Number(document.getElementById('feedback-effort')?.value || 0);
     const notes = document.getElementById('feedback-notes')?.value?.trim() || '';
     const shoeId = document.getElementById('feedback-shoe')?.value || '';
@@ -4871,11 +4875,19 @@ function updateAvatarElement(el, profile, fallback = 'A') {
 
   if (photo) {
     el.textContent = '';
-    el.style.backgroundImage = `url("${photo}")`;
-    el.style.backgroundSize = 'cover';
-    el.style.backgroundPosition = 'center';
+    el.style.setProperty('background-image', `url("${photo}")`, 'important');
+    el.style.setProperty('background-size', 'cover', 'important');
+    el.style.setProperty('background-position', 'center', 'important');
+    el.style.setProperty('background-repeat', 'no-repeat', 'important');
+    el.style.setProperty('background-color', 'transparent', 'important');
+    el.classList.add('has-photo');
   } else {
-    el.style.backgroundImage = '';
+    el.style.removeProperty('background-image');
+    el.style.removeProperty('background-size');
+    el.style.removeProperty('background-position');
+    el.style.removeProperty('background-repeat');
+    el.style.removeProperty('background-color');
+    el.classList.remove('has-photo');
     el.textContent = label;
   }
 }

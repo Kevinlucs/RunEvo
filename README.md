@@ -832,3 +832,17 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - `theme-color` do HTML atualizado para preto.
 - Objetivo: remover o fundo azulado que aparecia no mobile.
 - Cache atualizado para `runevo-v77`.
+
+
+## RunEvo v78 - polimento mobile/home/treinos
+
+- Removido campo “Pace realizado” da conclusão de treino.
+- Corrigido avatar do header para exibir a foto do atleta quando cadastrada.
+- Scroll interno do modal de conclusão ficou invisível.
+- Botões principais padronizados: fundo #CCFF00 e texto preto.
+- “Próximo treino” e Adaptive Training alinhados na mesma largura dos cards.
+- Removido card “Centro de Treinos” da aba Treinos.
+- Botão “Editar treino” padronizado no visual RunEvo.
+- Exportação/Backup não deixa Excel selecionado por padrão; o destaque verde agora é dinâmico ao clicar.
+- Gradientes removidos dos principais botões/cards de ação.
+- Cache atualizado para `runevo-v78`.
