@@ -8712,3 +8712,14 @@ body,
     font-size: 0.62rem !important;
   }
 }
+
+
+/* ===== V74 TOUR TO IA EVO + HOME RACE SUMMARY ===== */
+.countdown-label {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.countdown-card {
+  background-image: none !important;
+}

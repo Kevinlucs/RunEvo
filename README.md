@@ -788,3 +788,14 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - O reset de scroll agora também zera o scroll interno da página ativa.
 - Bottom nav ficou um pouco mais compacta.
 - Cache atualizado para `runevo-v73`.
+
+
+## RunEvo v74 - tour obrigatório para IA Evo e prova dinâmica
+
+- Inclui o fluxo do v72: Perfil > Minhas preferências > Suporte > Aplicativo > Tour pelo app.
+- Após o primeiro tour, se o atleta ainda não tiver planilha adotada, ele é direcionado obrigatoriamente para IA Evo.
+- Se o usuário já viu o tour mas ainda não tem planilha, o app também abre IA Evo ao entrar.
+- Após adotar a planilha, o fluxo continua direcionando para Início.
+- O card Prova da tela Início não concatena mais distância duplicada como “5 KM - 5KM”.
+- O contador de dias usa a data atual até a data da prova, diminuindo com o passar dos dias.
+- Cache atualizado para `runevo-v74`.

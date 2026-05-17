@@ -1,4 +1,4 @@
-const RunEvo_BUILD_VERSION = 'v65-runevo-rebrand';
+const RunEvo_BUILD_VERSION = 'v74-tour-plan-home';
 console.info('RunEvo build carregado:', RunEvo_BUILD_VERSION);
 
 // ===== DADOS DOS TREINOS =====
@@ -351,7 +351,45 @@ function getPartialCount() { return allWorkouts.filter(w => getWorkoutStatus(w.i
 function getSkippedCount() { return allWorkouts.filter(w => getWorkoutStatus(w.id) === 'skipped').length; }
 function getDaysToRace() {
   const now = new Date(); now.setHours(0, 0, 0, 0);
-  return Math.max(0, Math.ceil((RACE_DATE - now) / 86400000));
+  const race = new Date(RACE_DATE);
+  race.setHours(0, 0, 0, 0);
+  return Math.max(0, Math.ceil((race - now) / 86400000));
+}
+
+function normalizeRaceLabel(value = '') {
+  const raw = String(value || '').trim();
+  if (!raw) return 'PROVA';
+
+  return raw
+    .replace(/\s+/g, ' ')
+    .replace(/(\d+(?:[,.]\d+)?)\s*km/gi, (_, n) => `${String(n).replace('.', ',')} km`)
+    .trim();
+}
+
+function getActiveRaceLabel() {
+  const adopted = AICoach?.loadPlan?.() || null;
+  const raceName = adopted?.raceName || adopted?.raceDistance || '';
+  const label = normalizeRaceLabel(raceName);
+  return label && label !== 'PROVA' ? label.toUpperCase() : 'PROVA';
+}
+
+function updateHomeRaceSummary() {
+  const raceNameEl = document.getElementById('countdown-race-name');
+  if (raceNameEl) raceNameEl.textContent = getActiveRaceLabel();
+
+  const daysEl = document.getElementById('countdown-days');
+  if (daysEl) daysEl.textContent = allWorkouts.length ? getDaysToRace() : '-';
+}
+
+function shouldForcePlanSetup() {
+  return typeof AICoach !== 'undefined' && !AICoach.isPlanAdopted?.();
+}
+
+function goToMandatoryPlanSetup() {
+  pageHistory.length = 0;
+  renderAICoachPage?.();
+  updateAdoptedBanner?.();
+  showPage('ai');
 }
 function getNextWorkout() {
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -515,6 +553,8 @@ function renderHome() {
   const weeklyEl = document.getElementById('weekly-workouts');
   weeklyEl.innerHTML = weekWks.map(w => renderWorkoutRow(w, false)).join('');
   renderWeeklyCheckInCard(weekWks);
+
+  updateHomeRaceSummary();
 
   // Header stat: o contador de KM foi removido do header e substituído pelo botão de tour.
   // Mantemos a atualização apenas se o elemento existir em alguma versão futura.
@@ -3317,10 +3357,7 @@ function applyAdoptedPlan() {
   RACE_DATE.setTime(adopted.raceDate.getTime());
   START_DATE.setTime(adopted.startDate.getTime());
   
-  const raceNameEl = document.getElementById('countdown-race-name');
-  if (raceNameEl && adopted.raceName) {
-    raceNameEl.textContent = `${adopted.raceName.toUpperCase()} - ${adopted.raceDistance}KM`;
-  }
+  updateHomeRaceSummary();
 }
 
 function restoreOriginalPlan() {
@@ -5591,7 +5628,7 @@ function renderTourStep(index = 0) {
 
   confirmBtn.disabled = false;
   confirmBtn.dataset.action = '';
-  confirmBtn.textContent = isLast ? 'Começar' : 'Próximo';
+  confirmBtn.textContent = isLast ? 'Gerar planilha' : 'Próximo';
 
   cancelBtn.onclick = () => finishOnboardingTour();
   confirmBtn.onclick = () => {
@@ -5606,6 +5643,13 @@ function finishOnboardingTour() {
   StorageService.setOnboardingTourSeen?.(true);
   document.getElementById('modal-overlay').classList.add('hidden');
   pageHistory.length = 0;
+
+  if (shouldForcePlanSetup()) {
+    goToMandatoryPlanSetup();
+    showToast('Vamos gerar sua primeira planilha no IA Evo.', 'info');
+    return;
+  }
+
   showPage('home');
   renderHome();
 }
@@ -5699,7 +5743,12 @@ document.addEventListener('click', (event) => {
 
 
 function maybeStartOnboardingTour() {
-  if (StorageService.hasSeenOnboardingTour?.()) return;
+  if (StorageService.hasSeenOnboardingTour?.()) {
+    if (shouldForcePlanSetup()) {
+      setTimeout(() => goToMandatoryPlanSetup(), 250);
+    }
+    return;
+  }
 
   setTimeout(() => renderTourStep(0), 650);
 }
