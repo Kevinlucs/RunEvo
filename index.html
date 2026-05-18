@@ -812,24 +812,24 @@
                         <div class="ai-form-row">
                             <div class="ai-form-group ai-time-history-group">
                                 <label class="ai-label">5K</label>
-                                <input type="text" id="ai-time5k" class="ai-input time-input" inputmode="numeric" placeholder="25:00" oninput="autoFormatTimeInput(this, true)">
+                                <input type="text" id="ai-time5k" class="ai-input time-input" inputmode="numeric" placeholder="25:00" onblur="normalizeTimeField(this, true)">
                                 <label class="ai-checkline"><input type="checkbox" id="ai-no-5k" onchange="toggleTimeHistoryInput('5k')"> Ainda não corri 5K</label>
                             </div>
                             <div class="ai-form-group ai-time-history-group">
                                 <label class="ai-label">10K</label>
-                                <input type="text" id="ai-time10k" class="ai-input time-input" inputmode="numeric" placeholder="52:00" oninput="autoFormatTimeInput(this, true)">
+                                <input type="text" id="ai-time10k" class="ai-input time-input" inputmode="numeric" placeholder="52:00" onblur="normalizeTimeField(this, true)">
                                 <label class="ai-checkline"><input type="checkbox" id="ai-no-10k" onchange="toggleTimeHistoryInput('10k')"> Ainda não corri 10K</label>
                             </div>
                         </div>
                         <div class="ai-form-row">
                             <div class="ai-form-group ai-time-history-group">
                                 <label class="ai-label">21K (Meia)</label>
-                                <input type="text" id="ai-time21k" class="ai-input time-input" inputmode="numeric" placeholder="1:55:00" oninput="autoFormatTimeInput(this, true)">
+                                <input type="text" id="ai-time21k" class="ai-input time-input" inputmode="numeric" placeholder="1:55:00" onblur="normalizeTimeField(this, true)">
                                 <label class="ai-checkline"><input type="checkbox" id="ai-no-21k" onchange="toggleTimeHistoryInput('21k')"> Ainda não corri 21K</label>
                             </div>
                             <div class="ai-form-group ai-time-history-group">
                                 <label class="ai-label">42K (Maratona)</label>
-                                <input type="text" id="ai-time42k" class="ai-input time-input" inputmode="numeric" placeholder="4:10:00" oninput="autoFormatTimeInput(this, true)">
+                                <input type="text" id="ai-time42k" class="ai-input time-input" inputmode="numeric" placeholder="4:10:00" onblur="normalizeTimeField(this, true)">
                                 <label class="ai-checkline"><input type="checkbox" id="ai-no-42k" onchange="toggleTimeHistoryInput('42k')"> Ainda não corri 42K</label>
                             </div>
                         </div>

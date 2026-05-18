@@ -9205,3 +9205,43 @@ body.profile-fullscreen-mode .page.active,
   background: rgba(204,255,0,.10) !important;
   color: #CCFF00 !important;
 }
+
+
+/* ===== V82 FORM TIMES + PREVIEW CLEANUP + STATS ALIGNMENT ===== */
+
+/* Prévia da planilha: remove espaços de áreas ocultadas e deixa o card mais limpo */
+.plan-review-card .plan-review-header,
+.coach-strategy-strip {
+  display: none !important;
+}
+
+.plan-review-card {
+  padding-top: 18px !important;
+}
+
+/* Estatísticas: contador do cabeçalho não fica grudado no canto */
+.review-card-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+
+.review-card-header > strong {
+  margin-left: auto !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  background: rgba(204, 255, 0, 0.08) !important;
+  color: #CCFF00 !important;
+  border: 1px solid rgba(204, 255, 0, 0.20) !important;
+}
+
+.review-card-header > span {
+  min-width: 0 !important;
+}

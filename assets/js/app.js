@@ -2453,6 +2453,44 @@ window.autoFormatTimeInput = function(input, allowHours = false) {
   if (cursorAtEnd) input.setSelectionRange(input.value.length, input.value.length);
 };
 
+
+window.normalizeTimeField = function(input, allowHours = true) {
+  if (!input) return;
+
+  const raw = String(input.value || '').trim();
+  if (!raw) return;
+
+  // Mantém o valor digitado quando o atleta já usou ":".
+  // Só normaliza/clampa, sem "adivinhar" novo tempo.
+  if (raw.includes(':')) {
+    const seconds = normalizeTimeInputToSeconds(raw);
+    if (!seconds || seconds > 8 * 3600) {
+      input.value = seconds ? '8:00:00' : raw;
+      return;
+    }
+
+    input.value = seconds >= 3600 ? secondsToHMS(seconds) : secondsToMMSS(seconds);
+    return;
+  }
+
+  input.value = digitsToTimeString(raw, allowHours);
+};
+
+function secondsToMMSS(totalSeconds) {
+  const seconds = Math.max(0, Math.round(Number(totalSeconds || 0)));
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function secondsToHMS(totalSeconds) {
+  const seconds = Math.min(8 * 3600, Math.max(0, Math.round(Number(totalSeconds || 0))));
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
 function timeStrToSeconds(str) {
   const parts = String(str || '').split(':').map(Number);
 
@@ -3162,14 +3200,6 @@ function renderCoachAnalysis(plan) {
           <strong>${escapeHTML(analysis.mainWeakness || blueprint.profile?.mainLimitation || '-')}</strong>
         </div>
       </div>
-
-      <div class="coach-strategy-strip">
-        <span>Inicial: <strong>${formatKm(strategy.initialWeeklyKm)}</strong></span>
-        <span>Pico: <strong>${formatKm(strategy.peakWeeklyKm)}</strong></span>
-        <span>Longão máx.: <strong>${formatKm(strategy.peakLongRunKm)}</strong></span>
-        <span>Recuperação: <strong>a cada ${escapeHTML(strategy.recoveryEveryWeeks || '-')} sem.</strong></span>
-      </div>
-
       ${warnings.length ? `
         <div class="coach-warnings">
           <span>Alertas do plano</span>
@@ -3195,14 +3225,6 @@ function renderPlanReview(plan) {
 
   return `
     <div class="plan-review-card">
-      <div class="plan-review-header">
-        <div>
-          <span class="plan-review-eyebrow">Revisão técnica</span>
-          <h4>${getValidationStatusIcon(status)} ${escapeHTML(getValidationStatusLabel(status))}</h4>
-        </div>
-        <div class="plan-review-pill ${status}">${totalFixes} ajuste(s)</div>
-      </div>
-
       ${renderCoachAnalysis(plan)}
 
       <div class="plan-review-grid">

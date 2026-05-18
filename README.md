@@ -887,3 +887,14 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Motor Evo agora interpreta melhor objetivo + distância + teste de 3km.
 - Se o teste de 3km for forte, mas o objetivo for completar prova longa em pace conservador, o Motor Evo prioriza resistência, Z1/Z2, longões e progressão conservadora.
 - Cache atualizado para `runevo-v81`.
+
+
+## RunEvo v82 - correções de tempo, prévia e alinhamento
+
+- Tempos anteriores não são mais reformatados agressivamente durante a digitação.
+- Campos 5K/10K/21K/42K agora normalizam apenas ao sair do campo.
+- Mantido limite máximo de 8:00:00.
+- Removido cabeçalho repetido “Revisão técnica / Ajustes aplicados” da prévia.
+- Removidos chips repetidos de volume inicial, pico, longão e recuperação dentro da análise.
+- Ajustado alinhamento dos contadores em “Últimos check-ins” e “Ajustes recentes”.
+- Cache atualizado para `runevo-v82`.
