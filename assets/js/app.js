@@ -1,4 +1,4 @@
-const RunEvo_BUILD_VERSION = 'v88-tour-first-plan-flow';
+const RunEvo_BUILD_VERSION = 'v90-first-access-flow-guard';
 console.info('RunEvo build carregado:', RunEvo_BUILD_VERSION);
 
 // ===== DADOS DOS TREINOS =====
@@ -390,6 +390,18 @@ function goToMandatoryPlanSetup() {
   renderAICoachPage?.();
   updateAdoptedBanner?.();
   showPage('ai');
+}
+
+function requirePlanBeforeMainNavigation(targetPage = '') {
+  const lockedPages = new Set(['home', 'phases', 'stats']);
+
+  if (!lockedPages.has(targetPage)) return false;
+  if (!shouldForcePlanSetup()) return false;
+
+  pageHistory.length = 0;
+  goToMandatoryPlanSetup();
+  showToast('Gere e adote sua primeira planilha para liberar esta área.', 'info');
+  return true;
 }
 function getNextWorkout() {
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -5107,6 +5119,9 @@ document.getElementById('btn-back').addEventListener('click', goBack);
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
     const page = btn.dataset.page;
+
+    if (requirePlanBeforeMainNavigation(page)) return;
+
     pageHistory = [];
     showPage(page);
     if (page === 'home') renderHome();

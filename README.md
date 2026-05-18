@@ -995,3 +995,20 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Tour em Perfil > Minhas preferências > Suporte > Aplicativo continua funcionando como replay.
 - Corrigido resíduo de comentário/caractere antes da página IA Evo.
 - Cache atualizado para `runevo-v88`.
+
+
+## RunEvo v89 - alinhamento visual do tour
+
+- Centralizado o selo/eyebrow verde em todos os passos do tour.
+- Conteúdo do tour padronizado em layout centralizado para melhorar leitura no modal.
+- Barra de progresso limitada e centralizada para evitar sensação de desalinhamento.
+- Cache atualizado para `runevo-v89`.
+
+
+## RunEvo v90 - teste do fluxo de primeiro acesso
+
+- Adicionado teste estático `scripts/qa-first-access-flow.js` para validar o fluxo principal.
+- Validado: Tour com 7 passos, finalização direcionando para IA Evo, adoção retornando para Início.
+- Adicionado bloqueio de navegação para Home/Treinos/Estatísticas quando ainda não há planilha adotada.
+- O atleta só libera o fluxo principal após gerar e adotar a primeira planilha.
+- Cache atualizado para `runevo-v90`.
