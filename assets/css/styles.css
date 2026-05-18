@@ -9263,3 +9263,10 @@ body.profile-fullscreen-mode .page.active,
 .plan-review-issue p {
   line-height: 1.5 !important;
 }
+
+
+/* ===== V84 TIME INPUT STABILITY ===== */
+.ai-input.time-input {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}

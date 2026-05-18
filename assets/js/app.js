@@ -2400,6 +2400,21 @@ function cleanTimeDigits(value, allowHours = false) {
   return String(value || '').replace(/\D/g, '').slice(0, max);
 }
 
+function secondsToMMSS(totalSeconds) {
+  const seconds = Math.max(0, Math.round(Number(totalSeconds || 0)));
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function secondsToHMS(totalSeconds) {
+  const seconds = Math.min(8 * 3600, Math.max(0, Math.round(Number(totalSeconds || 0))));
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
 function clampTimeStringToMax(value = '', maxSeconds = 8 * 3600) {
   const parts = String(value || '').split(':').map(Number);
   if (parts.some(part => !Number.isFinite(part))) return value;
@@ -2410,21 +2425,11 @@ function clampTimeStringToMax(value = '', maxSeconds = 8 * 3600) {
   else return value;
 
   seconds = Math.min(Math.max(0, seconds), maxSeconds);
-
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = Math.floor(seconds % 60);
-
-  if (h > 0) {
-    return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  }
-
-  return `${m}:${String(s).padStart(2, '0')}`;
+  return seconds >= 3600 ? secondsToHMS(seconds) : secondsToMMSS(seconds);
 }
 
 function digitsToTimeString(digits, allowHours = false) {
   const clean = cleanTimeDigits(digits, allowHours);
-
   if (!clean) return '';
 
   let formatted = '';
@@ -2448,19 +2453,17 @@ function digitsToTimeString(digits, allowHours = false) {
 }
 
 window.autoFormatTimeInput = function(input, allowHours = false) {
+  if (!input) return;
+
   const raw = String(input.value || '');
-  const cursorAtEnd = input.selectionStart === input.value.length;
+  const digits = cleanTimeDigits(raw, allowHours);
+  input.value = digitsToTimeString(digits, allowHours);
 
-  // Se o atleta já digitou ':' manualmente, não tenta reescrever o campo durante a digitação.
-  // Isso evita saltos bizarros como 47:30 virar outro valor por causa do cursor.
-  if (raw.includes(':')) {
-    input.value = raw.replace(/[^0-9:]/g, '').slice(0, allowHours ? 8 : 5);
-    if (cursorAtEnd) input.setSelectionRange(input.value.length, input.value.length);
-    return;
+  try {
+    input.setSelectionRange(input.value.length, input.value.length);
+  } catch (_) {
+    // Alguns navegadores mobile não permitem setSelectionRange em certos contextos.
   }
-
-  input.value = digitsToTimeString(raw, allowHours);
-  if (cursorAtEnd) input.setSelectionRange(input.value.length, input.value.length);
 };
 
 
@@ -2486,20 +2489,9 @@ window.normalizeTimeField = function(input, allowHours = true) {
   input.value = digitsToTimeString(raw, allowHours);
 };
 
-function secondsToMMSS(totalSeconds) {
-  const seconds = Math.max(0, Math.round(Number(totalSeconds || 0)));
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${String(s).padStart(2, '0')}`;
-}
 
-function secondsToHMS(totalSeconds) {
-  const seconds = Math.min(8 * 3600, Math.max(0, Math.round(Number(totalSeconds || 0))));
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
+
+
 
 function timeStrToSeconds(str) {
   const parts = String(str || '').split(':').map(Number);

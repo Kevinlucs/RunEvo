@@ -909,3 +909,36 @@ O dashboard usa os dados reais do plano ativo, status dos treinos, feedbacks e c
 - Detalhes da validação explicam motivo e impacto de cada ajuste/aviso.
 - Motor Evo recebeu biblioteca ampliada de treinos: regenerativo, rodagem, longão, fartlek, intervalado, tempo run, progressivo, subida controlada e ativação pré-prova.
 - Cache atualizado para `runevo-v83`.
+
+
+## RunEvo v84 - correção definitiva dos campos de tempo e IA Evo mais técnica
+
+- Campos de tempos anteriores voltam a formatar durante a digitação:
+  - 4444 vira 44:44
+  - 1234 vira 12:34
+  - 123456 vira 12:34:56
+- Teste de 3km usa o mesmo padrão MM:SS:
+  - 1220 vira 12:20
+- Mantido limite máximo de 8:00:00 para tempos anteriores.
+- Motor Evo/IA Evo reforçado para explicar melhor:
+  - nível detectado
+  - viabilidade
+  - foco principal
+  - progressão
+  - ponto de atenção
+  - alertas
+  - detalhes da validação
+- Biblioteca técnica ampliada para variar melhor os tipos de treino nas planilhas:
+  - regenerativo
+  - rodagem leve/base
+  - contínuo
+  - longão
+  - longão progressivo
+  - fartlek técnico
+  - intervalado extensivo
+  - tiros curtos
+  - tempo run/limiar
+  - ritmo de prova
+  - subidas controladas
+  - polimento/ativação
+- Cache atualizado para `runevo-v84`.
