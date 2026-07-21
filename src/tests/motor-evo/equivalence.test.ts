@@ -1,28 +1,21 @@
 /**
  * Testes de equivalência do Motor RunEvo (Fase 2) — TS novo vs. golden do legado.
  *
- * ESCOPO DESTA RODADA (Grupos A e B só): `src/domain/motor-evo/` hoje só tem
- * types, utils/math, dates, pace, objective, terrain e zones. Não existem
- * ainda phases.ts, weekly-targets.ts, workout-library.ts,
- * workout-prescription.ts, plan-generator.ts, validation.ts,
- * quality-score.ts, risk.ts nem fingerprint.ts (Grupos C em diante).
+ * Grupos A+B (types/utils/dates/pace/objective/terrain/zones) e C+D
+ * (profile/phases/blueprint/weekly-targets/workout-library/workout-prescription/
+ * plan-generator/validation/quality-score/risk) estão portados. `index.ts`
+ * (`generatePlan`) compõe `assemblePlan` + `validateAndFixPlan`, sempre pelo
+ * caminho local/determinístico (só o testado pelos golden desta fase).
  *
- * Por isso, o que este arquivo REALMENTE testa (com asserts de verdade,
- * comparando contra os golden gerados pelo legado em
- * src/tests/motor-evo/golden/*.json) é só o que os Grupos A/B produzem:
- * - nº de semanas (calculateWeeks)
- * - motorEvoContext (getGoalContext — estratégia de zona, pace alvo, pace de
- *   teste, speedReserve, resumo)
- * - blueprint.paceZones (buildLocalPaceZones — método de zona e faixas Z1-Z5)
- *
- * As comparações de fases/flags off/treinos/validation/qualityStatus/
- * riskLevel/fingerprint pedidas no enunciado da Fase 2 ficam como
- * `test.todo(...)` explícitos, cada um citando o módulo que falta —
- * não fabricamos asserts sobre código que ainda não existe.
+ * Ainda NÃO portado: fingerprint.ts (Grupo F/G) e o comportamento de pipeline
+ * dos cenários oficiais §39 9 (blueprint.source ao IA indisponível) e 10
+ * (arePlansIdentical) — ficam como `test.todo` até a Parada 2, por instrução
+ * explícita (não fabricamos asserts sobre código que ainda não existe).
  */
 import { calculateWeeks } from '../../domain/motor-evo/dates';
 import { getGoalContext } from '../../domain/motor-evo/objective';
 import { buildLocalPaceZones } from '../../domain/motor-evo/zones';
+import { generatePlan } from '../../domain/motor-evo/index';
 import { fixtures } from './fixtures';
 
 import golden_f01 from './golden/f01.json';
@@ -36,11 +29,22 @@ import golden_f08 from './golden/f08.json';
 import golden_f09 from './golden/f09.json';
 import golden_f10 from './golden/f10.json';
 
-/** Só o subconjunto do plano do legado que os Grupos A/B conseguem produzir hoje. */
+/** Formato completo do plano do legado (docs/legacy-audit.md §3.2/§3.4). */
 interface GoldenPlan {
   totalWeeks: number;
   motorEvoContext: unknown;
-  blueprint: { paceZones: unknown };
+  blueprint: { paceZones: unknown; source: string };
+  weeks: unknown[];
+  validation: {
+    status: string;
+    summary: {
+      qualityScore: number;
+      qualityStatus: string;
+      riskLevel: string;
+      riskPoints: number;
+      riskReasons: string[];
+    };
+  };
 }
 
 const golden: Record<string, GoldenPlan> = {
@@ -56,7 +60,14 @@ const golden: Record<string, GoldenPlan> = {
   f10: golden_f10,
 };
 
-describe('Motor RunEvo — equivalência TS novo vs. legado (Grupos A+B)', () => {
+/** Remove timestamps não-determinísticos (generatedAt/checkedAt/issue.at) antes de comparar. */
+function omitVolatile<T>(value: T): T {
+  return JSON.parse(
+    JSON.stringify(value, (key: string, v: unknown) => (key === 'generatedAt' || key === 'checkedAt' || key === 'at' ? undefined : v)),
+  ) as T;
+}
+
+describe('Motor RunEvo — equivalência TS novo vs. legado (Grupos A-D)', () => {
   describe.each(fixtures)('$id — $description', (fixture) => {
     const goldenPlan = golden[fixture.id];
     if (!goldenPlan) throw new Error(`golden ausente para ${fixture.id}`);
@@ -71,6 +82,31 @@ describe('Motor RunEvo — equivalência TS novo vs. legado (Grupos A+B)', () =>
 
     it('blueprint.paceZones (buildLocalPaceZones) bate com o golden', () => {
       expect(buildLocalPaceZones(fixture.input)).toEqual(goldenPlan.blueprint.paceZones);
+    });
+
+    describe('generatePlan (plano completo)', () => {
+      const newPlan = generatePlan(fixture.input);
+
+      it('semanas (fases, off, treinos: dayType/title/desc/km/pace/dayOfWeek) batem com o golden', () => {
+        expect(omitVolatile(newPlan.weeks)).toEqual(omitVolatile(goldenPlan.weeks));
+      });
+
+      it('validation.status bate com o golden', () => {
+        expect(newPlan.validation?.status).toBe(goldenPlan.validation.status);
+      });
+
+      it('validation.summary (qualityScore/qualityStatus/riskLevel/riskPoints/riskReasons) bate com o golden', () => {
+        const summary = newPlan.validation?.summary;
+        expect(summary?.qualityScore).toBe(goldenPlan.validation.summary.qualityScore);
+        expect(summary?.qualityStatus).toBe(goldenPlan.validation.summary.qualityStatus);
+        expect(summary?.riskLevel).toBe(goldenPlan.validation.summary.riskLevel);
+        expect(summary?.riskPoints).toBe(goldenPlan.validation.summary.riskPoints);
+        expect(summary?.riskReasons).toEqual(goldenPlan.validation.summary.riskReasons);
+      });
+
+      it('validation completo (issues/fixed/warnings, sem timestamps) bate com o golden', () => {
+        expect(omitVolatile(newPlan.validation)).toEqual(omitVolatile(goldenPlan.validation));
+      });
     });
   });
 
@@ -104,22 +140,9 @@ describe('Motor RunEvo — equivalência TS novo vs. legado (Grupos A+B)', () =>
     });
   });
 
-  // ===== Pendente — depende de módulos ainda não portados (Grupos C+) =====
-  // Cenários oficiais §39 9 e 10 (docs/motor-equivalence-report.md): não são
-  // input de fixture, são comportamento do pipeline — adiados por inteiro.
+  // ===== Pendente — comportamento de pipeline, não de fixture; adiado até a Parada 2 =====
   test.todo(
-    'cenário §39 9 (f09) — blueprint.source === "local" quando IA indisponível — depende de blueprint.ts (Grupo C/D)',
+    'cenário §39 9 (f09) — blueprint.source ao IA indisponível — achado: golden guarda "fallback: <mensagem de erro>", não um enum limpo "local" (ver docs/motor-equivalence-report.md)',
   );
-  test.todo(
-    'cenário §39 10 (f10) — arePlansIdentical(plano, mesmo plano) === true — depende de fingerprint.ts (Grupo F)',
-  );
-  test.todo('fases por semana (Base/Resistência/Pico/Polimento) — depende de phases.ts (Grupo C)');
-  test.todo('flags "off" (semanas de recuperação) — depende de weekly-targets.ts (Grupo C)');
-  test.todo(
-    'por treino: dayType/title/km/dayOfWeek — depende de workout-library.ts + workout-prescription.ts + plan-generator.ts (Grupos C-E)',
-  );
-  test.todo('validation.status e issues (códigos/fixed) — depende de validation.ts (Grupo F)');
-  test.todo('qualityStatus (quality score 0-10) — depende de quality-score.ts (Grupo F)');
-  test.todo('riskLevel (+ razões) — depende de risk.ts (Grupo F)');
-  test.todo('fingerprint estrutural do plano — depende de fingerprint.ts (Grupo G)');
+  test.todo('cenário §39 10 (f10) — arePlansIdentical(plano, mesmo plano) === true — depende de fingerprint.ts');
 });
