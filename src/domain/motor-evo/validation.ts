@@ -510,10 +510,6 @@ export function enforceContextualPaceCoherence(
   });
 }
 
-/** ai-coach.js:2232-2234 — nunca chamada no legado (dead code); portada por fidelidade. */
-export function workoutSignature(workout: Partial<Workout> = {}): string {
-  return `${String(workout.dayType || '').toLowerCase()}|${String(workout.title || '').toLowerCase()}`;
-}
 
 /** ai-coach.js:2236-2285 */
 export function enforceWorkoutVariety(

@@ -7,10 +7,8 @@
  * (`generatePlan`) compõe `assemblePlan` + `validateAndFixPlan`, sempre pelo
  * caminho local/determinístico (só o testado pelos golden desta fase).
  *
- * Ainda NÃO portado: fingerprint.ts (Grupo F/G) e o comportamento de pipeline
- * dos cenários oficiais §39 9 (blueprint.source ao IA indisponível) e 10
- * (arePlansIdentical) — ficam como `test.todo` até a Parada 2, por instrução
- * explícita (não fabricamos asserts sobre código que ainda não existe).
+ * Cenário §39 9 (blueprint.source) já ativo. Cenário 10 (arePlansIdentical)
+ * ainda `test.todo`: depende de fingerprint.ts (Grupo F), não portado ainda.
  */
 import { calculateWeeks } from '../../domain/motor-evo/dates';
 import { getGoalContext } from '../../domain/motor-evo/objective';
@@ -140,9 +138,18 @@ describe('Motor RunEvo — equivalência TS novo vs. legado (Grupos A-D)', () =>
     });
   });
 
-  // ===== Pendente — comportamento de pipeline, não de fixture; adiado até a Parada 2 =====
-  test.todo(
-    'cenário §39 9 (f09) — blueprint.source ao IA indisponível — achado: golden guarda "fallback: <mensagem de erro>", não um enum limpo "local" (ver docs/motor-equivalence-report.md)',
-  );
+  // Cenário §39 9: fonte do blueprint quando a IA está indisponível.
+  // `blueprint.source` é um enum limpo ('ai'|'local') por decisão consciente —
+  // diverge do legado de propósito (vazava a mensagem de erro do fetch nesse
+  // campo). Não compara contra `golden.blueprint.source` (que ainda tem a
+  // string suja) — ver docs/motor-equivalence-report.md.
+  it('cenário §39 9 (f09) — blueprint.source === "local" quando IA indisponível (todas as fixtures, caminho local)', () => {
+    for (const fixture of fixtures) {
+      const plan = generatePlan(fixture.input);
+      expect(plan.blueprint.source).toBe('local');
+    }
+  });
+
+  // ===== Pendente — depende de fingerprint.ts (Grupo F), ainda não portado =====
   test.todo('cenário §39 10 (f10) — arePlansIdentical(plano, mesmo plano) === true — depende de fingerprint.ts');
 });

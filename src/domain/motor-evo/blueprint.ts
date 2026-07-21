@@ -60,6 +60,14 @@ export interface EngineCalibration {
   qualityFrequency: string;
 }
 
+/**
+ * Divergência intencional do legado (aprovada — ver docs/motor-equivalence-report.md):
+ * `buildFallbackBlueprint` (ai-coach.js:1047) vazava a mensagem de erro do fetch
+ * nesse campo (`` `fallback: ${reason}` ``, ex. "fallback: rede desabilitada...").
+ * O §13 do enunciado (spec de produto) pede um enum limpo — adotado aqui.
+ */
+export type BlueprintSource = 'ai' | 'local';
+
 export interface PlanBlueprint {
   profile: BlueprintProfile;
   athleteAnalysis: AthleteAnalysis;
@@ -68,7 +76,7 @@ export interface PlanBlueprint {
   phaseDistribution: PhaseRange[];
   warnings: string[];
   engineCalibration: EngineCalibration;
-  source: string;
+  source: BlueprintSource;
 }
 
 type BlueprintAthleteInput = Pick<
@@ -97,8 +105,14 @@ type BlueprintAthleteInput = Pick<
   | 'terrainType'
 >;
 
-/** ai-coach.js:949-1049 */
+/**
+ * ai-coach.js:949-1049. `reason` é mantido na assinatura por compatibilidade com o
+ * call site do legado (`generateBlueprint` passa `error.message`), mas
+ * intencionalmente NÃO alimenta mais `source` (ver `BlueprintSource` acima) —
+ * `source` é sempre `'local'` neste builder.
+ */
 export function buildFallbackBlueprint(userData: BlueprintAthleteInput, reason = ''): PlanBlueprint {
+  void reason;
   const totalWeeks = calculateWeeks(userData.startDate, userData.raceDate);
   const distanceKm = getDistanceKm(userData);
   const days = clamp(Number(userData.daysPerWeek || 3), 2, 6);
@@ -215,6 +229,6 @@ export function buildFallbackBlueprint(userData: BlueprintAthleteInput, reason =
       intensityBias: goalContext.intensityBias,
       qualityFrequency: goalContext.qualityFrequency,
     },
-    source: reason ? `fallback: ${reason}` : 'fallback local',
+    source: 'local',
   };
 }

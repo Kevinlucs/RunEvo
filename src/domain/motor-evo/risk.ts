@@ -9,22 +9,17 @@ import type { AthleteInput } from './types';
 
 /**
  * Porte 1:1 de `legacy/ai-coach.js` — risco do plano.
- * Mapeamento: docs/legacy-audit.md §13.6 (`normalizeRiskLabel, calculatePlanRiskLevel` → risk.ts).
+ * Mapeamento: docs/legacy-audit.md §13.6 (`calculatePlanRiskLevel` → risk.ts).
+ * `normalizeRiskLabel` (ai-coach.js:2522-2528) não foi portada: nunca é chamada
+ * em lugar nenhum do legado (código morto) — omitida por decisão explícita
+ * (ver docs/motor-equivalence-report.md). Os 82/82 testes de equivalência
+ * passam sem ela.
  */
 
 export interface RiskResult {
   level: 'baixo' | 'médio' | 'alto' | 'muito alto';
   points: number;
   reasons: string[];
-}
-
-/** ai-coach.js:2522-2528 — nunca chamada no legado (dead code); portada por fidelidade. */
-export function normalizeRiskLabel(value = ''): 'baixo' | 'médio' | 'alto' | 'muito alto' {
-  const text = String(value || '').toLowerCase();
-  if (text.includes('muito') || text.includes('extremo')) return 'muito alto';
-  if (text.includes('alto')) return 'alto';
-  if (text.includes('moderado') || text.includes('médio') || text.includes('medio')) return 'médio';
-  return 'baixo';
 }
 
 type RiskAthleteInput = Pick<AthleteInput, 'startDate' | 'raceDate' | 'daysPerWeek'> &
