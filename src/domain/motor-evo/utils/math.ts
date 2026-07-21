@@ -14,8 +14,11 @@ export function roundKm(value: number | string | null | undefined): number {
   return Math.max(1, Math.round(n));
 }
 
-/** ai-coach.js:95-98 */
-export function parseNumber(value: unknown, fallback = 0): number {
+/**
+ * ai-coach.js:95-98 — genérico porque o legado chama `parseNumber(x, null)`
+ * em `calculateIMC` (ai-coach.js:101), então o fallback nem sempre é number.
+ */
+export function parseNumber<T = number>(value: unknown, fallback: T = 0 as T): number | T {
   const n = Number(String(value ?? '').replace(',', '.'));
   return Number.isFinite(n) ? n : fallback;
 }

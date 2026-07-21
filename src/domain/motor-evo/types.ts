@@ -25,7 +25,7 @@ export interface AthleteInput {
   age?: number;
   height?: number;
   weight?: number;
-  imc?: number;
+  imc?: number | null;
   /** Nível pt-BR tolerante ("iniciante"|"intermediário"|"avançado"), parsing tolerante. */
   level?: string;
   targetDistance: TargetDistance;
@@ -82,7 +82,13 @@ export interface Workout {
   desc: string;
   km: number;
   pace: string;
-  zoneTarget: string;
+  /**
+   * Presente no retorno bruto de `generateWorkoutWeek`, mas `normalizeWorkoutForValidation`
+   * (ai-coach.js:1965-1972) NÃO o propaga para o plano final — só reaparece num
+   * treino específico se uma correção posterior (enforceContextualPaceCoherence/
+   * enforceWorkoutVariety) o reatribuir. Por isso é opcional, não sempre-presente.
+   */
+  zoneTarget?: string;
   redistributedFromSkipped?: boolean;
   redistributedKm?: number;
 }
@@ -95,11 +101,17 @@ export interface Week {
   workouts: Workout[];
 }
 
+/**
+ * Forma real do legado (`addValidationIssue`, ai-coach.js:1922-1943): `path` é uma
+ * string genérica tipo `"weeks[2].workouts[1].dayOfWeek"`, não `week`/`workoutId`
+ * separados como o §2 do doc de spec sugeria; há também `at` (timestamp ISO). O §2
+ * documenta uma forma idealizada — seguimos o runtime real do legado.
+ */
 export interface ValidationIssue {
-  code: string;
   severity: 'info' | 'warning' | 'error';
-  week?: number;
-  workoutId?: string;
+  code: string;
   message: string;
+  path: string;
   fixed: boolean;
+  at: string;
 }

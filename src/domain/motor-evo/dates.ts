@@ -8,6 +8,9 @@ import type { AthleteInput } from './types';
 /** ai-coach.js:11 — índice por `Date.getDay()` (0=Domingo). */
 export const DAY_NAMES = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'] as const;
 
+/** ai-coach.js:12 — segunda-indexado (usado por getTrainingDays/isValidDayName). */
+export const MONDAY_INDEXED_DAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'] as const;
+
 /**
  * ai-coach.js:74-78 — parsing **local** (evita shift de UTC de `new Date('YYYY-MM-DD')`).
  */
