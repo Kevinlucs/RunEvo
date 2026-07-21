@@ -1,10 +1,10 @@
 {
-  "planName": "Plano Ultramaratona (60 km) - avançado",
+  "planName": "Plano Ultramaratona (61 km) - avançado",
   "totalWeeks": 24,
-  "raceName": "Ultramaratona (60 km)",
-  "raceDistance": "Ultramaratona (60 km)",
+  "raceName": "Ultramaratona (61 km)",
+  "raceDistance": "Ultramaratona (61 km)",
   "raceDate": "2026-06-21",
-  "daysPerWeek": 5,
+  "daysPerWeek": 3,
   "weeks": [
     {
       "week": "S1",
@@ -15,41 +15,25 @@
           "dayOfWeek": "Segunda",
           "dayType": "Base",
           "title": "Base aeróbica",
-          "desc": "1km em Z1\n5km em Z2\n1km em Z1",
-          "km": 7,
-          "pace": "8:04/km"
-        },
-        {
-          "dayOfWeek": "Terça",
-          "dayType": "Qualidade",
-          "title": "Fartlek técnico leve",
-          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n3km em Z2 se sobrar distância\n2km em Z1",
-          "km": 10,
-          "pace": "8:21/km"
+          "desc": "1km em Z1\n7km em Z2\n1km em Z1",
+          "km": 9,
+          "pace": "7:54/km"
         },
         {
           "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Rodagem leve",
-          "desc": "1km em Z1\n5km em Z2\n1km em Z1",
-          "km": 7,
-          "pace": "8:04/km"
+          "dayType": "Qualidade",
+          "title": "Fartlek técnico leve",
+          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n5km em Z2 se sobrar distância\n2km em Z1",
+          "km": 12,
+          "pace": "8:06/km"
         },
         {
           "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
-          "desc": "2km em Z1\n6km em Z2\n2km em Z1",
-          "km": 10,
-          "pace": "8:11/km"
-        },
-        {
-          "dayOfWeek": "Domingo",
           "dayType": "Longão",
           "title": "Longão confortável",
           "desc": "3km em Z1\n13km em Z2\n2km em Z2",
           "km": 18,
-          "pace": "7:58/km"
+          "pace": "7:51/km"
         }
       ]
     },
@@ -59,45 +43,29 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
-          "dayType": "Base",
-          "title": "Rodagem econômica",
-          "desc": "1km em Z1\n6km em Z2 com foco em cadência e postura\n1km em Z1",
-          "km": 8,
-          "pace": "8:02/km"
-        },
-        {
           "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Rodagem econômica",
           "desc": "2km em Z1\n6km em Z2 com foco em cadência e postura\n2km em Z1",
           "km": 10,
-          "pace": "8:11/km",
-          "zoneTarget": "Z2"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Soltura aeróbica",
-          "desc": "1km em Z1\n5km em Z2\n1km em Z1",
-          "km": 7,
           "pace": "8:04/km"
         },
         {
-          "dayOfWeek": "Sexta",
-          "dayType": "Recuperação",
-          "title": "Regenerativo técnico",
-          "desc": "2km em Z1\n6x (20s educativo técnico + 60s trote em Z1)\n6km em Z1\n2km em Z1",
-          "km": 11,
-          "pace": "8:45/km"
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Rodagem econômica",
+          "desc": "2km em Z1\n8km em Z2 com foco em cadência e postura\n2km em Z1",
+          "km": 12,
+          "pace": "8:00/km",
+          "zoneTarget": "Z2"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão específico",
-          "desc": "3km em Z1\n9km em Z2\n4km em Z3 controlado\n3km em Z1",
-          "km": 19,
-          "pace": "7:57/km"
+          "desc": "3km em Z1\n10km em Z2\n4km em Z3 controlado\n3km em Z1",
+          "km": 20,
+          "pace": "7:50/km"
         }
       ]
     },
@@ -107,36 +75,20 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
-          "desc": "1km em Z1\n6km em Z2\n1km em Z1",
-          "km": 8,
-          "pace": "8:02/km"
-        },
-        {
           "dayOfWeek": "Terça",
           "dayType": "Base",
-          "title": "Rodagem aeróbica contínua",
+          "title": "Rodagem contínua",
           "desc": "2km em Z1\n6km em Z2\n2km em Z1",
           "km": 10,
-          "pace": "8:11/km"
+          "pace": "8:04/km"
         },
         {
-          "dayOfWeek": "Quarta",
-          "dayType": "Recuperação",
-          "title": "Regenerativo leve",
-          "desc": "1km em Z1\n5km em Z1\n1km em Z1",
-          "km": 7,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
+          "dayOfWeek": "Quinta",
           "dayType": "Base",
-          "title": "Base aeróbica",
-          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km"
+          "title": "Rodagem aeróbica contínua",
+          "desc": "2km em Z1\n9km em Z2\n2km em Z1",
+          "km": 13,
+          "pace": "7:59/km"
         },
         {
           "dayOfWeek": "Sábado",
@@ -144,7 +96,7 @@
           "title": "Longão contínuo",
           "desc": "3km em Z1\n15km em Z2\n3km em Z2",
           "km": 21,
-          "pace": "7:56/km"
+          "pace": "7:49/km"
         }
       ]
     },
@@ -154,37 +106,20 @@
       "off": true,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Recuperação",
           "title": "Regenerativo leve",
-          "desc": "1km em Z1\n4km em Z1\n1km em Z1",
-          "km": 6,
-          "pace": "8:45/km"
+          "desc": "1km em Z1\n6km em Z1\n1km em Z1",
+          "km": 8,
+          "pace": "8:38/km"
         },
         {
-          "dayOfWeek": "Terça",
+          "dayOfWeek": "Quinta",
           "dayType": "Base",
           "title": "Soltura aeróbica",
-          "desc": "1km em Z1\n6km em Z2\n1km em Z1",
-          "km": 8,
-          "pace": "8:02/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Rodagem leve",
-          "desc": "1km em Z1\n4km em Z2\n1km em Z1",
-          "km": 6,
-          "pace": "8:07/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Recuperação",
-          "title": "Regenerativo leve",
-          "desc": "1km em Z1\n7km em Z1\n1km em Z1",
-          "km": 9,
-          "pace": "8:45/km",
-          "zoneTarget": "Z1"
+          "desc": "2km em Z1\n6km em Z2\n2km em Z1",
+          "km": 10,
+          "pace": "8:04/km"
         },
         {
           "dayOfWeek": "Sábado",
@@ -192,7 +127,7 @@
           "title": "Longão confortável",
           "desc": "3km em Z1\n13km em Z2\n2km em Z2",
           "km": 18,
-          "pace": "7:58/km"
+          "pace": "7:51/km"
         }
       ]
     },
@@ -202,36 +137,20 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Base aeróbica",
-          "desc": "1km em Z1\n7km em Z2\n1km em Z1",
-          "km": 9,
-          "pace": "8:01/km"
-        },
-        {
-          "dayOfWeek": "Terça",
-          "dayType": "Qualidade",
-          "title": "Fartlek técnico leve",
-          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n4km em Z2 se sobrar distância\n2km em Z1",
+          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
           "km": 11,
-          "pace": "8:17/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Soltura aeróbica",
-          "desc": "1km em Z1\n6km em Z2\n1km em Z1",
-          "km": 8,
           "pace": "8:02/km"
         },
         {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
-          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km"
+          "dayOfWeek": "Quinta",
+          "dayType": "Qualidade",
+          "title": "Fartlek técnico leve",
+          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n7km em Z2 se sobrar distância\n2km em Z1",
+          "km": 14,
+          "pace": "8:02/km"
         },
         {
           "dayOfWeek": "Sábado",
@@ -239,7 +158,7 @@
           "title": "Longão confortável",
           "desc": "3km em Z1\n16km em Z2\n4km em Z2",
           "km": 23,
-          "pace": "7:55/km",
+          "pace": "7:48/km",
           "zoneTarget": "Z2"
         }
       ]
@@ -250,37 +169,21 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
-          "dayType": "Base",
-          "title": "Rodagem econômica",
-          "desc": "1km em Z1\n7km em Z2 com foco em cadência e postura\n1km em Z1",
-          "km": 9,
-          "pace": "8:01/km"
-        },
-        {
           "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Rodagem econômica",
-          "desc": "2km em Z1\n7km em Z2 com foco em cadência e postura\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km",
-          "zoneTarget": "Z2"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Recuperação",
-          "title": "Regenerativo leve",
-          "desc": "1km em Z1\n6km em Z1\n1km em Z1",
-          "km": 8,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Recuperação",
-          "title": "Regenerativo técnico",
-          "desc": "2km em Z1\n6x (20s educativo técnico + 60s trote em Z1)\n7km em Z1\n2km em Z1",
+          "desc": "2km em Z1\n8km em Z2 com foco em cadência e postura\n2km em Z1",
           "km": 12,
-          "pace": "8:45/km"
+          "pace": "8:00/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Rodagem econômica",
+          "desc": "2km em Z1\n10km em Z2 com foco em cadência e postura\n2km em Z1",
+          "km": 14,
+          "pace": "7:57/km",
+          "zoneTarget": "Z2"
         },
         {
           "dayOfWeek": "Sábado",
@@ -288,7 +191,7 @@
           "title": "Longão específico",
           "desc": "4km em Z1\n12km em Z2\n5km em Z3 controlado\n3km em Z1",
           "km": 24,
-          "pace": "7:56/km"
+          "pace": "7:49/km"
         }
       ]
     },
@@ -298,36 +201,20 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
-          "desc": "1km em Z1\n7km em Z2\n1km em Z1",
-          "km": 9,
-          "pace": "8:01/km"
-        },
-        {
           "dayOfWeek": "Terça",
           "dayType": "Base",
+          "title": "Rodagem contínua",
+          "desc": "2km em Z1\n8km em Z2\n2km em Z1",
+          "km": 12,
+          "pace": "8:00/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
           "title": "Rodagem aeróbica contínua",
-          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Rodagem leve",
-          "desc": "1km em Z1\n6km em Z2\n1km em Z1",
-          "km": 8,
-          "pace": "8:02/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Base aeróbica",
-          "desc": "2km em Z1\n9km em Z2\n2km em Z1",
-          "km": 13,
-          "pace": "8:06/km"
+          "desc": "2km em Z1\n11km em Z2\n2km em Z1",
+          "km": 15,
+          "pace": "7:56/km"
         },
         {
           "dayOfWeek": "Sábado",
@@ -335,7 +222,7 @@
           "title": "Longão contínuo",
           "desc": "4km em Z1\n18km em Z2\n3km em Z2",
           "km": 25,
-          "pace": "7:57/km"
+          "pace": "7:50/km"
         }
       ]
     },
@@ -345,37 +232,20 @@
       "off": true,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Rodagem leve",
-          "desc": "1km em Z1\n5km em Z2\n1km em Z1",
-          "km": 7,
-          "pace": "8:04/km"
+          "desc": "1km em Z1\n7km em Z2\n1km em Z1",
+          "km": 9,
+          "pace": "7:54/km"
         },
         {
-          "dayOfWeek": "Terça",
+          "dayOfWeek": "Quinta",
           "dayType": "Recuperação",
           "title": "Regenerativo leve",
-          "desc": "1km em Z1\n7km em Z1\n1km em Z1",
-          "km": 9,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Soltura aeróbica",
-          "desc": "1km em Z1\n4km em Z2\n1km em Z1",
-          "km": 6,
-          "pace": "8:07/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Rodagem leve",
-          "desc": "2km em Z1\n6km em Z2\n2km em Z1",
-          "km": 10,
-          "pace": "8:11/km",
-          "zoneTarget": "Z2"
+          "desc": "2km em Z1\n8km em Z1\n2km em Z1",
+          "km": 12,
+          "pace": "8:38/km"
         },
         {
           "dayOfWeek": "Sábado",
@@ -383,7 +253,7 @@
           "title": "Longão confortável",
           "desc": "3km em Z1\n15km em Z2\n3km em Z2",
           "km": 21,
-          "pace": "7:56/km"
+          "pace": "7:49/km"
         }
       ]
     },
@@ -393,45 +263,28 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
-          "desc": "1km em Z1\n7km em Z2\n1km em Z1",
-          "km": 9,
-          "pace": "8:01/km"
-        },
-        {
           "dayOfWeek": "Terça",
           "dayType": "Base",
-          "title": "Rodagem aeróbica contínua",
-          "desc": "2km em Z1\n8km em Z2\n2km em Z1",
-          "km": 12,
-          "pace": "8:07/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Soltura aeróbica",
-          "desc": "1km em Z1\n7km em Z2\n1km em Z1",
-          "km": 9,
-          "pace": "8:01/km",
-          "zoneTarget": "Z2"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Base aeróbica",
+          "title": "Rodagem contínua",
           "desc": "2km em Z1\n9km em Z2\n2km em Z1",
           "km": 13,
-          "pace": "8:06/km"
+          "pace": "7:59/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Rodagem aeróbica contínua",
+          "desc": "2km em Z1\n11km em Z2\n2km em Z1",
+          "km": 15,
+          "pace": "7:56/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão contínuo",
-          "desc": "4km em Z1\n19km em Z2\n4km em Z2",
-          "km": 27,
-          "pace": "7:56/km"
+          "desc": "4km em Z1\n20km em Z2\n4km em Z2",
+          "km": 28,
+          "pace": "7:49/km"
         }
       ]
     },
@@ -441,44 +294,28 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Recuperação",
           "title": "Regenerativo técnico",
-          "desc": "2km em Z1\n6x (20s educativo técnico + 60s trote em Z1)\n5km em Z1\n2km em Z1",
-          "km": 10,
-          "pace": "8:45/km"
+          "desc": "2km em Z1\n6x (20s educativo técnico + 60s trote em Z1)\n8km em Z1\n2km em Z1",
+          "km": 13,
+          "pace": "8:38/km"
         },
         {
-          "dayOfWeek": "Terça",
+          "dayOfWeek": "Quinta",
           "dayType": "Qualidade",
           "title": "Ritmo de prova controlado",
-          "desc": "2km em Z1\n8km em Z3 controlado\n2km em Z1",
-          "km": 12,
-          "pace": "7:38/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Recuperação",
-          "title": "Regenerativo leve",
-          "desc": "1km em Z1\n7km em Z1\n1km em Z1",
-          "km": 9,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Rodagem econômica",
-          "desc": "2km em Z1\n9km em Z2 com foco em cadência e postura\n2km em Z1",
-          "km": 13,
-          "pace": "8:06/km"
+          "desc": "2km em Z1\n12km em Z3 controlado\n2km em Z1",
+          "km": 16,
+          "pace": "7:23/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão reduzido",
-          "desc": "4km em Z1\n20km em Z2\n4km em Z2",
-          "km": 28,
-          "pace": "7:56/km"
+          "desc": "4km em Z1\n20km em Z2\n5km em Z2",
+          "km": 29,
+          "pace": "7:49/km"
         }
       ]
     },
@@ -488,44 +325,28 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Base aeróbica",
-          "desc": "2km em Z1\n6km em Z2\n2km em Z1",
-          "km": 10,
-          "pace": "8:11/km"
+          "desc": "2km em Z1\n10km em Z2\n2km em Z1",
+          "km": 14,
+          "pace": "7:57/km"
         },
         {
-          "dayOfWeek": "Terça",
+          "dayOfWeek": "Quinta",
           "dayType": "Qualidade",
           "title": "Fartlek técnico leve",
-          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n6km em Z2 se sobrar distância\n2km em Z1",
-          "km": 13,
-          "pace": "8:11/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Rodagem leve",
-          "desc": "1km em Z1\n7km em Z2\n1km em Z1",
-          "km": 9,
-          "pace": "8:01/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
-          "desc": "2km em Z1\n9km em Z2\n2km em Z1",
-          "km": 13,
-          "pace": "8:06/km"
+          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n9km em Z2 se sobrar distância\n2km em Z1",
+          "km": 16,
+          "pace": "7:59/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão confortável",
-          "desc": "4km em Z1\n20km em Z2\n5km em Z2",
-          "km": 29,
-          "pace": "7:56/km"
+          "desc": "5km em Z1\n21km em Z2\n4km em Z2",
+          "km": 30,
+          "pace": "7:51/km"
         }
       ]
     },
@@ -535,45 +356,28 @@
       "off": true,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Rodagem leve",
-          "desc": "1km em Z1\n6km em Z2\n1km em Z1",
-          "km": 8,
-          "pace": "8:02/km"
-        },
-        {
-          "dayOfWeek": "Terça",
-          "dayType": "Recuperação",
-          "title": "Regenerativo leve",
-          "desc": "2km em Z1\n6km em Z1\n2km em Z1",
+          "desc": "2km em Z1\n6km em Z2\n2km em Z1",
           "km": 10,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Soltura aeróbica",
-          "desc": "1km em Z1\n5km em Z2\n1km em Z1",
-          "km": 7,
           "pace": "8:04/km"
         },
         {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Rodagem leve",
-          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km",
-          "zoneTarget": "Z2"
+          "dayOfWeek": "Quinta",
+          "dayType": "Recuperação",
+          "title": "Regenerativo leve",
+          "desc": "2km em Z1\n9km em Z1\n2km em Z1",
+          "km": 13,
+          "pace": "8:38/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão contínuo",
-          "desc": "4km em Z1\n17km em Z2\n3km em Z2",
-          "km": 24,
-          "pace": "7:58/km"
+          "desc": "4km em Z1\n18km em Z2\n3km em Z2",
+          "km": 25,
+          "pace": "7:50/km"
         }
       ]
     },
@@ -583,44 +387,28 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
-          "desc": "2km em Z1\n6km em Z2\n2km em Z1",
-          "km": 10,
-          "pace": "8:11/km"
-        },
-        {
           "dayOfWeek": "Terça",
           "dayType": "Base",
-          "title": "Rodagem aeróbica contínua",
-          "desc": "2km em Z1\n9km em Z2\n2km em Z1",
-          "km": 13,
-          "pace": "8:06/km"
+          "title": "Rodagem contínua",
+          "desc": "2km em Z1\n10km em Z2\n2km em Z1",
+          "km": 14,
+          "pace": "7:57/km"
         },
         {
-          "dayOfWeek": "Quarta",
-          "dayType": "Recuperação",
-          "title": "Regenerativo leve",
-          "desc": "1km em Z1\n7km em Z1\n1km em Z1",
-          "km": 9,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
+          "dayOfWeek": "Quinta",
           "dayType": "Base",
-          "title": "Base aeróbica",
-          "desc": "2km em Z1\n11km em Z2\n2km em Z1",
-          "km": 15,
-          "pace": "8:03/km"
+          "title": "Rodagem aeróbica contínua",
+          "desc": "2km em Z1\n14km em Z2\n2km em Z1",
+          "km": 18,
+          "pace": "7:54/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão contínuo",
-          "desc": "5km em Z1\n22km em Z2\n4km em Z2",
-          "km": 31,
-          "pace": "7:57/km",
+          "desc": "5km em Z1\n22km em Z2\n5km em Z2",
+          "km": 32,
+          "pace": "7:50/km",
           "zoneTarget": "Z2"
         }
       ]
@@ -631,44 +419,28 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Recuperação",
           "title": "Regenerativo técnico",
-          "desc": "2km em Z1\n6x (20s educativo técnico + 60s trote em Z1)\n6km em Z1\n2km em Z1",
-          "km": 11,
-          "pace": "8:45/km"
+          "desc": "2km em Z1\n6x (20s educativo técnico + 60s trote em Z1)\n9km em Z1\n2km em Z1",
+          "km": 14,
+          "pace": "8:38/km"
         },
         {
-          "dayOfWeek": "Terça",
+          "dayOfWeek": "Quinta",
           "dayType": "Qualidade",
           "title": "Ritmo de prova controlado",
-          "desc": "2km em Z1\n9km em Z3 controlado\n2km em Z1",
-          "km": 13,
-          "pace": "7:36/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Rodagem leve",
-          "desc": "2km em Z1\n6km em Z2\n2km em Z1",
-          "km": 10,
-          "pace": "8:11/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Rodagem econômica",
-          "desc": "2km em Z1\n10km em Z2 com foco em cadência e postura\n2km em Z1",
-          "km": 14,
-          "pace": "8:04/km"
+          "desc": "2km em Z1\n14km em Z3 controlado\n2km em Z1",
+          "km": 18,
+          "pace": "7:20/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão reduzido",
-          "desc": "5km em Z1\n22km em Z2\n5km em Z2",
-          "km": 32,
-          "pace": "7:57/km"
+          "desc": "5km em Z1\n23km em Z2\n5km em Z2",
+          "km": 33,
+          "pace": "7:50/km"
         }
       ]
     },
@@ -678,44 +450,28 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Base aeróbica",
-          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km"
+          "desc": "2km em Z1\n11km em Z2\n2km em Z1",
+          "km": 15,
+          "pace": "7:56/km"
         },
         {
-          "dayOfWeek": "Terça",
+          "dayOfWeek": "Quinta",
           "dayType": "Qualidade",
           "title": "Fartlek técnico leve",
-          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n7km em Z2 se sobrar distância\n2km em Z1",
-          "km": 14,
-          "pace": "8:09/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Soltura aeróbica",
-          "desc": "2km em Z1\n6km em Z2\n2km em Z1",
-          "km": 10,
-          "pace": "8:11/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
-          "desc": "2km em Z1\n10km em Z2\n2km em Z1",
-          "km": 14,
-          "pace": "8:04/km"
+          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n11km em Z2 se sobrar distância\n2km em Z1",
+          "km": 18,
+          "pace": "7:56/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão confortável",
-          "desc": "5km em Z1\n23km em Z2\n5km em Z2",
-          "km": 33,
-          "pace": "7:57/km"
+          "desc": "5km em Z1\n24km em Z2\n5km em Z2",
+          "km": 34,
+          "pace": "7:49/km"
         }
       ]
     },
@@ -725,45 +481,28 @@
       "off": true,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
-          "dayType": "Base",
-          "title": "Soltura aeróbica",
-          "desc": "1km em Z1\n7km em Z2\n1km em Z1",
-          "km": 9,
-          "pace": "8:01/km"
-        },
-        {
           "dayOfWeek": "Terça",
           "dayType": "Base",
-          "title": "Rodagem leve",
-          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Recuperação",
-          "title": "Regenerativo leve",
-          "desc": "1km em Z1\n6km em Z1\n1km em Z1",
-          "km": 8,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
           "title": "Soltura aeróbica",
-          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km",
-          "zoneTarget": "Z2"
+          "desc": "2km em Z1\n8km em Z2\n2km em Z1",
+          "km": 12,
+          "pace": "8:00/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Rodagem leve",
+          "desc": "2km em Z1\n10km em Z2\n2km em Z1",
+          "km": 14,
+          "pace": "7:57/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão contínuo",
-          "desc": "4km em Z1\n19km em Z2\n4km em Z2",
-          "km": 27,
-          "pace": "7:56/km"
+          "desc": "4km em Z1\n20km em Z2\n4km em Z2",
+          "km": 28,
+          "pace": "7:49/km"
         }
       ]
     },
@@ -773,44 +512,28 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Base aeróbica",
-          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km"
-        },
-        {
-          "dayOfWeek": "Terça",
-          "dayType": "Qualidade",
-          "title": "Fartlek técnico leve",
-          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n7km em Z2 se sobrar distância\n2km em Z1",
-          "km": 14,
-          "pace": "8:09/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Rodagem leve",
-          "desc": "2km em Z1\n6km em Z2\n2km em Z1",
-          "km": 10,
-          "pace": "8:11/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
           "desc": "2km em Z1\n12km em Z2\n2km em Z1",
           "km": 16,
-          "pace": "8:02/km"
+          "pace": "7:55/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Qualidade",
+          "title": "Fartlek técnico leve",
+          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n12km em Z2 se sobrar distância\n2km em Z1",
+          "km": 19,
+          "pace": "7:55/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão confortável",
-          "desc": "5km em Z1\n25km em Z2\n5km em Z2",
-          "km": 35,
-          "pace": "7:56/km"
+          "desc": "5km em Z1\n25km em Z2\n6km em Z2",
+          "km": 36,
+          "pace": "7:49/km"
         }
       ]
     },
@@ -820,44 +543,28 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
-          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km"
-        },
-        {
           "dayOfWeek": "Terça",
           "dayType": "Base",
-          "title": "Rodagem aeróbica contínua",
-          "desc": "2km em Z1\n11km em Z2\n2km em Z1",
-          "km": 15,
-          "pace": "8:03/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Recuperação",
-          "title": "Regenerativo leve",
-          "desc": "2km em Z1\n6km em Z1\n2km em Z1",
-          "km": 10,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Base aeróbica",
+          "title": "Rodagem contínua",
           "desc": "2km em Z1\n12km em Z2\n2km em Z1",
           "km": 16,
-          "pace": "8:02/km"
+          "pace": "7:55/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Rodagem aeróbica contínua",
+          "desc": "2km em Z1\n15km em Z2\n2km em Z1",
+          "km": 19,
+          "pace": "7:53/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão contínuo",
-          "desc": "5km em Z1\n25km em Z2\n6km em Z2",
-          "km": 36,
-          "pace": "7:56/km"
+          "desc": "6km em Z1\n26km em Z2\n5km em Z2",
+          "km": 37,
+          "pace": "7:50/km"
         }
       ]
     },
@@ -867,44 +574,28 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Base aeróbica",
-          "desc": "2km em Z1\n8km em Z2\n2km em Z1",
-          "km": 12,
-          "pace": "8:07/km"
+          "desc": "2km em Z1\n12km em Z2\n2km em Z1",
+          "km": 16,
+          "pace": "7:55/km"
         },
         {
-          "dayOfWeek": "Terça",
+          "dayOfWeek": "Quinta",
           "dayType": "Qualidade",
           "title": "Fartlek técnico leve",
-          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n8km em Z2 se sobrar distância\n2km em Z1",
-          "km": 15,
-          "pace": "8:07/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Soltura aeróbica",
-          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
-          "desc": "2km em Z1\n11km em Z2\n2km em Z1",
-          "km": 15,
-          "pace": "8:03/km"
+          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n13km em Z2 se sobrar distância\n2km em Z1",
+          "km": 20,
+          "pace": "7:54/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão confortável",
-          "desc": "6km em Z1\n26km em Z2\n5km em Z2",
-          "km": 37,
-          "pace": "7:57/km"
+          "desc": "6km em Z1\n27km em Z2\n5km em Z2",
+          "km": 38,
+          "pace": "7:50/km"
         }
       ]
     },
@@ -914,45 +605,28 @@
       "off": true,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
-          "dayType": "Recuperação",
-          "title": "Regenerativo leve",
-          "desc": "1km em Z1\n7km em Z1\n1km em Z1",
-          "km": 9,
-          "pace": "8:45/km"
-        },
-        {
           "dayOfWeek": "Terça",
-          "dayType": "Base",
-          "title": "Soltura aeróbica",
-          "desc": "2km em Z1\n7km em Z2\n2km em Z1",
-          "km": 11,
-          "pace": "8:09/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Rodagem leve",
-          "desc": "1km em Z1\n6km em Z2\n1km em Z1",
-          "km": 8,
-          "pace": "8:02/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
           "dayType": "Recuperação",
           "title": "Regenerativo leve",
           "desc": "2km em Z1\n9km em Z1\n2km em Z1",
           "km": 13,
-          "pace": "8:45/km",
-          "zoneTarget": "Z1"
+          "pace": "8:38/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Soltura aeróbica",
+          "desc": "2km em Z1\n11km em Z2\n2km em Z1",
+          "km": 15,
+          "pace": "7:56/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão reduzido",
-          "desc": "5km em Z1\n21km em Z2\n4km em Z2",
-          "km": 30,
-          "pace": "7:58/km"
+          "desc": "5km em Z1\n22km em Z2\n4km em Z2",
+          "km": 31,
+          "pace": "7:50/km"
         }
       ]
     },
@@ -962,44 +636,28 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Base aeróbica",
-          "desc": "2km em Z1\n8km em Z2\n2km em Z1",
-          "km": 12,
-          "pace": "8:07/km"
+          "desc": "2km em Z1\n13km em Z2\n2km em Z1",
+          "km": 17,
+          "pace": "7:54/km"
         },
         {
-          "dayOfWeek": "Terça",
+          "dayOfWeek": "Quinta",
           "dayType": "Qualidade",
           "title": "Fartlek técnico leve",
-          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n8km em Z2 se sobrar distância\n2km em Z1",
-          "km": 15,
-          "pace": "8:07/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Recuperação",
-          "title": "Regenerativo leve",
-          "desc": "2km em Z1\n7km em Z1\n2km em Z1",
-          "km": 11,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Rodagem contínua",
-          "desc": "2km em Z1\n12km em Z2\n2km em Z1",
-          "km": 16,
-          "pace": "8:02/km"
+          "desc": "2km em Z1\n6x (2min em Z3 controlado + 2min em Z1)\n14km em Z2 se sobrar distância\n2km em Z1",
+          "km": 21,
+          "pace": "7:54/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão confortável",
-          "desc": "6km em Z1\n27km em Z2\n6km em Z2",
-          "km": 39,
-          "pace": "7:57/km"
+          "desc": "6km em Z1\n28km em Z2\n6km em Z2",
+          "km": 40,
+          "pace": "7:50/km"
         }
       ]
     },
@@ -1009,45 +667,28 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Ativação pré-prova",
           "desc": "2km em Z1\n4x (15s em Z4 + 60s em Z1)\n2km em Z1",
-          "km": 9,
-          "pace": "8:45/km"
+          "km": 13,
+          "pace": "8:38/km"
         },
         {
-          "dayOfWeek": "Terça",
+          "dayOfWeek": "Quinta",
           "dayType": "Qualidade",
           "title": "Ritmo alvo curto",
-          "desc": "2km em Z1\n3x (2km em Z3 + 500m em Z1)\n2km em Z1",
-          "km": 11,
-          "pace": "7:53/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Soltura aeróbica",
-          "desc": "2km em Z1\n4x (15s em Z4 + 60s em Z1)\n2km em Z1",
-          "km": 8,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Ativação pré-prova",
-          "desc": "2km em Z1\n4x (15s em Z4 + 60s em Z1)\n2km em Z1",
-          "km": 12,
-          "pace": "8:45/km",
-          "zoneTarget": "Z2"
+          "desc": "2km em Z1\n3x (3km em Z3 + 500m em Z1)\n2km em Z1",
+          "km": 15,
+          "pace": "7:36/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Longão reduzido",
-          "desc": "4km em Z1\n25km em Z2\n1km em Z1",
-          "km": 29,
-          "pace": "7:58/km"
+          "desc": "5km em Z1\n25km em Z2\n1km em Z1",
+          "km": 30,
+          "pace": "7:52/km"
         }
       ]
     },
@@ -1057,37 +698,20 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
-          "dayType": "Recuperação",
-          "title": "Regenerativo curto",
-          "desc": "1km em Z1\n4km em Z1\n1km em Z1",
-          "km": 6,
-          "pace": "8:45/km"
-        },
-        {
           "dayOfWeek": "Terça",
-          "dayType": "Base",
-          "title": "Ativação leve",
-          "desc": "2km em Z1\n4x (15s em Z4 + 60s em Z1)\n2km em Z1",
-          "km": 8,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Recuperação",
-          "title": "Regenerativo leve",
-          "desc": "1km em Z1\n4km em Z1\n1km em Z1",
-          "km": 6,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
           "dayType": "Recuperação",
           "title": "Regenerativo curto",
           "desc": "1km em Z1\n7km em Z1\n1km em Z1",
           "km": 9,
-          "pace": "8:45/km",
-          "zoneTarget": "Z1"
+          "pace": "8:38/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Ativação leve",
+          "desc": "2km em Z1\n4x (15s em Z4 + 60s em Z1)\n2km em Z1",
+          "km": 12,
+          "pace": "8:38/km"
         },
         {
           "dayOfWeek": "Sábado",
@@ -1095,7 +719,7 @@
           "title": "Simulado leve",
           "desc": "3km em Z1\n18km em Z2\n1km em Z1",
           "km": 21,
-          "pace": "7:58/km"
+          "pace": "7:51/km"
         }
       ]
     },
@@ -1105,44 +729,27 @@
       "off": false,
       "workouts": [
         {
-          "dayOfWeek": "Segunda",
+          "dayOfWeek": "Terça",
           "dayType": "Base",
           "title": "Soltura leve",
-          "desc": "1km em Z1\n4x (15s em Z4 + 60s em Z1)\n1km em Z1",
-          "km": 3,
-          "pace": "8:45/km"
+          "desc": "1,8km em Z1\n4x (15s em Z4 + 60s em Z1)\n1,8km em Z1",
+          "km": 5,
+          "pace": "8:38/km"
         },
         {
-          "dayOfWeek": "Terça",
+          "dayOfWeek": "Quinta",
           "dayType": "Qualidade",
           "title": "Ritmo alvo curto",
           "desc": "1km em Z1\n3x (1km em Z3 + 500m em Z1)\n1km em Z1",
-          "km": 3,
-          "pace": "7:59/km"
-        },
-        {
-          "dayOfWeek": "Quarta",
-          "dayType": "Base",
-          "title": "Rodagem leve",
-          "desc": "1km em Z1\n4x (15s em Z4 + 60s em Z1)\n1km em Z1",
-          "km": 3,
-          "pace": "8:45/km"
-        },
-        {
-          "dayOfWeek": "Sexta",
-          "dayType": "Base",
-          "title": "Soltura leve",
-          "desc": "1km em Z1\n4x (15s em Z4 + 60s em Z1)\n1km em Z1",
-          "km": 3,
-          "pace": "8:45/km",
-          "zoneTarget": "Z2"
+          "km": 5,
+          "pace": "7:52/km"
         },
         {
           "dayOfWeek": "Sábado",
           "dayType": "Longão",
           "title": "Prova alvo",
           "desc": "Prova alvo: iniciar controlado, estabilizar no ritmo planejado e evitar acelerar antes da metade final. Fechar progressivo apenas se estiver confortável.",
-          "km": 60,
+          "km": 61,
           "pace": "Z3"
         }
       ]
@@ -1150,28 +757,29 @@
   ],
   "blueprint": {
     "profile": {
-      "riskLevel": "baixo",
+      "riskLevel": "médio",
       "fitnessLevel": "avançado",
       "mainLimitation": "Resistência muscular e tolerância a volume"
     },
     "athleteAnalysis": {
       "detectedLevel": "avançado",
-      "riskLevel": "baixo",
+      "riskLevel": "médio",
       "goalFeasibility": "viável",
       "mainStrength": "Boa reserva de velocidade; o foco será transformar isso em resistência sustentável.",
       "mainWeakness": "Resistência específica, tolerância muscular e recuperação serão os limitadores principais.",
       "focus": "Resistência aeróbica, longões, consistência e execução no ritmo alvo",
-      "coachSummary": "O teste de 3km mostra velocidade, mas o objetivo pede resistência. Alvo detectado: 7h (7:00/km). O plano usa zonas ancoradas no objetivo.",
+      "coachSummary": "O teste de 3km mostra velocidade, mas o objetivo pede resistência. Alvo detectado: 7h (6:53/km). O plano usa zonas ancoradas no objetivo.",
       "riskReasons": [
+        "apenas 3 treinos/semana para prova longa",
         "ultramaratona exige alta tolerância muscular",
         "velocidade curta acima do ritmo alvo exige controle"
       ]
     },
     "strategy": {
-      "initialWeeklyKm": 52,
-      "peakWeeklyKm": 96,
+      "initialWeeklyKm": 39,
+      "peakWeeklyKm": 80,
       "initialLongRunKm": 18,
-      "peakLongRunKm": 40,
+      "peakLongRunKm": 41,
       "recoveryEveryWeeks": 4,
       "taperWeeks": 3
     },
@@ -1185,8 +793,8 @@
       "trainingZones": {
         "anchor": {
           "label": "Objetivo de ultra",
-          "pace": "7:00/km",
-          "speed": "8,6 km/h",
+          "pace": "6:53/km",
+          "speed": "8,7 km/h",
           "capacityPace": "4:20/km",
           "method": "goal_anchored"
         },
@@ -1194,69 +802,69 @@
           "label": "Z1",
           "name": "Regenerativo / muito leve",
           "perception": "Ritmo bem leve para recuperar, aquecer, desaquecer e acumular volume sem estourar carga.",
-          "from": "8:15/km",
-          "to": "9:15/km",
-          "speedFrom": "7,3 km/h",
-          "speedTo": "6,5 km/h"
+          "from": "8:08/km",
+          "to": "9:08/km",
+          "speedFrom": "7,4 km/h",
+          "speedTo": "6,6 km/h"
         },
         "Z2": {
           "label": "Z2",
           "name": "Aeróbico confortável",
           "perception": "Base aeróbica confortável. Deve permitir conversa e sustentar longões com controle.",
-          "from": "7:25/km",
-          "to": "8:10/km",
-          "speedFrom": "8,1 km/h",
-          "speedTo": "7,3 km/h"
+          "from": "7:18/km",
+          "to": "8:03/km",
+          "speedFrom": "8,2 km/h",
+          "speedTo": "7,5 km/h"
         },
         "Z3": {
           "label": "Z3",
           "name": "Ritmo específico de prova",
           "perception": "Blocos controlados próximos ao pace alvo da ultra. Não é tiro; é especificidade.",
-          "from": "6:50/km",
-          "to": "7:20/km",
-          "speedFrom": "8,8 km/h",
-          "speedTo": "8,2 km/h"
+          "from": "6:43/km",
+          "to": "7:13/km",
+          "speedFrom": "8,9 km/h",
+          "speedTo": "8,3 km/h"
         },
         "Z4": {
           "label": "Z4",
           "name": "Forte controlado",
           "perception": "Estímulo curto e controlado para economia, técnica e subidas. Uso moderado.",
-          "from": "6:15/km",
-          "to": "6:45/km",
-          "speedFrom": "9,6 km/h",
-          "speedTo": "8,9 km/h"
+          "from": "6:08/km",
+          "to": "6:38/km",
+          "speedFrom": "9,8 km/h",
+          "speedTo": "9 km/h"
         },
         "Z5": {
           "label": "Z5",
           "name": "Velocidade curta / strides",
           "perception": "Uso raro, curto e técnico. Não deve dominar preparação de provas longas.",
           "from": "Máximo",
-          "to": "6:15/km",
+          "to": "6:08/km",
           "speedFrom": "Máximo",
-          "speedTo": "9,6 km/h"
+          "speedTo": "9,8 km/h"
         }
       },
       "zoneMethod": "goal_anchored",
       "goalContext": {
         "type": "endurance_goal",
         "raceType": "ultra",
-        "goalPace": 420,
+        "goalPace": 413,
         "goalTarget": {
           "source": "objective_time",
           "totalSeconds": 25200,
-          "label": "7h (7:00/km)",
-          "paceSeconds": 420,
-          "distanceKm": 60,
+          "label": "7h (6:53/km)",
+          "paceSeconds": 413,
+          "distanceKm": 61,
           "confidence": "alta"
         },
         "testPace": 260,
-        "distanceKm": 60,
+        "distanceKm": 61,
         "terrain": {
-          "label": "terreno misto",
-          "volumeFactor": 0.94,
-          "longRunFactor": 0.94,
+          "label": "terreno elevado",
+          "volumeFactor": 0.88,
+          "longRunFactor": 0.88,
           "recoveryEvery": 3,
-          "focus": "subidas leves/moderadas, controle por zona e fortalecimento específico"
+          "focus": "subidas, técnica, esforço por zona, maior recuperação e menor agressividade de pace"
         },
         "speedReserve": "muito alta",
         "zoneStrategy": "goal_anchored",
@@ -1266,7 +874,7 @@
         "volumeFactor": 0.92,
         "longRunFactor": 0.94,
         "qualityFrequency": "rara e curta",
-        "targetSummary": "7h (7:00/km)",
+        "targetSummary": "7h (6:53/km)",
         "targetSource": "objective_time",
         "summary": "Ultra detectada: o pace alvo e a resistência específica mandam na planilha. O teste de 3km mede velocidade, mas não define o ritmo dos longões."
       }
@@ -1303,23 +911,23 @@
       "goalContext": {
         "type": "endurance_goal",
         "raceType": "ultra",
-        "goalPace": 420,
+        "goalPace": 413,
         "goalTarget": {
           "source": "objective_time",
           "totalSeconds": 25200,
-          "label": "7h (7:00/km)",
-          "paceSeconds": 420,
-          "distanceKm": 60,
+          "label": "7h (6:53/km)",
+          "paceSeconds": 413,
+          "distanceKm": 61,
           "confidence": "alta"
         },
         "testPace": 260,
-        "distanceKm": 60,
+        "distanceKm": 61,
         "terrain": {
-          "label": "terreno misto",
-          "volumeFactor": 0.94,
-          "longRunFactor": 0.94,
+          "label": "terreno elevado",
+          "volumeFactor": 0.88,
+          "longRunFactor": 0.88,
           "recoveryEvery": 3,
-          "focus": "subidas leves/moderadas, controle por zona e fortalecimento específico"
+          "focus": "subidas, técnica, esforço por zona, maior recuperação e menor agressividade de pace"
         },
         "speedReserve": "muito alta",
         "zoneStrategy": "goal_anchored",
@@ -1329,14 +937,14 @@
         "volumeFactor": 0.92,
         "longRunFactor": 0.94,
         "qualityFrequency": "rara e curta",
-        "targetSummary": "7h (7:00/km)",
+        "targetSummary": "7h (6:53/km)",
         "targetSource": "objective_time",
         "summary": "Ultra detectada: o pace alvo e a resistência específica mandam na planilha. O teste de 3km mede velocidade, mas não define o ritmo dos longões."
       },
       "raceType": "ultra",
       "zoneStrategy": "goal_anchored",
       "speedReserve": "muito alta",
-      "terrain": "terreno misto",
+      "terrain": "terreno elevado",
       "progressionStyle": "conservadora",
       "recoveryPriority": "alta",
       "intensityBias": "baixo",
@@ -1347,23 +955,23 @@
   "motorEvoContext": {
     "type": "endurance_goal",
     "raceType": "ultra",
-    "goalPace": 420,
+    "goalPace": 413,
     "goalTarget": {
       "source": "objective_time",
       "totalSeconds": 25200,
-      "label": "7h (7:00/km)",
-      "paceSeconds": 420,
-      "distanceKm": 60,
+      "label": "7h (6:53/km)",
+      "paceSeconds": 413,
+      "distanceKm": 61,
       "confidence": "alta"
     },
     "testPace": 260,
-    "distanceKm": 60,
+    "distanceKm": 61,
     "terrain": {
-      "label": "terreno misto",
-      "volumeFactor": 0.94,
-      "longRunFactor": 0.94,
+      "label": "terreno elevado",
+      "volumeFactor": 0.88,
+      "longRunFactor": 0.88,
       "recoveryEvery": 3,
-      "focus": "subidas leves/moderadas, controle por zona e fortalecimento específico"
+      "focus": "subidas, técnica, esforço por zona, maior recuperação e menor agressividade de pace"
     },
     "speedReserve": "muito alta",
     "zoneStrategy": "goal_anchored",
@@ -1373,11 +981,11 @@
     "volumeFactor": 0.92,
     "longRunFactor": 0.94,
     "qualityFrequency": "rara e curta",
-    "targetSummary": "7h (7:00/km)",
+    "targetSummary": "7h (6:53/km)",
     "targetSource": "objective_time",
     "summary": "Ultra detectada: o pace alvo e a resistência específica mandam na planilha. O teste de 3km mede velocidade, mas não define o ritmo dos longões."
   },
-  "generatedAt": "2026-07-21T18:04:46.561Z",
+  "generatedAt": "2026-07-21T19:21:06.885Z",
   "userData": {
     "name": "Fixture 05",
     "age": 38,
@@ -1385,19 +993,19 @@
     "weight": 68,
     "level": "avançado",
     "targetDistance": "ultra",
-    "customDistance": 60,
-    "terrain": "misto",
-    "terrainType": "misto",
+    "customDistance": 61,
+    "terrain": "elevado",
+    "terrainType": "elevado",
     "startDate": "2026-01-05",
     "raceDate": "2026-06-21",
-    "daysPerWeek": 5,
+    "daysPerWeek": 3,
     "test3kmTime": "13:00",
-    "objective": "Quero terminar a ultra com segurança, abaixo de 7 horas",
+    "objective": "Quero terminar a ultra com segurança e de forma conservadora, abaixo de 7 horas",
     "imc": 23
   },
   "validation": {
     "status": "warning",
-    "checkedAt": "2026-07-21T18:04:46.561Z",
+    "checkedAt": "2026-07-21T19:21:06.885Z",
     "issues": [
       {
         "severity": "warning",
@@ -1405,7 +1013,7 @@
         "message": "Última semana ajustada para terminar com a prova.",
         "path": "weeks[23]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.564Z"
+        "at": "2026-07-21T19:21:06.887Z"
       },
       {
         "severity": "warning",
@@ -1413,23 +1021,15 @@
         "message": "Treino S2 ajustado para evitar repetição excessiva.",
         "path": "weeks[1].workouts[1]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.564Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S4 ajustado para evitar repetição excessiva.",
-        "path": "weeks[3].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
+        "at": "2026-07-21T19:21:06.887Z"
       },
       {
         "severity": "warning",
         "code": "WORKOUT_VARIETY_FIXED",
         "message": "Treino S5 ajustado para evitar repetição excessiva.",
-        "path": "weeks[4].workouts[4]",
+        "path": "weeks[4].workouts[2]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
+        "at": "2026-07-21T19:21:06.892Z"
       },
       {
         "severity": "warning",
@@ -1437,79 +1037,15 @@
         "message": "Treino S6 ajustado para evitar repetição excessiva.",
         "path": "weeks[5].workouts[1]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S8 ajustado para evitar repetição excessiva.",
-        "path": "weeks[7].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S9 ajustado para evitar repetição excessiva.",
-        "path": "weeks[8].workouts[2]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S12 ajustado para evitar repetição excessiva.",
-        "path": "weeks[11].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.566Z"
+        "at": "2026-07-21T19:21:06.892Z"
       },
       {
         "severity": "warning",
         "code": "WORKOUT_VARIETY_FIXED",
         "message": "Treino S13 ajustado para evitar repetição excessiva.",
-        "path": "weeks[12].workouts[4]",
+        "path": "weeks[12].workouts[2]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.566Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S16 ajustado para evitar repetição excessiva.",
-        "path": "weeks[15].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.567Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S20 ajustado para evitar repetição excessiva.",
-        "path": "weeks[19].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.567Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S22 ajustado para evitar repetição excessiva.",
-        "path": "weeks[21].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.568Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S23 ajustado para evitar repetição excessiva.",
-        "path": "weeks[22].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.568Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S24 ajustado para evitar repetição excessiva.",
-        "path": "weeks[23].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.568Z"
+        "at": "2026-07-21T19:21:06.893Z"
       }
     ],
     "fixed": [
@@ -1519,7 +1055,7 @@
         "message": "Última semana ajustada para terminar com a prova.",
         "path": "weeks[23]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.564Z"
+        "at": "2026-07-21T19:21:06.887Z"
       },
       {
         "severity": "warning",
@@ -1527,23 +1063,15 @@
         "message": "Treino S2 ajustado para evitar repetição excessiva.",
         "path": "weeks[1].workouts[1]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.564Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S4 ajustado para evitar repetição excessiva.",
-        "path": "weeks[3].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
+        "at": "2026-07-21T19:21:06.887Z"
       },
       {
         "severity": "warning",
         "code": "WORKOUT_VARIETY_FIXED",
         "message": "Treino S5 ajustado para evitar repetição excessiva.",
-        "path": "weeks[4].workouts[4]",
+        "path": "weeks[4].workouts[2]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
+        "at": "2026-07-21T19:21:06.892Z"
       },
       {
         "severity": "warning",
@@ -1551,79 +1079,15 @@
         "message": "Treino S6 ajustado para evitar repetição excessiva.",
         "path": "weeks[5].workouts[1]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S8 ajustado para evitar repetição excessiva.",
-        "path": "weeks[7].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S9 ajustado para evitar repetição excessiva.",
-        "path": "weeks[8].workouts[2]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S12 ajustado para evitar repetição excessiva.",
-        "path": "weeks[11].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.566Z"
+        "at": "2026-07-21T19:21:06.892Z"
       },
       {
         "severity": "warning",
         "code": "WORKOUT_VARIETY_FIXED",
         "message": "Treino S13 ajustado para evitar repetição excessiva.",
-        "path": "weeks[12].workouts[4]",
+        "path": "weeks[12].workouts[2]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.566Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S16 ajustado para evitar repetição excessiva.",
-        "path": "weeks[15].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.567Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S20 ajustado para evitar repetição excessiva.",
-        "path": "weeks[19].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.567Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S22 ajustado para evitar repetição excessiva.",
-        "path": "weeks[21].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.568Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S23 ajustado para evitar repetição excessiva.",
-        "path": "weeks[22].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.568Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S24 ajustado para evitar repetição excessiva.",
-        "path": "weeks[23].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.568Z"
+        "at": "2026-07-21T19:21:06.893Z"
       }
     ],
     "warnings": [
@@ -1633,7 +1097,7 @@
         "message": "Última semana ajustada para terminar com a prova.",
         "path": "weeks[23]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.564Z"
+        "at": "2026-07-21T19:21:06.887Z"
       },
       {
         "severity": "warning",
@@ -1641,23 +1105,15 @@
         "message": "Treino S2 ajustado para evitar repetição excessiva.",
         "path": "weeks[1].workouts[1]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.564Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S4 ajustado para evitar repetição excessiva.",
-        "path": "weeks[3].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
+        "at": "2026-07-21T19:21:06.887Z"
       },
       {
         "severity": "warning",
         "code": "WORKOUT_VARIETY_FIXED",
         "message": "Treino S5 ajustado para evitar repetição excessiva.",
-        "path": "weeks[4].workouts[4]",
+        "path": "weeks[4].workouts[2]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
+        "at": "2026-07-21T19:21:06.892Z"
       },
       {
         "severity": "warning",
@@ -1665,95 +1121,31 @@
         "message": "Treino S6 ajustado para evitar repetição excessiva.",
         "path": "weeks[5].workouts[1]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S8 ajustado para evitar repetição excessiva.",
-        "path": "weeks[7].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S9 ajustado para evitar repetição excessiva.",
-        "path": "weeks[8].workouts[2]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.565Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S12 ajustado para evitar repetição excessiva.",
-        "path": "weeks[11].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.566Z"
+        "at": "2026-07-21T19:21:06.892Z"
       },
       {
         "severity": "warning",
         "code": "WORKOUT_VARIETY_FIXED",
         "message": "Treino S13 ajustado para evitar repetição excessiva.",
-        "path": "weeks[12].workouts[4]",
+        "path": "weeks[12].workouts[2]",
         "fixed": true,
-        "at": "2026-07-21T18:04:46.566Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S16 ajustado para evitar repetição excessiva.",
-        "path": "weeks[15].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.567Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S20 ajustado para evitar repetição excessiva.",
-        "path": "weeks[19].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.567Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S22 ajustado para evitar repetição excessiva.",
-        "path": "weeks[21].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.568Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S23 ajustado para evitar repetição excessiva.",
-        "path": "weeks[22].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.568Z"
-      },
-      {
-        "severity": "warning",
-        "code": "WORKOUT_VARIETY_FIXED",
-        "message": "Treino S24 ajustado para evitar repetição excessiva.",
-        "path": "weeks[23].workouts[3]",
-        "fixed": true,
-        "at": "2026-07-21T18:04:46.568Z"
+        "at": "2026-07-21T19:21:06.893Z"
       }
     ],
     "summary": {
-      "totalIssues": 14,
-      "totalFixes": 14,
-      "totalWarnings": 14,
-      "varietyFixes": 13,
-      "totalKm": 1657,
-      "initialWeeklyKm": 52,
-      "peakWeekKm": 93,
-      "peakWeeklyKm": 93,
-      "peakTrainingLongRunKm": 39,
-      "peakLongRunKm": 39,
-      "biggestTrainingLongRunKm": 39,
-      "biggestLongRunKm": 39,
-      "raceDistanceKm": 60,
+      "totalIssues": 5,
+      "totalFixes": 5,
+      "totalWarnings": 5,
+      "varietyFixes": 4,
+      "totalKm": 1350,
+      "initialWeeklyKm": 39,
+      "peakWeekKm": 78,
+      "peakWeeklyKm": 78,
+      "peakTrainingLongRunKm": 40,
+      "peakLongRunKm": 40,
+      "biggestTrainingLongRunKm": 40,
+      "biggestLongRunKm": 40,
+      "raceDistanceKm": 61,
       "raceWeekIncludesGoal": true,
       "recoveryWeeks": [
         "S4",
@@ -1769,23 +1161,24 @@
       ],
       "raceWeek": "S24",
       "totalWeeks": 24,
-      "daysPerWeek": 5,
-      "qualityScore": 9.8,
+      "daysPerWeek": 3,
+      "qualityScore": 10,
       "qualityStatus": "excelente",
-      "riskLevel": "baixo",
-      "riskPoints": 1.5,
+      "riskLevel": "médio",
+      "riskPoints": 2.5,
       "riskReasons": [
+        "apenas 3 treinos/semana para prova longa",
         "ultramaratona exige alta tolerância muscular",
         "velocidade curta acima do ritmo alvo exige controle"
       ]
     },
     "quality": {
       "version": "v120",
-      "overall": 9.8,
+      "overall": 10,
       "status": "excelente",
       "adoptionAdvice": "Planilha tecnicamente forte para adoção.",
       "metrics": {
-        "variety": 8.5,
+        "variety": 9.8,
         "progression": 10,
         "longRunBalance": 10,
         "intensityDistribution": 10,
@@ -1796,13 +1189,13 @@
         "raceType": "ultra",
         "isUltra": true,
         "uniqueTitles": 20,
-        "totalWorkouts": 119,
-        "maxSameTitle": 14,
-        "intenseRate": 9,
+        "totalWorkouts": 71,
+        "maxSameTitle": 9,
+        "intenseRate": 15,
         "recoveryWeeks": 5,
         "validationPenalty": 0,
         "raceWeekIgnored": true,
-        "biggestTrainingLongRun": 39,
+        "biggestTrainingLongRun": 40,
         "progressionFindings": [],
         "longRunFindings": []
       },

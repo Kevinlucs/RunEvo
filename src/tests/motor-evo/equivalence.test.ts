@@ -89,9 +89,9 @@ describe('Motor RunEvo — equivalência TS novo vs. legado (Grupos A+B)', () =>
       expect(ctx.zoneStrategy).toBe('goal_anchored');
     });
 
-    it('f05 (ultra 60km, "abaixo de 7 horas"): pace-alvo 420s/km, goal_anchored com tabela de offsets de ultra', () => {
+    it('f05 (ultra 61km, elevado, 3d, "abaixo de 7 horas"): pace-alvo 413s/km, goal_anchored com tabela de offsets de ultra', () => {
       const ctx = getGoalContext(fixtures.find((f) => f.id === 'f05')!.input);
-      expect(ctx.goalPace).toBe(420);
+      expect(ctx.goalPace).toBe(413);
       expect(ctx.raceType).toBe('ultra');
       expect(ctx.zoneStrategy).toBe('goal_anchored');
     });
@@ -105,6 +105,14 @@ describe('Motor RunEvo — equivalência TS novo vs. legado (Grupos A+B)', () =>
   });
 
   // ===== Pendente — depende de módulos ainda não portados (Grupos C+) =====
+  // Cenários oficiais §39 9 e 10 (docs/motor-equivalence-report.md): não são
+  // input de fixture, são comportamento do pipeline — adiados por inteiro.
+  test.todo(
+    'cenário §39 9 (f09) — blueprint.source === "local" quando IA indisponível — depende de blueprint.ts (Grupo C/D)',
+  );
+  test.todo(
+    'cenário §39 10 (f10) — arePlansIdentical(plano, mesmo plano) === true — depende de fingerprint.ts (Grupo F)',
+  );
   test.todo('fases por semana (Base/Resistência/Pico/Polimento) — depende de phases.ts (Grupo C)');
   test.todo('flags "off" (semanas de recuperação) — depende de weekly-targets.ts (Grupo C)');
   test.todo(
