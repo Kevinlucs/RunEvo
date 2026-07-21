@@ -10,7 +10,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "db:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > src/types/database.types.ts"
+    "db:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > src/types/database.types.ts",
+    "motor-evo:golden": "ts-node --compiler-options '{\"module\":\"commonjs\"}' src/tests/motor-evo/generate-golden.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -51,6 +52,7 @@
     "jest-expo": "~52.0.0",
     "prettier": "^3.4.0",
     "ts-jest": "^29.2.0",
+    "ts-node": "^10.9.2",
     "typescript": "~5.6.0"
   },
   "private": true

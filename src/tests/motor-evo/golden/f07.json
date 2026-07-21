@@ -1,0 +1,842 @@
+{
+  "planName": "Plano Meia Maratona (21.1 km) - intermediário",
+  "totalWeeks": 14,
+  "raceName": "Meia Maratona (21.1 km)",
+  "raceDistance": "Meia Maratona (21.1 km)",
+  "raceDate": "2026-04-12",
+  "daysPerWeek": 3,
+  "weeks": [
+    {
+      "week": "S1",
+      "phase": "Base",
+      "off": false,
+      "workouts": [
+        {
+          "dayOfWeek": "Segunda",
+          "dayType": "Base",
+          "title": "Base aeróbica",
+          "desc": "1km em Z1\n4km em Z2\n1km em Z1",
+          "km": 6,
+          "pace": "6:36/km"
+        },
+        {
+          "dayOfWeek": "Quarta",
+          "dayType": "Qualidade",
+          "title": "Fartlek técnico leve",
+          "desc": "1km em Z1\n5x (2min em Z3 controlado + 2min em Z1)\n2km em Z2 se sobrar distância\n1km em Z1",
+          "km": 7,
+          "pace": "6:49/km"
+        },
+        {
+          "dayOfWeek": "Sexta",
+          "dayType": "Longão",
+          "title": "Longão aeróbico",
+          "desc": "2km em Z1\n7km em Z2\n1km em Z3 se estiver bem",
+          "km": 10,
+          "pace": "6:20/km"
+        }
+      ]
+    },
+    {
+      "week": "S2",
+      "phase": "Base",
+      "off": false,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Base",
+          "title": "Rodagem econômica",
+          "desc": "1km em Z1\n4km em Z2 com foco em cadência e postura\n1km em Z1",
+          "km": 6,
+          "pace": "6:36/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Qualidade",
+          "title": "Progressivo aeróbico",
+          "desc": "1km em Z1\n3km em Z2\n3km em Z3 controlado\n1km em Z1",
+          "km": 8,
+          "pace": "6:08/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Longão com final firme",
+          "desc": "2km em Z1\n8km em Z2\n1km em Z3 se estiver bem",
+          "km": 11,
+          "pace": "6:19/km"
+        }
+      ]
+    },
+    {
+      "week": "S3",
+      "phase": "Base",
+      "off": false,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Base",
+          "title": "Rodagem contínua",
+          "desc": "1km em Z1\n4km em Z2\n1km em Z1",
+          "km": 6,
+          "pace": "6:36/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Qualidade",
+          "title": "Tempo run controlado",
+          "desc": "1km em Z1\n3,9km em Z3\n2,1km em Z2\n1km em Z1",
+          "km": 8,
+          "pace": "6:01/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Longão de consolidação",
+          "desc": "2km em Z1\n8km em Z2\n2km em Z3 se estiver bem",
+          "km": 12,
+          "pace": "6:13/km"
+        }
+      ]
+    },
+    {
+      "week": "S4",
+      "phase": "Base",
+      "off": true,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Recuperação",
+          "title": "Regenerativo leve",
+          "desc": "1km em Z1\n3km em Z1\n1km em Z1",
+          "km": 5,
+          "pace": "7:28/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Soltura aeróbica",
+          "desc": "1km em Z1\n3km em Z2\n1km em Z1",
+          "km": 5,
+          "pace": "6:41/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Longão contínuo",
+          "desc": "2km em Z1\n7km em Z2\n1km em Z3 se estiver bem",
+          "km": 10,
+          "pace": "6:20/km"
+        }
+      ]
+    },
+    {
+      "week": "S5",
+      "phase": "Base",
+      "off": false,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Base",
+          "title": "Base aeróbica",
+          "desc": "1km em Z1\n4km em Z2\n1km em Z1",
+          "km": 6,
+          "pace": "6:36/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Rodagem aeróbica contínua",
+          "desc": "1km em Z1\n6km em Z2\n1km em Z1",
+          "km": 8,
+          "pace": "6:30/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Longão contínuo",
+          "desc": "2km em Z1\n10km em Z2\n2km em Z3 se estiver bem",
+          "km": 14,
+          "pace": "6:13/km",
+          "zoneTarget": "Z2"
+        }
+      ]
+    },
+    {
+      "week": "S6",
+      "phase": "Resistência",
+      "off": false,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Recuperação",
+          "title": "Regenerativo técnico",
+          "desc": "1km em Z1\n6x (20s educativo técnico + 60s trote em Z1)\n3km em Z1\n1km em Z1",
+          "km": 6,
+          "pace": "7:28/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Qualidade",
+          "title": "Fartlek técnico leve",
+          "desc": "1km em Z1\n5x (2min em Z3 controlado + 2min em Z1)\n3km em Z2 se sobrar distância\n1km em Z1",
+          "km": 8,
+          "pace": "6:41/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Longão aeróbico",
+          "desc": "2km em Z1\n11km em Z2\n2km em Z3 se estiver bem",
+          "km": 15,
+          "pace": "6:13/km"
+        }
+      ]
+    },
+    {
+      "week": "S7",
+      "phase": "Resistência",
+      "off": false,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Base",
+          "title": "Base aeróbica",
+          "desc": "1km em Z1\n5km em Z2\n1km em Z1",
+          "km": 7,
+          "pace": "6:32/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Qualidade",
+          "title": "Progressivo aeróbico",
+          "desc": "1km em Z1\n3km em Z2\n3km em Z3 controlado\n1km em Z1",
+          "km": 8,
+          "pace": "6:08/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Longão com final firme",
+          "desc": "2km em Z1\n11km em Z2\n3km em Z3 se estiver bem",
+          "km": 16,
+          "pace": "6:09/km"
+        }
+      ]
+    },
+    {
+      "week": "S8",
+      "phase": "Resistência",
+      "off": true,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Recuperação",
+          "title": "Regenerativo leve",
+          "desc": "1km em Z1\n3km em Z1\n1km em Z1",
+          "km": 5,
+          "pace": "7:28/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Soltura aeróbica",
+          "desc": "1km em Z1\n4km em Z2\n1km em Z1",
+          "km": 6,
+          "pace": "6:36/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Longão confortável",
+          "desc": "2km em Z1\n9km em Z2\n2km em Z3 se estiver bem",
+          "km": 13,
+          "pace": "6:13/km"
+        }
+      ]
+    },
+    {
+      "week": "S9",
+      "phase": "Resistência",
+      "off": false,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Base",
+          "title": "Rodagem contínua",
+          "desc": "1km em Z1\n5km em Z2\n1km em Z1",
+          "km": 7,
+          "pace": "6:32/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Intervalado",
+          "title": "Intervalado médio controlado",
+          "desc": "1km em Z1\n5x (600m em Z4 + 300m em Z1)\n1km em Z1",
+          "km": 8,
+          "pace": "6:10/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Longão confortável",
+          "desc": "3km em Z1\n13km em Z2\n2km em Z3 se estiver bem",
+          "km": 18,
+          "pace": "6:17/km",
+          "zoneTarget": "Z2"
+        }
+      ]
+    },
+    {
+      "week": "S10",
+      "phase": "Pico",
+      "off": false,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Base",
+          "title": "Rodagem contínua",
+          "desc": "1km em Z1\n5km em Z2\n1km em Z1",
+          "km": 7,
+          "pace": "6:32/km",
+          "zoneTarget": "Z2"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Qualidade",
+          "title": "Progressivo aeróbico",
+          "desc": "1km em Z1\n3,5km em Z2\n3,5km em Z3 controlado\n1km em Z1",
+          "km": 9,
+          "pace": "6:05/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Longão com final firme",
+          "desc": "3km em Z1\n13km em Z2\n2km em Z3 se estiver bem",
+          "km": 18,
+          "pace": "6:17/km"
+        }
+      ]
+    },
+    {
+      "week": "S11",
+      "phase": "Pico",
+      "off": false,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Base",
+          "title": "Base aeróbica",
+          "desc": "1km em Z1\n5km em Z2\n1km em Z1",
+          "km": 7,
+          "pace": "6:32/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Intervalado",
+          "title": "Intervalado médio controlado",
+          "desc": "1km em Z1\n5x (800m em Z4 + 400m em Z1)\n1km em Z1",
+          "km": 9,
+          "pace": "6:03/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Longão confortável",
+          "desc": "3km em Z1\n13km em Z2\n3km em Z3 se estiver bem",
+          "km": 19,
+          "pace": "6:13/km"
+        }
+      ]
+    },
+    {
+      "week": "S12",
+      "phase": "Pico",
+      "off": true,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Base",
+          "title": "Soltura aeróbica",
+          "desc": "1km em Z1\n4km em Z2\n1km em Z1",
+          "km": 6,
+          "pace": "6:36/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Rodagem leve",
+          "desc": "1km em Z1\n5km em Z2\n1km em Z1",
+          "km": 7,
+          "pace": "6:32/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Longão com ritmo alvo curto",
+          "desc": "2km em Z1\n8km em Z2\n3km em Z3 controlado\n2km em Z1",
+          "km": 15,
+          "pace": "6:19/km"
+        }
+      ]
+    },
+    {
+      "week": "S13",
+      "phase": "Polimento",
+      "off": false,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Base",
+          "title": "Ativação pré-prova",
+          "desc": "1,8km em Z1\n4x (15s em Z4 + 60s em Z1)\n1,8km em Z1",
+          "km": 5,
+          "pace": "7:28/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Base",
+          "title": "Ativação leve",
+          "desc": "2km em Z1\n4x (15s em Z4 + 60s em Z1)\n2km em Z1",
+          "km": 6,
+          "pace": "7:28/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Simulado leve",
+          "desc": "2km em Z1\n10km em Z2\n1km em Z1",
+          "km": 12,
+          "pace": "6:28/km"
+        }
+      ]
+    },
+    {
+      "week": "S14",
+      "phase": "Polimento",
+      "off": false,
+      "workouts": [
+        {
+          "dayOfWeek": "Terça",
+          "dayType": "Recuperação",
+          "title": "Regenerativo curto",
+          "desc": "1km em Z1\n1km em Z1\n1km em Z1",
+          "km": 3,
+          "pace": "7:28/km"
+        },
+        {
+          "dayOfWeek": "Quinta",
+          "dayType": "Qualidade",
+          "title": "Ritmo alvo curto",
+          "desc": "1km em Z1\n3x (1km em Z3 + 500m em Z1)\n1km em Z1",
+          "km": 3,
+          "pace": "6:25/km"
+        },
+        {
+          "dayOfWeek": "Sábado",
+          "dayType": "Longão",
+          "title": "Prova alvo",
+          "desc": "Prova alvo: iniciar controlado, estabilizar no ritmo planejado e evitar acelerar antes da metade final. Fechar progressivo apenas se estiver confortável.",
+          "km": 21,
+          "pace": "Z3"
+        }
+      ]
+    }
+  ],
+  "blueprint": {
+    "profile": {
+      "riskLevel": "baixo",
+      "fitnessLevel": "intermediário",
+      "mainLimitation": "Progressão gradual de volume"
+    },
+    "athleteAnalysis": {
+      "detectedLevel": "intermediário",
+      "riskLevel": "baixo",
+      "goalFeasibility": "viável",
+      "mainStrength": "Boa janela para evolução gradual.",
+      "mainWeakness": "Construção segura de volume semanal.",
+      "focus": "Base aeróbica, técnica e progressão controlada",
+      "coachSummary": "O plano usa progressão gradual, semanas de recuperação e paces coerentes com o nível informado.",
+      "riskReasons": []
+    },
+    "strategy": {
+      "initialWeeklyKm": 23,
+      "peakWeeklyKm": 36,
+      "initialLongRunKm": 10,
+      "peakLongRunKm": 20,
+      "recoveryEveryWeeks": 4,
+      "taperWeeks": 2
+    },
+    "paceZones": {
+      "easy": "Z1",
+      "moderate": "Z2",
+      "threshold": "Z3",
+      "interval": "Z4",
+      "long": "Z2",
+      "racePace": "Z3",
+      "trainingZones": {
+        "anchor": {
+          "label": "Teste 3km",
+          "pace": "5:00/km",
+          "speed": "12 km/h",
+          "method": "capacity_anchored"
+        },
+        "Z1": {
+          "label": "Z1",
+          "name": "Recuperação / muito leve",
+          "perception": "Ritmo muito confortável para aquecer, desacelerar e recuperar.",
+          "from": "6:35/km",
+          "to": "8:20/km",
+          "speedFrom": "9,1 km/h",
+          "speedTo": "7,2 km/h"
+        },
+        "Z2": {
+          "label": "Z2",
+          "name": "Leve confortável",
+          "perception": "Ritmo leve e sustentável, um pouco mais forte que Z1.",
+          "from": "5:45/km",
+          "to": "6:35/km",
+          "speedFrom": "10,4 km/h",
+          "speedTo": "9,1 km/h"
+        },
+        "Z3": {
+          "label": "Z3",
+          "name": "Moderado / referência do teste",
+          "perception": "Ritmo controlado e confortável forte. Usado com cautela conforme objetivo.",
+          "from": "5:00/km",
+          "to": "5:23/km",
+          "speedFrom": "12 km/h",
+          "speedTo": "11,2 km/h"
+        },
+        "Z4": {
+          "label": "Z4",
+          "name": "Forte controlado",
+          "perception": "Ritmo forte para fartleks, tiros longos e blocos de qualidade.",
+          "from": "4:21/km",
+          "to": "4:54/km",
+          "speedFrom": "13,8 km/h",
+          "speedTo": "12,2 km/h"
+        },
+        "Z5": {
+          "label": "Z5",
+          "name": "Máximo / tiro",
+          "perception": "Ritmo máximo para estímulos curtos. Usar com cautela.",
+          "from": "Máximo",
+          "to": "4:21/km",
+          "speedFrom": "Máximo",
+          "speedTo": "13,8 km/h"
+        }
+      },
+      "zoneMethod": "capacity_anchored",
+      "goalContext": {
+        "type": "performance_goal",
+        "raceType": "meia",
+        "goalPace": null,
+        "goalTarget": null,
+        "testPace": 300,
+        "distanceKm": 21,
+        "terrain": {
+          "label": "terreno plano",
+          "volumeFactor": 1,
+          "longRunFactor": 1,
+          "recoveryEvery": 4,
+          "focus": "ritmo contínuo, economia de corrida e progressão de volume/pace"
+        },
+        "speedReserve": "não calculada",
+        "zoneStrategy": "capacity_anchored",
+        "intensityBias": "moderado",
+        "progressionStyle": "controlada",
+        "recoveryPriority": "média",
+        "volumeFactor": 0.98,
+        "longRunFactor": 1,
+        "qualityFrequency": "moderada",
+        "targetSummary": null,
+        "targetSource": null,
+        "summary": "Meia maratona: equilíbrio entre resistência, ritmo sustentado e blocos próximos ao objetivo."
+      }
+    },
+    "phaseDistribution": [
+      {
+        "phase": "Base",
+        "startWeek": 1,
+        "endWeek": 5
+      },
+      {
+        "phase": "Resistência",
+        "startWeek": 6,
+        "endWeek": 9
+      },
+      {
+        "phase": "Pico",
+        "startWeek": 10,
+        "endWeek": 12
+      },
+      {
+        "phase": "Polimento",
+        "startWeek": 13,
+        "endWeek": 14
+      }
+    ],
+    "warnings": [
+      "Respeite sinais de dor e reduza carga se houver desconforto persistente.",
+      "Evite compensar treinos perdidos acumulando volume em poucos dias."
+    ],
+    "engineCalibration": {
+      "source": "Motor Evo Contextual",
+      "version": "v107",
+      "goalContext": {
+        "type": "performance_goal",
+        "raceType": "meia",
+        "goalPace": null,
+        "goalTarget": null,
+        "testPace": 300,
+        "distanceKm": 21,
+        "terrain": {
+          "label": "terreno plano",
+          "volumeFactor": 1,
+          "longRunFactor": 1,
+          "recoveryEvery": 4,
+          "focus": "ritmo contínuo, economia de corrida e progressão de volume/pace"
+        },
+        "speedReserve": "não calculada",
+        "zoneStrategy": "capacity_anchored",
+        "intensityBias": "moderado",
+        "progressionStyle": "controlada",
+        "recoveryPriority": "média",
+        "volumeFactor": 0.98,
+        "longRunFactor": 1,
+        "qualityFrequency": "moderada",
+        "targetSummary": null,
+        "targetSource": null,
+        "summary": "Meia maratona: equilíbrio entre resistência, ritmo sustentado e blocos próximos ao objetivo."
+      },
+      "raceType": "meia",
+      "zoneStrategy": "capacity_anchored",
+      "speedReserve": "não calculada",
+      "terrain": "terreno plano",
+      "progressionStyle": "controlada",
+      "recoveryPriority": "média",
+      "intensityBias": "moderado",
+      "qualityFrequency": "moderada"
+    },
+    "source": "fallback: rede desabilitada no legacy-harness de propósito — força o blueprint local determinístico"
+  },
+  "motorEvoContext": {
+    "type": "performance_goal",
+    "raceType": "meia",
+    "goalPace": null,
+    "goalTarget": null,
+    "testPace": 300,
+    "distanceKm": 21,
+    "terrain": {
+      "label": "terreno plano",
+      "volumeFactor": 1,
+      "longRunFactor": 1,
+      "recoveryEvery": 4,
+      "focus": "ritmo contínuo, economia de corrida e progressão de volume/pace"
+    },
+    "speedReserve": "não calculada",
+    "zoneStrategy": "capacity_anchored",
+    "intensityBias": "moderado",
+    "progressionStyle": "controlada",
+    "recoveryPriority": "média",
+    "volumeFactor": 0.98,
+    "longRunFactor": 1,
+    "qualityFrequency": "moderada",
+    "targetSummary": null,
+    "targetSource": null,
+    "summary": "Meia maratona: equilíbrio entre resistência, ritmo sustentado e blocos próximos ao objetivo."
+  },
+  "generatedAt": "2026-07-21T18:04:46.574Z",
+  "userData": {
+    "name": "Fixture 07",
+    "age": 45,
+    "height": 168,
+    "weight": 64,
+    "level": "intermediário",
+    "targetDistance": "21",
+    "terrain": "plano",
+    "terrainType": "plano",
+    "startDate": "2026-01-05",
+    "raceDate": "2026-04-12",
+    "daysPerWeek": 3,
+    "test3kmPace": "5:00",
+    "objective": "Quero apenas me manter ativo e evitar lesões",
+    "imc": 22.7
+  },
+  "validation": {
+    "status": "warning",
+    "checkedAt": "2026-07-21T18:04:46.574Z",
+    "issues": [
+      {
+        "severity": "warning",
+        "code": "RACE_WEEK_ENFORCED",
+        "message": "Última semana ajustada para terminar com a prova.",
+        "path": "weeks[13]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.575Z"
+      },
+      {
+        "severity": "warning",
+        "code": "WORKOUT_VARIETY_FIXED",
+        "message": "Treino S5 ajustado para evitar repetição excessiva.",
+        "path": "weeks[4].workouts[2]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.576Z"
+      },
+      {
+        "severity": "warning",
+        "code": "WORKOUT_VARIETY_FIXED",
+        "message": "Treino S9 ajustado para evitar repetição excessiva.",
+        "path": "weeks[8].workouts[2]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.576Z"
+      },
+      {
+        "severity": "warning",
+        "code": "WORKOUT_VARIETY_FIXED",
+        "message": "Treino S10 ajustado para evitar repetição excessiva.",
+        "path": "weeks[9].workouts[0]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.576Z"
+      }
+    ],
+    "fixed": [
+      {
+        "severity": "warning",
+        "code": "RACE_WEEK_ENFORCED",
+        "message": "Última semana ajustada para terminar com a prova.",
+        "path": "weeks[13]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.575Z"
+      },
+      {
+        "severity": "warning",
+        "code": "WORKOUT_VARIETY_FIXED",
+        "message": "Treino S5 ajustado para evitar repetição excessiva.",
+        "path": "weeks[4].workouts[2]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.576Z"
+      },
+      {
+        "severity": "warning",
+        "code": "WORKOUT_VARIETY_FIXED",
+        "message": "Treino S9 ajustado para evitar repetição excessiva.",
+        "path": "weeks[8].workouts[2]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.576Z"
+      },
+      {
+        "severity": "warning",
+        "code": "WORKOUT_VARIETY_FIXED",
+        "message": "Treino S10 ajustado para evitar repetição excessiva.",
+        "path": "weeks[9].workouts[0]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.576Z"
+      }
+    ],
+    "warnings": [
+      {
+        "severity": "warning",
+        "code": "RACE_WEEK_ENFORCED",
+        "message": "Última semana ajustada para terminar com a prova.",
+        "path": "weeks[13]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.575Z"
+      },
+      {
+        "severity": "warning",
+        "code": "WORKOUT_VARIETY_FIXED",
+        "message": "Treino S5 ajustado para evitar repetição excessiva.",
+        "path": "weeks[4].workouts[2]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.576Z"
+      },
+      {
+        "severity": "warning",
+        "code": "WORKOUT_VARIETY_FIXED",
+        "message": "Treino S9 ajustado para evitar repetição excessiva.",
+        "path": "weeks[8].workouts[2]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.576Z"
+      },
+      {
+        "severity": "warning",
+        "code": "WORKOUT_VARIETY_FIXED",
+        "message": "Treino S10 ajustado para evitar repetição excessiva.",
+        "path": "weeks[9].workouts[0]",
+        "fixed": true,
+        "at": "2026-07-21T18:04:46.576Z"
+      }
+    ],
+    "summary": {
+      "totalIssues": 4,
+      "totalFixes": 4,
+      "totalWarnings": 4,
+      "varietyFixes": 3,
+      "totalKm": 386,
+      "initialWeeklyKm": 23,
+      "peakWeekKm": 35,
+      "peakWeeklyKm": 35,
+      "peakTrainingLongRunKm": 19,
+      "peakLongRunKm": 19,
+      "biggestTrainingLongRunKm": 19,
+      "biggestLongRunKm": 19,
+      "raceDistanceKm": 21,
+      "raceWeekIncludesGoal": true,
+      "recoveryWeeks": [
+        "S4",
+        "S8",
+        "S12"
+      ],
+      "taperWeeks": [
+        "S13",
+        "S14"
+      ],
+      "raceWeek": "S14",
+      "totalWeeks": 14,
+      "daysPerWeek": 3,
+      "qualityScore": 9.7,
+      "qualityStatus": "excelente",
+      "riskLevel": "baixo",
+      "riskPoints": 0,
+      "riskReasons": []
+    },
+    "quality": {
+      "version": "v120",
+      "overall": 9.7,
+      "status": "excelente",
+      "adoptionAdvice": "Planilha tecnicamente forte para adoção.",
+      "metrics": {
+        "variety": 10,
+        "progression": 10,
+        "longRunBalance": 8.4,
+        "intensityDistribution": 10,
+        "recovery": 10,
+        "phaseIdentity": 10
+      },
+      "details": {
+        "raceType": "meia",
+        "isUltra": false,
+        "uniqueTitles": 23,
+        "totalWorkouts": 41,
+        "maxSameTitle": 4,
+        "intenseRate": 22,
+        "recoveryWeeks": 3,
+        "validationPenalty": 0,
+        "raceWeekIgnored": true,
+        "biggestTrainingLongRun": 19,
+        "progressionFindings": [],
+        "longRunFindings": []
+      },
+      "insights": [
+        "Boa alternância entre estímulos, evitando planilha repetitiva.",
+        "Progressão de volume dentro de faixa segura.",
+        "Intensidade compatível com objetivo e perfil informado.",
+        "Longões proporcionais ao volume semanal e ao tipo de prova.",
+        "Recuperação e polimento presentes na estrutura."
+      ]
+    }
+  }
+}
