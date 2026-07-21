@@ -31,6 +31,53 @@ export interface LegacyAICoach {
   getAdoptedWorkouts: () => unknown;
 }
 
+/**
+ * Funções privadas do IIFE do legado (não fazem parte do `return` público de
+ * `AICoach`) que os testes de equivalência da Fase 2 precisam comparar
+ * função a função (Grupos A e B), e não só pelo resultado final do plano.
+ * Expandir esta lista conforme os próximos grupos (`RunEvoInternalName`) —
+ * nunca comentar/remover uma função do legado para "simplificar" a compara.
+ */
+const INTERNAL_FUNCTION_NAMES = [
+  // Grupo A — utils/math, dates, pace
+  'clamp',
+  'roundKm',
+  'parseNumber',
+  'interpolate',
+  'easeProgression',
+  'parseLocalDate',
+  'addDays',
+  'getStartDayOfWeek',
+  'paceToSeconds',
+  'timeToSeconds',
+  'secondsToDuration',
+  'secondsToPace',
+  'paceRange',
+  'speedFromPaceSeconds',
+  'paceSecondsFromSpeed',
+  'formatSpeed',
+  // Grupo B — objective, terrain, zones
+  'normalizeObjectiveText',
+  'raceDistanceKey',
+  'getPreviousRaceTimeSeconds',
+  'parseTimeGoalFromObjective',
+  'getGoalTargetInfo',
+  'inferGoalPaceSeconds',
+  'getRaceType',
+  'getGoalContext',
+  'inferBasePaceSeconds',
+  'getPreviousTimesText',
+  'getDistanceKm',
+  'getDistanceLabel',
+  'getTerrainLabel',
+  'getTerrainGuidance',
+  'zoneRangeFromSpeedPercent',
+  'buildZoneRangeFromPaces',
+  'buildGoalAnchoredZones',
+] as const;
+
+export type LegacyInternals = Record<(typeof INTERNAL_FUNCTION_NAMES)[number], (...args: never[]) => unknown>;
+
 const LEGACY_ENTRY_PATH = path.join(__dirname, '..', '..', '..', 'legacy', 'ai-coach.js');
 
 function createLocalStorageStub(): Storage {
@@ -73,8 +120,28 @@ function createStorageServiceStub(): UnknownRecord {
   };
 }
 
+/**
+ * As funções em `INTERNAL_FUNCTION_NAMES` são bindings locais do IIFE
+ * `(() => { ...; return {...público...}; })()` — não sobrevivem fora dele
+ * mesmo depois de `this.AICoach = AICoach`. Para alcançá-las sem tocar em
+ * `legacy/ai-coach.js` no disco, injetamos (só nesta string em memória, só
+ * para teste) uma linha extra que estende o objeto retornado pelo `return`
+ * público, reaproveitando o mesmo escopo léxico onde essas funções existem.
+ */
+function withExposedInternals(source: string): string {
+  const returnMarker = '  // ===== PUBLIC API =====\n  return {';
+  const idx = source.indexOf(returnMarker);
+  if (idx === -1) {
+    throw new Error('legacy-harness: marcador "// ===== PUBLIC API =====" não encontrado no legado.');
+  }
+
+  const internalsObjectLiteral = `__internals: { ${INTERNAL_FUNCTION_NAMES.join(', ')} },\n`;
+  const insertAt = idx + returnMarker.length;
+  return `${source.slice(0, insertAt)}\n    ${internalsObjectLiteral}${source.slice(insertAt)}`;
+}
+
 /** Cache em nível de módulo: um único sandbox `vm` por processo de teste. */
-let cachedAICoach: LegacyAICoach | null = null;
+let cachedAICoach: (LegacyAICoach & { __internals: LegacyInternals }) | null = null;
 
 export function loadLegacyAICoach(): LegacyAICoach {
   if (cachedAICoach) return cachedAICoach;
@@ -83,7 +150,8 @@ export function loadLegacyAICoach(): LegacyAICoach {
   // Uma `const` de topo NÃO vira propriedade do objeto global mesmo dentro de
   // um contexto `vm` — só `var`/funções ficam. Precisamos empurrar o valor
   // para `this` (o global do contexto, em modo não-estrito) explicitamente.
-  const source = `${fs.readFileSync(LEGACY_ENTRY_PATH, 'utf8')}\nthis.AICoach = AICoach;\n`;
+  const rawSource = fs.readFileSync(LEGACY_ENTRY_PATH, 'utf8');
+  const source = `${withExposedInternals(rawSource)}\nthis.AICoach = AICoach;\n`;
 
   const sandbox: UnknownRecord = {
     console,
@@ -102,12 +170,19 @@ export function loadLegacyAICoach(): LegacyAICoach {
   vm.createContext(sandbox);
   vm.runInContext(source, sandbox, { filename: 'legacy/ai-coach.js' });
 
-  const AICoach = sandbox.AICoach as LegacyAICoach | undefined;
-  if (!AICoach || typeof AICoach.generatePlan !== 'function') {
+  const AICoach = sandbox.AICoach as (LegacyAICoach & { __internals: LegacyInternals }) | undefined;
+  if (!AICoach || typeof AICoach.generatePlan !== 'function' || !AICoach.__internals) {
     throw new Error('legacy-harness: AICoach não foi exposto corretamente pelo legado.');
   }
 
   (globalThis as UnknownRecord).__AICoach = AICoach;
   cachedAICoach = AICoach;
   return AICoach;
+}
+
+/** Funções privadas do legado (ver `INTERNAL_FUNCTION_NAMES`), para comparação função a função. */
+export function getLegacyInternals(): LegacyInternals {
+  loadLegacyAICoach();
+  if (!cachedAICoach) throw new Error('legacy-harness: AICoach não carregado.');
+  return cachedAICoach.__internals;
 }
