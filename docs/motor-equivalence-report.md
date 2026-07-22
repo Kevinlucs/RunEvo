@@ -17,7 +17,7 @@
 | 7 | Prazo curto | `f07` | `targetDistance:'21'`, `calculateWeeks=10` (<12 semanas para ≥21K) |
 | 8 | Terreno elevado | `f08` | `targetDistance:'10'`, `terrain:'elevado'`, `daysPerWeek:4` |
 | 9 | IA indisponível → `blueprint.source === 'local'` | `f09` (todas as fixtures, na prática) | ✅ **Ativo.** `BlueprintSource = 'ai' \| 'local'` (`blueprint.ts`) — divergência intencional do legado, decidida conscientemente (ver "Divergências intencionais" abaixo) |
-| 10 | Plano idêntico → `arePlansIdentical === true` | `f10` | Não é input-dependente: gerar o plano de `f10` duas vezes e comparar fingerprints deve dar idêntico. `f10` é a referência designada por ser o caso mais simples (2 dias/semana, sem objetivo) |
+| 10 | Plano idêntico → `arePlansIdentical === true` | `f10` (todas as fixtures, na prática) | ✅ **Ativo.** `fingerprint.ts` portado de `legacy/app.js` (não `ai-coach.js` — ver "Grupo F" abaixo). `f10` é a referência designada por ser o caso mais simples (2 dias/semana, sem objetivo) |
 
 **Nota sobre f03 vs. cenário oficial 3:** o enunciado diz "inter 21K 1h45"; interpretamos
 como "1h45 é o melhor tempo **anterior** do atleta, objetivo é bater esse recorde"
@@ -50,13 +50,94 @@ Funções que existem em `ai-coach.js` mas nunca são chamadas em lugar nenhum d
 arquivo (confirmado por grep — não fazem parte do `return` público de
 `AICoach` nem são referenciadas por nenhuma outra função). Critério §38
 (sem código morto/TODO em fluxo crítico): omitidas, não portadas comentadas.
-Os 82 testes de equivalência (incl. `validateAndFixPlan`/`calculatePlanRiskLevel`
+Os testes de equivalência (incl. `validateAndFixPlan`/`calculatePlanRiskLevel`
 completos) passam sem exercitá-las, confirmando que nada depende delas.
 
 | Função morta | Local (legado) | Seria de | Situação |
 |---|---|---|---|
 | `workoutSignature` | ai-coach.js:2232-2234 | `validation.ts` | Omitida — não portada |
 | `normalizeRiskLabel` | ai-coach.js:2522-2528 | `risk.ts` | Omitida — não portada |
+
+## Grupo F — fingerprint + adaptive-training (`legacy/app.js`)
+
+`normalizeRunEvoComparablePlan`/`getRunEvoPlanFingerprint`/`areRunEvoPlansIdentical`
+e as regras de Adaptive Training vivem em `legacy/app.js` (8162 linhas), não em
+`ai-coach.js` — esse arquivo só foi adicionado ao repo nesta etapa (copiado
+para `legacy/app.js`). Diferente de `ai-coach.js` (IIFE limpa), `app.js` tem
+dependências de DOM/estado global no escopo do módulo — carregar o arquivo
+inteiro num `vm` quebraria. Extraímos por **range de linha** só o fechamento
+transitivo necessário, com verificação de forma no primeiro carregamento
+(se `app.js` mudar de forma, o harness lança erro em vez de extrair a coisa
+errada silenciosamente):
+
+- `legacy-fingerprint-harness.ts`: `formatKm`, `getPlanReviewSummary`,
+  `getRiskLabelText`, `formatPlanScore`, `getPlanRisk`, `getPlanDistanceLabel`,
+  `getCompactPlanSummary`, `normalizeRunEvoComparablePlan`,
+  `getRunEvoPlanFingerprint`, `areRunEvoPlansIdentical` (10 funções, nenhuma
+  toca DOM/localStorage — confirmado por leitura manual).
+- `legacy-adaptive-harness.ts`: `getLocalAdjustmentRecommendation`,
+  `getAdjustmentTitle`, `normalizeAICheckinRecommendation`, `roundHalf`,
+  `applySkippedWorkoutRedistribution`, `applyAdjustmentToStoredPlan`. Globais
+  fora do fechamento autorizado (`getWorkoutStatus`, `AICoach.loadPlan`,
+  `StorageService.savePlan`, `AICoach.isPlanAdopted`, `applyAdoptedPlan`,
+  `clamp`) são stubados (mapa de status controlado pelo teste, plano de teste
+  injetável, persistência capturada em memória).
+
+### fingerprint.ts
+
+Porte 1:1. **Achado de fidelidade importante:** `normalizeRunEvoComparablePlan`
+lê `w.type||w.category`, `w.day||w.weekday`, `plan.objective||plan.goal`,
+`plan.totalKm||plan.totalDistanceKm` — nomes de campo que **nunca existem** no
+plano produzido pelo motor (que usa `dayType`/`dayOfWeek`, e não tem
+`plan.objective`/`plan.totalKm` no nível raiz; só `userData.objective` e
+`validation.summary.totalKm` aninhados). Confirmado por leitura de `app.js` E
+pelo harness rodando sobre planos reais: `type`, `day`, `objective` ficam
+sempre `''` e `totalKm` sempre `0` no fingerprint de qualquer plano real do
+motor. **Não "corrigido"** — mudar isso alteraria quais planos contam como
+idênticos, e não foi pedido. `week: Number(week.week || ...)` também vira
+`NaN` → `null` no JSON (`week.week` é a string `"S1"`, não numérica) —
+preservado.
+
+Verificado: fingerprint string idêntica à do legado nas 10 fixtures;
+`arePlansIdentical` idêntico ao legado nas 10 fixtures (duas gerações do
+mesmo input) e nos 45 pares cruzados (10 fixtures, C(10,2) combinações —
+nenhum falso positivo de "idêntico"); guardas `null`/`undefined` conferem.
+
+### adaptive-training.ts
+
+Porte 1:1 de `getLocalAdjustmentRecommendation` (→ `recommendAdjustment`,
+nome trocado por instrução do enunciado/spec §18: "Recomendação: local
+(`recommendAdjustment`)"), `normalizeAICheckinRecommendation` (mesmo nome —
+guardrails puros aplicados sobre uma sugestão de IA já obtida, não chama IA),
+`applySkippedWorkoutRedistribution` (→ `redistributeSkipped`, purificada:
+recebe a semana seguinte por parâmetro e retorna a versão atualizada, em vez
+de ler/gravar `AICoach.loadPlan()`/`StorageService`) e
+`applyAdjustmentToStoredPlan` (→ `applyAdjustment`, mesma purificação).
+
+**Não portado nesta fase** (fora do fechamento autorizado, ou inerentemente
+stateful — débito explícito, não código morto): `getWeekSummary`/
+`getCheckinCandidateWeek` dependem de `allWorkouts`, `getWorkoutStatus`,
+`getWorkoutFeedback`, `isWorkoutResolved`, `getWorkoutCompletedKm`,
+`weeklyCheckins` — estado vivo de conclusão de treino que só existe com os
+repositories da Fase 3. A agregação pura de `getWeekSummary` está portada
+como `summarizeWeek` (recebe treinos já resolvidos por parâmetro).
+**Inferência não verificada linha a linha** (por falta de
+`isWorkoutResolved`/`getWorkoutCompletedKm` no fechamento autorizado):
+`resolved = completed + skipped` (treinos `pending` não contam) — consistente
+com `partial` ser sempre `0` no legado (app.js:4422, campo morto mantido só
+por forma), mas não confirmado contra o código-fonte de `isWorkoutResolved`.
+Sinalizar se a regra real for outra.
+
+Verificado contra `legacy-adaptive-harness.ts`: 30 testes cobrindo todos os
+branches de guardrail da spec §18 — dor nunca aumenta; esforço ≥9/
+"muito_pesado" nunca aumenta; aderência <60% reduz; aumento adicional
+clamped 1-3%; redução clamped 5-20% (reduce) / 15-30% (recovery); semana
+perfeita+leve mantém apesar de sugestão de redução; ação inválida da IA cai
+para a recomendação local; `weeksToAdjust` clamped 1-2; redistribuição de
+pulados por faixa de esforço (ratio 0.5/0.4/0.3, dor→0), limitada a ~12% da
+semana seguinte, nunca mexe no treino da prova; `applyAdjustment` só semanas
+futuras, `off=true`+`phase→Base` em recovery, nunca altera a prova, no-op
+quando `factor=1 && action==='maintain'`. **0 divergências.**
 
 ## Bugs de Fase 1 corrigidos (fora do histórico do motor)
 
@@ -76,25 +157,25 @@ antes desta nota — não foi necessário reescrever histórico.
 | B | objective, terrain, zones | ✅ portado, 100% equivalente (função a função) |
 | C | profile (calculateIMC), phases, weekly-targets, blueprint (fallback local) | ✅ portado |
 | D | workout-library, workout-prescription, plan-generator, validation, quality-score, risk, index.ts (fachada `generatePlan`) | ✅ portado |
-| F | fingerprint (`computePlanFingerprint`, `arePlansIdentical`) | pendente — Parada 2 |
+| F | fingerprint (`legacy/app.js`), adaptive-training (`legacy/app.js`) | ✅ portado |
 
 **Parada 1 (pós-Grupo D):** suíte de equivalência completa nos 10 golden —
-82/82 testes reais batendo (nº de semanas, motorEvoContext, paceZones,
-semanas completas com fases/off/treinos, validation.status,
-validation.summary inteiro incl. qualityScore/qualityStatus/riskLevel/
-riskPoints/riskReasons, e o relatório de validação inteiro sem timestamps).
-**0 divergências.**
+82/82 testes reais batendo. **0 divergências.**
 
-**Pós-aprovação da Parada 1:** cenário 9 ativado (83/83 + 1 todo) —
-`blueprint.source === 'local'` em todas as fixtures, via `BlueprintSource`
-(divergência intencional, ver tabela acima). Código morto removido
-(`workoutSignature`, `normalizeRiskLabel`). Cenário 10 segue `test.todo`,
-depende de fingerprint.ts.
+**Pós-aprovação da Parada 1:** cenário 9 ativado — `blueprint.source ===
+'local'` em todas as fixtures, via `BlueprintSource` (divergência
+intencional, ver tabela acima). Código morto removido (`workoutSignature`,
+`normalizeRiskLabel`).
 
-Débito explícito, fora do escopo desta fase (documentado em `blueprint.ts`):
-`normalizeBlueprint` (reconciliação de resposta de IA) e o
-`PlanBlueprintProvider` (`services/ai/*`) não foram portados — dependem de
-um provider assíncrono/impuro e do fluxo de colar blueprint manual, nenhum
-dos dois exercitado pelos golden desta fase (só o caminho local é testado).
+**Parada 2 (pós-Grupo F):** `legacy/app.js` adicionado ao repo (só
+`ai-coach.js` existia antes). `fingerprint.ts` e `adaptive-training.ts`
+portados e verificados contra harnesses dedicados (extração por range de
+linha, `app.js` não pode ser `vm`-carregado inteiro — tem DOM/estado global).
+Cenário 10 ativado. **117/117 testes, 0 todo, 0 divergências.**
 
-_Próxima atualização: Parada 2 (pós-Grupo F/fingerprint) — resumo + bloco §41 do PR._
+Débito explícito, fora do escopo desta fase (documentado nos respectivos
+arquivos): `normalizeBlueprint`/`PlanBlueprintProvider` (blueprint.ts —
+caminho de IA, não exercitado pelos golden); `getWeekSummary`/
+`getCheckinCandidateWeek` (adaptive-training.ts — dependem de estado vivo de
+conclusão de treino, repositories da Fase 3); persistência de
+`redistributeSkipped`/`applyAdjustment` (StorageService — repository, Fase 3).
