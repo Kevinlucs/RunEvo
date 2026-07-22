@@ -121,12 +121,24 @@ stateful — débito explícito, não código morto): `getWeekSummary`/
 `weeklyCheckins` — estado vivo de conclusão de treino que só existe com os
 repositories da Fase 3. A agregação pura de `getWeekSummary` está portada
 como `summarizeWeek` (recebe treinos já resolvidos por parâmetro).
-**Inferência não verificada linha a linha** (por falta de
-`isWorkoutResolved`/`getWorkoutCompletedKm` no fechamento autorizado):
-`resolved = completed + skipped` (treinos `pending` não contam) — consistente
-com `partial` ser sempre `0` no legado (app.js:4422, campo morto mantido só
-por forma), mas não confirmado contra o código-fonte de `isWorkoutResolved`.
-Sinalizar se a regra real for outra.
+
+**Achado verificado (não é divergência):** `resolved = completed + skipped`
+foi inicialmente uma inferência (sem `isWorkoutResolved` no fechamento
+autorizado desta extração), depois **confirmada contra o legado**:
+`isWorkoutResolved` é exatamente `['completed','skipped'].includes(...)` —
+`summarizeWeek` bate 1:1.
+
+**Contexto adicional confirmado:** o fluxo de status "parcial" foi
+**descontinuado no legado** — `handleMarkPartial` hoje só exibe um toast
+("Fluxo parcial removido: agora o atleta registra apenas concluído ou
+pulado"); `partial` só persiste em caminhos de render/export para dados
+antigos (por isso `getWeekSummary` hardcoda `partial = 0`, app.js:4422 —
+campo morto mantido só por forma de compatibilidade). O §21 do enunciado
+("concluído | parcial | pulado") está **desatualizado** em relação ao
+produto real (só concluído/pulado). A entidade `Workout` da Fase 1
+(`status: 'pending' | 'completed' | 'skipped'`, sem `'partial'`) já reflete
+o comportamento real do legado — decisão correta, confirmada retroativamente,
+não precisa de ajuste.
 
 Verificado contra `legacy-adaptive-harness.ts`: 30 testes cobrindo todos os
 branches de guardrail da spec §18 — dor nunca aumenta; esforço ≥9/
@@ -176,6 +188,15 @@ Cenário 10 ativado. **117/117 testes, 0 todo, 0 divergências.**
 Débito explícito, fora do escopo desta fase (documentado nos respectivos
 arquivos): `normalizeBlueprint`/`PlanBlueprintProvider` (blueprint.ts —
 caminho de IA, não exercitado pelos golden); `getWeekSummary`/
-`getCheckinCandidateWeek` (adaptive-training.ts — dependem de estado vivo de
-conclusão de treino, repositories da Fase 3); persistência de
+`getCheckinCandidateWeek` completos (adaptive-training.ts — dependem de
+estado vivo de conclusão de treino, repositories da Fase 3); persistência de
 `redistributeSkipped`/`applyAdjustment` (StorageService — repository, Fase 3).
+
+## Fase 2 — encerrada
+
+Motor RunEvo portado integralmente para `src/domain/motor-evo/` (funções
+puras, TypeScript strict), com equivalência verificada empiricamente contra
+`legacy/ai-coach.js` e `legacy/app.js`. 117/117 testes, 0 `todo`, 0
+divergências. Débitos explícitos documentados acima ficam para quando os
+respectivos serviços/repositories forem implementados (Fase 3+); não são
+lacunas silenciosas.
