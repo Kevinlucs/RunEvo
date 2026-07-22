@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { ok, err, appError, type Result } from '@/utils/result';
+import { ok, err, AppError, type Result } from '@/utils/result';
 import type { Entitlement } from '@/types/entities';
 
 // Entitlement é resolvido AQUI (serviço), lendo a tabela subscriptions +
@@ -36,17 +36,17 @@ export const supabaseSubscriptionService: SubscriptionService = {
       .limit(1)
       .maybeSingle();
 
-    if (error) return err(appError('subscription/read', error.message, error));
+    if (error) return err(new AppError('network', error.message, error));
     if (!data) return ok(FREE);
     return ok(toEntitlement(data));
   },
 
   async purchase() {
     // Placeholder: billing real conecta na Fase 7 atrás desta mesma interface.
-    return err(appError('subscription/not-implemented', 'Compra ainda não conectada.'));
+    return err(new AppError('unknown', 'Compra ainda não conectada.'));
   },
 
   async restore() {
-    return err(appError('subscription/not-implemented', 'Restauração ainda não conectada.'));
+    return err(new AppError('unknown', 'Restauração ainda não conectada.'));
   },
 };

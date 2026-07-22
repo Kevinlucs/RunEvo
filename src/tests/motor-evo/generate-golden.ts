@@ -27,6 +27,7 @@ async function main(): Promise<void> {
     const plan = await AICoach.generatePlan(fixture.input as unknown as UnknownRecord);
     const outPath = path.join(GOLDEN_DIR, `${fixture.id}.json`);
     fs.writeFileSync(outPath, `${JSON.stringify(plan, null, 2)}\n`, 'utf8');
+    // eslint-disable-next-line no-console -- script de terminal (`npm run motor-evo:golden`), console é a UI
     console.log(`golden gerado: ${fixture.id} -> ${path.relative(process.cwd(), outPath)}`);
   }
 }
