@@ -7,13 +7,17 @@
  * (`generatePlan`) compõe `assemblePlan` + `validateAndFixPlan`, sempre pelo
  * caminho local/determinístico (só o testado pelos golden desta fase).
  *
- * Cenário §39 9 (blueprint.source) já ativo. Cenário 10 (arePlansIdentical)
- * ainda `test.todo`: depende de fingerprint.ts (Grupo F), não portado ainda.
+ * Cenários §39 9 (blueprint.source) e 10 (arePlansIdentical) ativos —
+ * fingerprint.ts (Grupo F) portado a partir de legacy/app.js
+ * (normalizeRunEvoComparablePlan/getRunEvoPlanFingerprint/areRunEvoPlansIdentical),
+ * verificado via legacy-fingerprint-harness.ts.
  */
 import { calculateWeeks } from '../../domain/motor-evo/dates';
 import { getGoalContext } from '../../domain/motor-evo/objective';
 import { buildLocalPaceZones } from '../../domain/motor-evo/zones';
 import { generatePlan } from '../../domain/motor-evo/index';
+import { computePlanFingerprint, arePlansIdentical } from '../../domain/motor-evo/fingerprint';
+import { loadLegacyFingerprint } from './legacy-fingerprint-harness';
 import { fixtures } from './fixtures';
 
 import golden_f01 from './golden/f01.json';
@@ -150,6 +154,39 @@ describe('Motor RunEvo — equivalência TS novo vs. legado (Grupos A-D)', () =>
     }
   });
 
-  // ===== Pendente — depende de fingerprint.ts (Grupo F), ainda não portado =====
-  test.todo('cenário §39 10 (f10) — arePlansIdentical(plano, mesmo plano) === true — depende de fingerprint.ts');
+  // Cenário §39 10: plano idêntico → arePlansIdentical === true.
+  describe('cenário §39 10 — fingerprint / arePlansIdentical', () => {
+    const legacy = loadLegacyFingerprint();
+
+    it('computePlanFingerprint bate com getRunEvoPlanFingerprint (legado) nas 10 fixtures', () => {
+      for (const fixture of fixtures) {
+        const plan = generatePlan(fixture.input);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ponte pro harness vm (mesmo objeto, tipo solto do lado do legado)
+        const legacyFp = legacy.getRunEvoPlanFingerprint(plan as any);
+        expect(computePlanFingerprint(plan)).toBe(legacyFp);
+      }
+    });
+
+    it('arePlansIdentical(plano, mesmo plano) === true — duas gerações do mesmo input', () => {
+      for (const fixture of fixtures) {
+        const planA = generatePlan(fixture.input);
+        const planB = generatePlan(fixture.input);
+        expect(arePlansIdentical(planA, planB)).toBe(true);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ponte pro harness vm
+        expect(legacy.areRunEvoPlansIdentical(planA as any, planB as any)).toBe(true);
+      }
+    });
+
+    it('arePlansIdentical === false para fixtures diferentes (f01 vs f04)', () => {
+      const planA = generatePlan(fixtures.find((f) => f.id === 'f01')!.input);
+      const planB = generatePlan(fixtures.find((f) => f.id === 'f04')!.input);
+      expect(arePlansIdentical(planA, planB)).toBe(false);
+    });
+
+    it('arePlansIdentical(null/undefined, plano) === false', () => {
+      const plan = generatePlan(fixtures[0]!.input);
+      expect(arePlansIdentical(null, plan)).toBe(false);
+      expect(arePlansIdentical(plan, undefined)).toBe(false);
+    });
+  });
 });
