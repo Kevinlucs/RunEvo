@@ -24,7 +24,7 @@ export type AppErrorCode =
 
 export class AppError extends Error {
   readonly code: AppErrorCode;
-  readonly cause?: unknown;
+  override readonly cause?: unknown;
   constructor(code: AppErrorCode, message: string, cause?: unknown) {
     super(message);
     this.name = 'AppError';
