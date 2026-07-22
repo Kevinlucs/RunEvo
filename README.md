@@ -25,6 +25,10 @@ npx expo start            # Expo Go / dev client
 # Banco
 supabase db push          # aplica supabase/migrations/*
 npm run db:types          # gera src/types/database.types.ts
+# ⚠️ src/types/database.types.ts está commitado mas foi derivado manualmente
+# de supabase/migrations/*.sql (sem SUPABASE_ACCESS_TOKEN/login no ambiente
+# em que foi gerado). Pode dessincronizar do banco real — rode `supabase login`
+# e `npm run db:types` para regenerar pelo CLI assim que houver credencial.
 
 # Qualidade
 npm run typecheck && npm run lint && npm test
