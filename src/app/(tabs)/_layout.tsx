@@ -1,33 +1,20 @@
-import { Tabs, router } from 'expo-router';
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, fontSizes, spacing } from '@/theme';
+import { colors, fontSizes } from '@/theme';
 
 type TabIconProps = { color: string; size: number };
 
 /**
  * Bottom navigation (enunciado §26): Início · Treinos · IA Evo · Estatísticas.
- * Perfil abre pelo avatar no header (não é aba).
+ * Header nativo desligado — cada tela renderiza <AppHeader /> (logo + avatar,
+ * docs/fase-4-brief.md Grupo 2.1) como primeiro bloco do próprio conteúdo,
+ * dentro do <Screen> (que já cuida da safe area de topo).
  */
-function AvatarButton(): JSX.Element {
-  return (
-    <Pressable
-      accessibilityLabel="Abrir perfil"
-      onPress={() => router.push('/profile')}
-      style={styles.avatar}
-    >
-      <Text style={styles.avatarText}>R</Text>
-    </Pressable>
-  );
-}
-
 export default function TabsLayout(): JSX.Element {
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: colors.bg },
-        headerTitleStyle: { color: colors.neon, fontWeight: '800' },
-        headerRight: () => <AvatarButton />,
+        headerShown: false,
         tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.border },
         tabBarActiveTintColor: colors.neon,
         tabBarInactiveTintColor: colors.textMuted,
@@ -73,18 +60,3 @@ export default function TabsLayout(): JSX.Element {
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 999,
-    backgroundColor: colors.cardElevated,
-    borderWidth: 2,
-    borderColor: colors.neon,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.lg,
-  },
-  avatarText: { color: colors.neon, fontWeight: '900' },
-});

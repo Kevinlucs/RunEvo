@@ -4,6 +4,7 @@ import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
+import { AppHeader } from '@/components/ui/AppHeader';
 import { TextField } from '@/components/ui/TextField';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { ChoiceField } from '@/components/forms/ChoiceField';
@@ -78,6 +79,7 @@ export default function AiEvo(): JSX.Element {
 
   return (
     <Screen>
+      <AppHeader />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>
           <Text style={styles.title}>IA Evo</Text>

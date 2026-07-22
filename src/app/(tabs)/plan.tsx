@@ -1,6 +1,7 @@
 import { Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
+import { AppHeader } from '@/components/ui/AppHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useActivePlan } from '@/hooks/useActivePlan';
 import { colors, spacing, fontSizes } from '@/theme';
@@ -10,6 +11,7 @@ export default function Plan(): JSX.Element {
 
   return (
     <Screen>
+      <AppHeader />
       <Text style={styles.h1}>Treinos</Text>
       {!isLoading && !plan ? (
         <EmptyState

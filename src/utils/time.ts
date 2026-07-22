@@ -10,3 +10,13 @@ export function toLocalISODate(date: Date): string {
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
+
+const SHORT_MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
+/** `"YYYY-MM-DD"` → `"22 jul"` (exibição na UI). Parsing local — sem shift de UTC. */
+export function formatShortDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return '-';
+  const [, m, d] = dateStr.split('-').map(Number);
+  if (!m || !d) return '-';
+  return `${d} ${SHORT_MONTHS[m - 1]}`;
+}
