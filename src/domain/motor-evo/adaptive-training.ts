@@ -368,6 +368,8 @@ export interface WorkoutResolution {
   effort?: number;
 }
 
+export type WeekStatus = 'pending' | 'in_progress' | 'done';
+
 export interface WeekSummary {
   plannedKm: number;
   completedKm: number;
@@ -380,6 +382,17 @@ export interface WeekSummary {
   averageEffort: number;
   completionRate: number;
   resolvedRate: number;
+  /**
+   * Débito da Fase 4 (docs/fase-4-brief.md Grupo 1.1) — não existe no legado
+   * como campo de `getWeekSummary`; é a extensão pedida pelo enunciado
+   * (`summarizeWeek` deve devolver `status`/`canCheckin`). Deriva só de
+   * resolved/total, sem saber se o check-in já foi enviado (isso é
+   * responsabilidade de `getCheckinCandidateWeek`, que recebe `hasCheckin`
+   * por fora — o domínio não consulta repository).
+   */
+  status: WeekStatus;
+  /** app.js:253 do audit — `resolved === total` (nenhum treino sem resolver). */
+  canCheckin: boolean;
 }
 
 /**
@@ -410,6 +423,8 @@ export function summarizeWeek(resolutions: WorkoutResolution[]): WeekSummary {
     .map((w) => Number(w.effort || 0))
     .filter(Boolean);
   const averageEffort = efforts.length ? Math.round((efforts.reduce((a, b) => a + b, 0) / efforts.length) * 10) / 10 : 0;
+  const total = resolutions.length;
+  const status: WeekStatus = resolved === 0 ? 'pending' : resolved === total && total > 0 ? 'done' : 'in_progress';
 
   return {
     plannedKm,
@@ -418,9 +433,31 @@ export function summarizeWeek(resolutions: WorkoutResolution[]): WeekSummary {
     partial,
     skipped,
     resolved,
-    total: resolutions.length,
+    total,
     averageEffort,
-    completionRate: resolutions.length ? completed / resolutions.length : 0,
-    resolvedRate: resolutions.length ? resolved / resolutions.length : 0,
+    completionRate: total ? completed / total : 0,
+    resolvedRate: total ? resolved / total : 0,
+    status,
+    canCheckin: total > 0 && resolved === total,
   };
+}
+
+export interface CheckinCandidate {
+  weekIndex: number;
+  summary: WeekSummary;
+  hasCheckin: boolean;
+}
+
+/**
+ * app.js:4442-4453 (`getCheckinCandidateWeek`), purificada: recebe os
+ * candidatos já agregados (um `summarizeWeek` + flag `hasCheckin` por semana)
+ * em vez de ler `allWorkouts`/`weeklyCheckins` globais. Mesma regra: primeira
+ * semana (na ordem recebida) sem check-in e totalmente resolvida; se nenhuma,
+ * cai na semana corrente (mesmo que não liberada) — sempre há uma semana
+ * "candidata" para a UI exibir, mesmo sem `canCheckin`.
+ */
+export function getCheckinCandidateWeek(weeks: CheckinCandidate[], currentWeekIndex: number): number | null {
+  if (!weeks.length) return null;
+  const candidate = weeks.find((w) => !w.hasCheckin && w.summary.canCheckin);
+  return candidate ? candidate.weekIndex : currentWeekIndex;
 }

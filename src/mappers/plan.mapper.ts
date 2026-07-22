@@ -4,7 +4,7 @@ import type { Week, Workout as MotorWorkout, Phase, DayType } from '@/domain/mot
 import type { ValidationReport } from '@/domain/motor-evo/validation';
 import type { PlanBlueprint } from '@/domain/motor-evo/blueprint';
 import { newUuid } from '@/utils/uuid';
-import { nowIso } from '@/utils/time';
+import { nowIso, toLocalISODate } from '@/utils/time';
 import type { TrainingPlan, Workout as WorkoutRow } from '@/domain/entities';
 
 /**
@@ -17,13 +17,6 @@ import type { TrainingPlan, Workout as WorkoutRow } from '@/domain/entities';
 export interface PlanMapperResult {
   plan: TrainingPlan;
   workouts: WorkoutRow[];
-}
-
-function toISODate(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
 }
 
 /**
@@ -54,7 +47,7 @@ function computeWorkoutDates(startDateStr: string, weeks: Week[]): string[][] {
         workoutDate = addDays(workoutDate, 7);
       }
 
-      return toISODate(workoutDate);
+      return toLocalISODate(workoutDate);
     });
   });
 }
