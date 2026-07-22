@@ -2,6 +2,10 @@ module.exports = {
   root: true,
   extends: ['expo', 'prettier'],
   plugins: ['import'],
+  // supabase/functions/** roda em Deno (runtime/resolução de módulos diferente
+  // do Node/Expo do resto do projeto — import "npm:pkg@versão", globals Deno.*).
+  // Fora do alcance do eslint deste projeto; `deno lint`/`deno check` cobrem lá.
+  ignorePatterns: ['supabase/functions/**'],
   rules: {
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     '@typescript-eslint/no-explicit-any': 'error',

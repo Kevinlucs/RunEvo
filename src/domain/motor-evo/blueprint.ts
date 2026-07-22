@@ -81,7 +81,7 @@ export interface PlanBlueprint {
   source: BlueprintSource;
 }
 
-type BlueprintAthleteInput = Pick<
+export type BlueprintAthleteInput = Pick<
   AthleteInput,
   | 'name'
   | 'age'
