@@ -9,8 +9,8 @@ import * as SecureStore from 'expo-secure-store';
  * enclave seguro do dispositivo. Tokens NUNCA vão para AsyncStorage/localStorage.
  */
 const CHUNK_SIZE = 1800;
-const countKey = (key: string): string => `${key}::count`;
-const chunkKey = (key: string, i: number): string => `${key}::${i}`;
+const countKey = (key: string): string => `${key}.count`;
+const chunkKey = (key: string, i: number): string => `${key}.${i}`;
 
 export const secureStoreAdapter = {
   async getItem(key: string): Promise<string | null> {
