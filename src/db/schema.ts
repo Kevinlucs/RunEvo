@@ -75,6 +75,14 @@ CREATE TABLE IF NOT EXISTS sync_state (
   table_name TEXT PRIMARY KEY,
   last_pulled_at TEXT
 );
+
+-- Rascunho do formulário IA Evo (Fase 3 §1.2) — LOCAL-ONLY, nunca sincroniza,
+-- nunca passa pelo outbox. Só os 22 campos de sanitizeProfileDraft (legado).
+CREATE TABLE IF NOT EXISTS ai_evo_drafts (
+  user_id TEXT PRIMARY KEY,
+  payload TEXT NOT NULL,
+  saved_at TEXT NOT NULL
+);
 `;
 
 export const SYNCED_TABLES = [

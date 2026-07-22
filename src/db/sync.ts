@@ -21,16 +21,29 @@ async function pushOutbox(db: SQLiteDatabase): Promise<void> {
       const row = JSON.parse(entry.payload) as Record<string, unknown>;
       const cloudRow = stripLocalMeta(row);
 
+      // entry.table_name vem do outbox (SQLite, coluna TEXT) — em runtime é
+      // sempre uma das SYNCED_TABLES (só BaseRepository grava no outbox),
+      // mas o schema local não carrega essa garantia no tipo.
+      const table = entry.table_name as SyncedTable;
       if (entry.op === 'delete') {
-        const { error } = await supabase.from(entry.table_name).delete().eq('id', entry.row_id);
+        const { error } = await supabase.from(table).delete().eq('id', entry.row_id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from(entry.table_name).upsert(cloudRow);
+        // cloudRow vem de JSON.parse (linha local sanitizada) — estruturalmente
+        // é a linha da tabela, mas com `table: SyncedTable` (união de 6 tabelas)
+        // o `.upsert()` tipado rejeita qualquer objeto genérico (RejectExcessProperties
+        // sobre a união de Inserts). Não há uma única tabela conhecida em tempo de
+        // compilação aqui — cast local e estreito só da assinatura de upsert usada.
+        const { error } = await (
+          supabase.from(table) as unknown as {
+            upsert: (row: Record<string, unknown>) => PromiseLike<{ error: { message: string } | null }>;
+          }
+        ).upsert(cloudRow);
         if (error) throw error;
       }
       await deleteOutboxEntry(db, entry.id);
       await markSynced(db, entry.table_name, entry.row_id);
-    } catch (e) {
+    } catch {
       await bumpAttempts(db, entry.id);
       if (entry.attempts + 1 >= MAX_ATTEMPTS) {
         // desiste desta entrada específica para não bloquear as demais
@@ -52,11 +65,14 @@ async function pullTable(db: SQLiteDatabase, table: SyncedTable, userId: string)
   );
   const since = stateRow?.last_pulled_at ?? '1970-01-01T00:00:00.000Z';
 
-  let query = supabase.from(table).select('*').gt('updated_at', since);
-  // profiles usa id = user; demais usam user_id (RLS já garante, mas filtramos)
-  if (table !== 'athlete_profiles') query = query.eq('user_id', userId);
-
-  const { data, error } = await query;
+  // profiles usa id = user; demais usam user_id (RLS já garante, mas filtramos).
+  // `.from()` com table: SyncedTable (união) só type-checa o `.eq('user_id', …)`
+  // quando o branch exclui 'athlete_profiles' — por isso o `.from()` é chamado
+  // dentro de cada ramo, não uma vez só antes do if.
+  const { data, error } =
+    table === 'athlete_profiles'
+      ? await supabase.from(table).select('*').gt('updated_at', since)
+      : await supabase.from(table).select('*').gt('updated_at', since).eq('user_id', userId);
   if (error) throw error;
 
   const remoteRows = (data ?? []) as unknown as Syncable[];
@@ -74,7 +90,10 @@ async function pullTable(db: SQLiteDatabase, table: SyncedTable, userId: string)
 
   const { toApplyLocally } = planPullMerge(localById, remoteRows);
   for (const remote of toApplyLocally) {
-    await upsertLocal(db, table, remote as Record<string, unknown>);
+    // remote é a linha completa vinda do Supabase (Syncable só declara os
+    // campos usados na resolução de conflito); cast estreito e localizado
+    // para o shape genérico que upsertLocal grava no SQLite.
+    await upsertLocal(db, table, remote as unknown as Record<string, unknown>);
   }
   await setWatermark(db, table);
 }

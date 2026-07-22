@@ -22,5 +22,6 @@ export async function resetLocalCache(): Promise<void> {
     DELETE FROM plan_workouts; DELETE FROM weekly_checkins;
     DELETE FROM running_shoes; DELETE FROM subscriptions;
     DELETE FROM outbox; DELETE FROM sync_state;
+    DELETE FROM ai_evo_drafts;
   `);
 }

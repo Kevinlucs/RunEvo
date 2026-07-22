@@ -74,6 +74,9 @@ const INTERNAL_FUNCTION_NAMES = [
   'zoneRangeFromSpeedPercent',
   'buildZoneRangeFromPaces',
   'buildGoalAnchoredZones',
+  // Fase 3 §2.2 — normalizeBlueprint (débito da Fase 2)
+  'normalizeBlueprint',
+  'buildFallbackBlueprint',
 ] as const;
 
 export type LegacyInternals = Record<(typeof INTERNAL_FUNCTION_NAMES)[number], (...args: never[]) => unknown>;
