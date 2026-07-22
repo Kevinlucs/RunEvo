@@ -31,6 +31,7 @@ const config: ExpoConfig = {
     'expo-secure-store',
     'expo-sqlite',
     'expo-font',
+    '@react-native-community/datetimepicker',
   ],
   experiments: { typedRoutes: true },
   extra: {
