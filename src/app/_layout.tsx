@@ -34,6 +34,7 @@ function RootNavigator(): JSX.Element {
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="profile" />
+      <Stack.Screen name="plan" />
     </Stack>
   );
 }
