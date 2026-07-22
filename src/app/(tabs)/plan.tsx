@@ -1,12 +1,26 @@
 import { Text, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { useActivePlan } from '@/hooks/useActivePlan';
 import { colors, spacing, fontSizes } from '@/theme';
 
 export default function Plan(): JSX.Element {
+  const { plan, isLoading } = useActivePlan();
+
   return (
     <Screen>
       <Text style={styles.h1}>Treinos</Text>
-      <Text style={styles.note}>Ciclo, fases, editor manual e exportação entram nas Fases 4–7.</Text>
+      {!isLoading && !plan ? (
+        <EmptyState
+          title="Nenhuma planilha ativa"
+          message="Gere sua planilha com a IA Evo para ver seus treinos aqui."
+          ctaLabel="Criar minha planilha"
+          onPressCta={() => router.push('/(tabs)/ai-evo')}
+        />
+      ) : (
+        <Text style={styles.note}>Ciclo, fases, editor manual e exportação entram nas Fases 4–7.</Text>
+      )}
     </Screen>
   );
 }

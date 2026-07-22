@@ -1,12 +1,26 @@
 import { Text, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { useActivePlan } from '@/hooks/useActivePlan';
 import { colors, spacing, fontSizes } from '@/theme';
 
 export default function Stats(): JSX.Element {
+  const { plan, isLoading } = useActivePlan();
+
   return (
     <Screen>
       <Text style={styles.h1}>Estatísticas</Text>
-      <Text style={styles.note}>Cards e gráficos entram na Fase 6.</Text>
+      {!isLoading && !plan ? (
+        <EmptyState
+          title="Nada para mostrar ainda"
+          message="Suas estatísticas aparecem aqui assim que você tiver uma planilha ativa."
+          ctaLabel="Criar minha planilha"
+          onPressCta={() => router.push('/(tabs)/ai-evo')}
+        />
+      ) : (
+        <Text style={styles.note}>Cards e gráficos entram na Fase 6.</Text>
+      )}
     </Screen>
   );
 }
