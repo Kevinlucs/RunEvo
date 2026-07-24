@@ -10,8 +10,12 @@
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "test": "jest",
+<<<<<<< Updated upstream
     "db:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > src/types/database.types.ts",
     "motor-evo:golden": "ts-node --compiler-options '{\"module\":\"commonjs\"}' src/tests/motor-evo/generate-golden.ts"
+=======
+    "db:types": "npx supabase gen types typescript --linked > /tmp/db.types.ts && mv /tmp/db.types.ts src/types/database.types.ts"
+>>>>>>> Stashed changes
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
