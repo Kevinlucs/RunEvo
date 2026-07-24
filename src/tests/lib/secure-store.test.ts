@@ -64,4 +64,32 @@ describe('secureStoreAdapter', () => {
     expect(store.has(`${key}.count`)).toBe(false);
     expect(await secureStoreAdapter.getItem(key)).toBe(value);
   });
+
+  it('getItem: falha de decifragem (getItemAsync lança) retorna null sem propagar e purga os fragmentos', async () => {
+    const key = 'sb-project-auth-token';
+    const value = 'z'.repeat(4000);
+    await secureStoreAdapter.setItem(key, value);
+    expect(store.size).toBeGreaterThan(1);
+
+    const { getItemAsync } = jest.requireMock<{ getItemAsync: jest.Mock }>('expo-secure-store');
+    getItemAsync.mockRejectedValueOnce(new Error('Keystore key invalidated'));
+
+    await expect(secureStoreAdapter.getItem(key)).resolves.toBeNull();
+    // purga best-effort: nenhum fragmento da chave sobrevive à falha.
+    expect(store.size).toBe(0);
+  });
+
+  it('getItem: fragmento ausente/corrompido no meio da sequência retorna null e purga o restante', async () => {
+    const key = 'sb-project-auth-token';
+    const value = 'z'.repeat(4000);
+    await secureStoreAdapter.setItem(key, value);
+    store.delete(`${key}.1`); // corrompe um fragmento no meio
+
+    await expect(secureStoreAdapter.getItem(key)).resolves.toBeNull();
+    expect(store.size).toBe(0);
+  });
+
+  it('getItem: chave nunca existiu (nenhuma falha) continua retornando null normalmente', async () => {
+    await expect(secureStoreAdapter.getItem('chave-inexistente')).resolves.toBeNull();
+  });
 });
