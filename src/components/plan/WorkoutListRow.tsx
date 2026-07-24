@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
@@ -15,10 +16,21 @@ const STATUS_COLOR: Record<Workout['status'], string> = {
   skipped: colors.textSecondary,
 };
 
-/** Item da lista virtualizada de Treinos (§29) — memoizado, plano pode ter ~300 treinos. */
-function WorkoutListRowBase({ workout }: { workout: Workout }): JSX.Element {
+/**
+ * Item da lista virtualizada de Treinos (§29) — memoizado, plano pode ter
+ * ~300 treinos. `onPress` (docs/fase-4-brief.md Grupo 4) abre o detalhe do
+ * treino; sem ele a linha fica só informativa (nenhum uso atual precisa disso,
+ * mas evita quebrar quem ainda não passa a prop).
+ */
+function WorkoutListRowBase({ workout, onPress }: { workout: Workout; onPress?: () => void }): JSX.Element {
   return (
-    <View style={styles.row}>
+    <Pressable
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={onPress ? `Abrir treino: ${workout.title ?? 'treino'}` : undefined}
+      onPress={onPress}
+      disabled={!onPress}
+      style={styles.row}
+    >
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={1}>
           {workout.title ?? 'Treino'}
@@ -31,7 +43,8 @@ function WorkoutListRowBase({ workout }: { workout: Workout }): JSX.Element {
         <Text style={styles.km}>{workout.planned_km ?? 0} km</Text>
         <Text style={[styles.status, { color: STATUS_COLOR[workout.status] }]}>{STATUS_LABEL[workout.status]}</Text>
       </View>
-    </View>
+      {onPress ? <Ionicons name="chevron-forward" size={18} color={colors.textMuted} /> : null}
+    </Pressable>
   );
 }
 

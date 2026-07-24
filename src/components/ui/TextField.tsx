@@ -10,6 +10,7 @@ type Props = {
   keyboardType?: KeyboardTypeOptions;
   autoCapitalize?: 'none' | 'sentences';
   error?: string;
+  multiline?: boolean;
 };
 
 export function TextField({
@@ -21,12 +22,13 @@ export function TextField({
   keyboardType,
   autoCapitalize = 'none',
   error,
+  multiline = false,
 }: Props): JSX.Element {
   return (
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        style={[styles.input, error ? styles.inputError : null]}
+        style={[styles.input, multiline && styles.inputMultiline, error ? styles.inputError : null]}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
@@ -34,6 +36,9 @@ export function TextField({
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
+        multiline={multiline}
+        numberOfLines={multiline ? 3 : 1}
+        textAlignVertical={multiline ? 'top' : 'center'}
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
@@ -53,6 +58,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     fontSize: fontSizes.base,
   },
+  inputMultiline: { minHeight: MIN_TOUCH_TARGET * 2, paddingVertical: spacing.md },
   inputError: { borderColor: colors.error },
   error: { color: colors.error, fontSize: fontSizes.caption, marginTop: spacing.xs },
 });

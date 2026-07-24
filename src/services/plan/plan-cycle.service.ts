@@ -1,5 +1,6 @@
 import type { ValidationReport } from '@/domain/motor-evo/validation';
 import type { TrainingPlan, Workout } from '@/domain/entities';
+import { parseJsonColumn } from '@/utils/json';
 
 export interface WeekMeta {
   weekNumber: number;
@@ -14,26 +15,13 @@ export interface WeekMeta {
 }
 
 /**
- * Lê `validation.summary` do plano. `BaseRepository` não faz `JSON.parse` das
- * colunas jsonb-like ao ler do SQLite local (débito real do repositório —
- * `training_plans.validation` chega aqui como TEXT serializado, não objeto;
- * reportado, não corrigido de forma ampla nesta fase — ver Parada 2), então
- * este parse defensivo é necessário para os badges de recuperação/polimento/
- * prova funcionarem com dado real de dispositivo.
+ * Lê `validation.summary` do plano (ver `parseJsonColumn` — `plan.validation`
+ * pode chegar como TEXT serializado do SQLite local), necessário para os
+ * badges de recuperação/polimento/prova funcionarem com dado real de
+ * dispositivo.
  */
 function readValidationSummary(plan: TrainingPlan): ValidationReport['summary'] | undefined {
-  const raw = plan.validation as unknown;
-  const parsed: ValidationReport | undefined =
-    typeof raw === 'string' ? safeParse<ValidationReport>(raw) : (raw as ValidationReport | undefined);
-  return parsed?.summary;
-}
-
-function safeParse<T>(json: string): T | undefined {
-  try {
-    return JSON.parse(json) as T;
-  } catch {
-    return undefined;
-  }
+  return parseJsonColumn<ValidationReport>(plan.validation)?.summary;
 }
 
 /**

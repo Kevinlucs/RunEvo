@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react';
 import { View, Text, SectionList, StyleSheet } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
+import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { WeekSectionHeader } from '@/components/plan/WeekSectionHeader';
 import { WorkoutListRow } from '@/components/plan/WorkoutListRow';
 import { useActivePlan } from '@/hooks/useActivePlan';
@@ -37,7 +37,12 @@ export default function PhaseDetail(): JSX.Element {
     [weeksMeta, workouts],
   );
 
-  const renderItem = useCallback(({ item }: { item: Workout }) => <WorkoutListRow workout={item} />, []);
+  const renderItem = useCallback(
+    ({ item }: { item: Workout }) => (
+      <WorkoutListRow workout={item} onPress={() => router.push(`/workout/${item.id}` as never)} />
+    ),
+    [],
+  );
   const renderSectionHeader = useCallback(
     ({ section }: { section: WeekSection }) => <WeekSectionHeader week={section.title} />,
     [],

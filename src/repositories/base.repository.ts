@@ -57,7 +57,20 @@ export abstract class BaseRepository<T extends { id: string; updated_at: string 
     }
   }
 
-  /** Insere/atualiza local + enfileira. `id` gerado como UUID válido se ausente. */
+  /**
+   * Insere/atualiza local + enfileira. `id` gerado como UUID válido se
+   * ausente.
+   *
+   * INSERT e UPDATE são statements separados (não `INSERT ... ON CONFLICT DO
+   * UPDATE`): o SQLite valida NOT NULL/CHECK da linha candidata do INSERT
+   * antes de decidir aplicar o UPDATE do upsert, então um `input` parcial
+   * (comum em consumidores como `completeWorkout`/`skipWorkout`, que só
+   * enviam as colunas que mudaram) derrubava updates de linhas já existentes
+   * com "NOT NULL constraint failed" nas colunas omitidas — só reproduzível
+   * com SQLite real, testes headless mockam o repositório (achado em teste
+   * de emulador do Grupo 4, docs/fase-4-brief.md). Com statements separados,
+   * o UPDATE toca só as colunas presentes em `input`.
+   */
   async upsert(input: Partial<T> & Record<string, unknown>): Promise<Result<T>> {
     try {
       const db = await this.db();
@@ -65,15 +78,22 @@ export abstract class BaseRepository<T extends { id: string; updated_at: string 
       const isNew = !(await this.exists(db, id));
       const row = { ...input, id, updated_at: nowIso(), _sync: 'pending', _deleted: 0 };
       const serialized = this.serialize(row);
-
       const cols = Object.keys(serialized);
-      const placeholders = cols.map(() => '?').join(', ');
-      const updates = cols.map((c) => `${c} = excluded.${c}`).join(', ');
-      await db.runAsync(
-        `INSERT INTO ${this.table} (${cols.join(', ')}) VALUES (${placeholders}) ` +
-          `ON CONFLICT(id) DO UPDATE SET ${updates}`,
-        cols.map((c) => serialized[c] ?? null),
-      );
+
+      if (isNew) {
+        const placeholders = cols.map(() => '?').join(', ');
+        await db.runAsync(
+          `INSERT INTO ${this.table} (${cols.join(', ')}) VALUES (${placeholders})`,
+          cols.map((c) => serialized[c] ?? null),
+        );
+      } else {
+        const updateCols = cols.filter((c) => c !== 'id');
+        const setClause = updateCols.map((c) => `${c} = ?`).join(', ');
+        await db.runAsync(`UPDATE ${this.table} SET ${setClause} WHERE id = ?`, [
+          ...updateCols.map((c) => serialized[c] ?? null),
+          id,
+        ]);
+      }
 
       await enqueue(db, this.table, id, isNew ? 'insert' : 'update', this.stripMeta(row));
       const saved = await db.getFirstAsync<T>(`SELECT * FROM ${this.table} WHERE id = ?`, [id]);

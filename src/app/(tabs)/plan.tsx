@@ -46,7 +46,12 @@ export default function Plan(): JSX.Element {
     [weeksMeta, workouts],
   );
 
-  const renderItem = useCallback(({ item }: { item: Workout }) => <WorkoutListRow workout={item} />, []);
+  const renderItem = useCallback(
+    ({ item }: { item: Workout }) => (
+      <WorkoutListRow workout={item} onPress={() => router.push(`/workout/${item.id}` as never)} />
+    ),
+    [],
+  );
   const renderSectionHeader = useCallback(
     ({ section }: { section: WeekSection }) => <WeekSectionHeader week={section.title} />,
     [],
