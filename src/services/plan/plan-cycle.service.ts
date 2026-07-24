@@ -1,6 +1,5 @@
 import type { ValidationReport } from '@/domain/motor-evo/validation';
 import type { TrainingPlan, Workout } from '@/domain/entities';
-import { parseJsonColumn } from '@/utils/json';
 
 export interface WeekMeta {
   weekNumber: number;
@@ -15,13 +14,11 @@ export interface WeekMeta {
 }
 
 /**
- * Lê `validation.summary` do plano (ver `parseJsonColumn` — `plan.validation`
- * pode chegar como TEXT serializado do SQLite local), necessário para os
- * badges de recuperação/polimento/prova funcionarem com dado real de
- * dispositivo.
+ * Lê `validation.summary` do plano. `TrainingPlanRepository` já desserializa
+ * `validation` (jsonColumns do BaseRepository) — aqui só o cast de tipo.
  */
 function readValidationSummary(plan: TrainingPlan): ValidationReport['summary'] | undefined {
-  return parseJsonColumn<ValidationReport>(plan.validation)?.summary;
+  return (plan.validation as unknown as ValidationReport | undefined)?.summary;
 }
 
 /**

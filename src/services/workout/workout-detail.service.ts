@@ -1,15 +1,14 @@
 import type { TrainingPlan, Workout } from '@/domain/entities';
 import type { PlanBlueprint } from '@/domain/motor-evo/blueprint';
 import type { TrainingZones } from '@/domain/motor-evo/types';
-import { parseJsonColumn } from '@/utils/json';
 
 /**
  * docs/fase-4-brief.md Grupo 4 (§28) — zonas Z1-Z5 do blueprint do plano,
- * com o método/âncora usado. `plan.blueprint` pode chegar como TEXT
- * serializado do SQLite local (ver `parseJsonColumn`).
+ * com o método/âncora usado. `TrainingPlanRepository` já desserializa
+ * `blueprint` (jsonColumns do BaseRepository) — aqui só o cast de tipo.
  */
 export function readTrainingZones(plan: TrainingPlan): TrainingZones | null {
-  const blueprint = parseJsonColumn<PlanBlueprint>(plan.blueprint);
+  const blueprint = plan.blueprint as unknown as PlanBlueprint | undefined;
   return blueprint?.paceZones?.trainingZones ?? null;
 }
 

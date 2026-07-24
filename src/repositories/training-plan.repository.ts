@@ -5,6 +5,7 @@ import type { TrainingPlan } from '@/domain/entities';
 
 class TrainingPlanRepository extends BaseRepository<TrainingPlan> {
   protected table = 'training_plans';
+  protected override jsonColumns = ['user_data', 'blueprint', 'validation', 'quality', 'risk'] as const;
 
   /** Plano ativo do usuário (regra Free: 1 ativo — garantido por índice no banco). */
   async getActive(userId: string): Promise<Result<TrainingPlan | null>> {
@@ -14,7 +15,7 @@ class TrainingPlanRepository extends BaseRepository<TrainingPlan> {
         `SELECT * FROM ${this.table} WHERE user_id = ? AND status = 'active' AND _deleted = 0 LIMIT 1`,
         [userId],
       );
-      return ok(row ?? null);
+      return ok(row ? this.deserialize(row) : null);
     } catch (e) {
       return err(toAppError(e, 'storage'));
     }
