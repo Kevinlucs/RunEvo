@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { colors } from '@/theme';
 
-export default function PlanLayout(): JSX.Element {
+export default function WorkoutLayout(): JSX.Element {
   return (
     <Stack
       screenOptions={{
@@ -11,9 +11,7 @@ export default function PlanLayout(): JSX.Element {
         contentStyle: { backgroundColor: colors.bg },
       }}
     >
-      <Stack.Screen name="generating" options={{ title: 'Gerando planilha', headerBackVisible: false }} />
-      <Stack.Screen name="preview" options={{ title: 'Prévia da planilha' }} />
-      <Stack.Screen name="phase/[phase]" options={{ title: 'Detalhe da fase' }} />
+      <Stack.Screen name="[id]" options={{ title: 'Treino' }} />
     </Stack>
   );
 }

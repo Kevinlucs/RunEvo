@@ -1,0 +1,69 @@
+import { memo } from 'react';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, fontSizes } from '@/theme';
+import type { Workout } from '@/domain/entities';
+
+const STATUS_LABEL: Record<Workout['status'], string> = {
+  pending: 'Pendente',
+  completed: 'Concluído',
+  skipped: 'Pulado',
+};
+
+const STATUS_COLOR: Record<Workout['status'], string> = {
+  pending: colors.textMuted,
+  completed: colors.success,
+  skipped: colors.textSecondary,
+};
+
+/**
+ * Item da lista virtualizada de Treinos (§29) — memoizado, plano pode ter
+ * ~300 treinos. `onPress` (docs/fase-4-brief.md Grupo 4) abre o detalhe do
+ * treino; sem ele a linha fica só informativa (nenhum uso atual precisa disso,
+ * mas evita quebrar quem ainda não passa a prop).
+ */
+function WorkoutListRowBase({ workout, onPress }: { workout: Workout; onPress?: () => void }): JSX.Element {
+  return (
+    <Pressable
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={onPress ? `Abrir treino: ${workout.title ?? 'treino'}` : undefined}
+      onPress={onPress}
+      disabled={!onPress}
+      style={styles.row}
+    >
+      <View style={styles.info}>
+        <Text style={styles.title} numberOfLines={1}>
+          {workout.title ?? 'Treino'}
+        </Text>
+        <Text style={styles.subtitle}>
+          {workout.day_label ?? '-'} · {workout.day_type ?? '-'}
+        </Text>
+      </View>
+      <View style={styles.right}>
+        <Text style={styles.km}>{workout.planned_km ?? 0} km</Text>
+        <Text style={[styles.status, { color: STATUS_COLOR[workout.status] }]}>{STATUS_LABEL[workout.status]}</Text>
+      </View>
+      {onPress ? <Ionicons name="chevron-forward" size={18} color={colors.textMuted} /> : null}
+    </Pressable>
+  );
+}
+
+export const WorkoutListRow = memo(WorkoutListRowBase);
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  info: { flex: 1, marginRight: spacing.md },
+  title: { color: colors.textPrimary, fontSize: fontSizes.body, fontWeight: '600' },
+  subtitle: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: 2 },
+  right: { alignItems: 'flex-end' },
+  km: { color: colors.textPrimary, fontSize: fontSizes.body, fontWeight: '700' },
+  status: { fontSize: fontSizes.caption, marginTop: 2 },
+});
