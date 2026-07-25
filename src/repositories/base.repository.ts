@@ -21,6 +21,17 @@ export abstract class BaseRepository<T extends { id: string; updated_at: string 
    */
   protected jsonColumns: readonly string[] = [];
 
+  /**
+   * Colunas boolean-like da tabela (INTEGER 0/1 no SQLite, boolean no
+   * Postgres/domínio). SQLite não tem tipo boolean nativo — sem esta
+   * conversão na leitura, `findById`/`listByUser`/`upsert` devolvem `0`/`1`
+   * (number) num campo tipado como `boolean`, e qualquer comparação estrita
+   * (`=== true`/`=== false`) no consumidor falha silenciosamente (achado ao
+   * testar o onboarding num usuário novo no emulador). `serialize` já faz o
+   * sentido inverso (boolean → 0/1) na escrita.
+   */
+  protected booleanColumns: readonly string[] = [];
+
   protected async db(): Promise<SQLiteDatabase> {
     return getDb();
   }
@@ -38,9 +49,12 @@ export abstract class BaseRepository<T extends { id: string; updated_at: string 
     return out;
   }
 
-  /** Desserializa as colunas declaradas em `jsonColumns` — inverso de `serialize` na leitura. */
+  /**
+   * Desserializa as colunas declaradas em `jsonColumns`/`booleanColumns` —
+   * inverso de `serialize` na leitura.
+   */
   protected deserialize(row: T): T {
-    if (!this.jsonColumns.length) return row;
+    if (!this.jsonColumns.length && !this.booleanColumns.length) return row;
     const out: Record<string, unknown> = { ...row };
     for (const col of this.jsonColumns) {
       const value = out[col];
@@ -52,11 +66,15 @@ export abstract class BaseRepository<T extends { id: string; updated_at: string 
         }
       }
     }
+    for (const col of this.booleanColumns) {
+      const value = out[col];
+      if (typeof value === 'number') out[col] = value !== 0;
+    }
     return out as T;
   }
 
   protected deserializeRows(rows: T[]): T[] {
-    return this.jsonColumns.length ? rows.map((row) => this.deserialize(row)) : rows;
+    return this.jsonColumns.length || this.booleanColumns.length ? rows.map((row) => this.deserialize(row)) : rows;
   }
 
   async findById(id: string): Promise<Result<T | null>> {

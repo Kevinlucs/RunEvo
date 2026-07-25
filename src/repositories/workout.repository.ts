@@ -5,6 +5,7 @@ import type { Workout } from '@/domain/entities';
 
 class WorkoutRepository extends BaseRepository<Workout> {
   protected table = 'plan_workouts';
+  protected override booleanColumns = ['pain'] as const;
 
   async listByPlan(planId: string): Promise<Result<Workout[]>> {
     try {
@@ -13,7 +14,7 @@ class WorkoutRepository extends BaseRepository<Workout> {
         `SELECT * FROM ${this.table} WHERE plan_id = ? AND _deleted = 0 ORDER BY week_number, week_index`,
         [planId],
       );
-      return ok(rows);
+      return ok(this.deserializeRows(rows));
     } catch (e) {
       return err(toAppError(e, 'storage'));
     }

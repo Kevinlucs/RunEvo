@@ -56,9 +56,10 @@ async function pushOutbox(db: SQLiteDatabase): Promise<void> {
 
 /**
  * PULL: baixa as linhas alteradas desde a última marca d'água e aplica o merge
- * puro (nuvem vence). Atualiza a marca d'água por tabela.
+ * puro (nuvem vence). Atualiza a marca d'água por tabela. Retorna se alguma
+ * linha foi de fato aplicada localmente (para invalidação de cache seletiva).
  */
-async function pullTable(db: SQLiteDatabase, table: SyncedTable, userId: string): Promise<void> {
+async function pullTable(db: SQLiteDatabase, table: SyncedTable, userId: string): Promise<boolean> {
   const stateRow = await db.getFirstAsync<{ last_pulled_at: string | null }>(
     'SELECT last_pulled_at FROM sync_state WHERE table_name = ?',
     [table],
@@ -78,7 +79,7 @@ async function pullTable(db: SQLiteDatabase, table: SyncedTable, userId: string)
   const remoteRows = (data ?? []) as unknown as Syncable[];
   if (remoteRows.length === 0) {
     await setWatermark(db, table);
-    return;
+    return false;
   }
 
   const ids = remoteRows.map((r) => r.id);
@@ -96,17 +97,25 @@ async function pullTable(db: SQLiteDatabase, table: SyncedTable, userId: string)
     await upsertLocal(db, table, remote as unknown as Record<string, unknown>);
   }
   await setWatermark(db, table);
+  return toApplyLocally.length > 0;
 }
 
-/** Ciclo completo de sincronização (push antes de pull). Best-effort. */
-export async function runSync(userId: string): Promise<Result<{ pushed: boolean }>> {
+/**
+ * Ciclo completo de sincronização (push antes de pull). Best-effort.
+ * `changedTables` lista as tabelas que receberam linhas novas/atualizadas
+ * neste ciclo — quem chama usa isso para invalidar só o cache afetado
+ * (ver useSync, que é onde vive o mapeamento tabela → query key).
+ */
+export async function runSync(userId: string): Promise<Result<{ changedTables: SyncedTable[] }>> {
   try {
     const db = await getDb();
     await pushOutbox(db);
+    const changedTables: SyncedTable[] = [];
     for (const table of SYNCED_TABLES) {
-      await pullTable(db, table, userId);
+      const changed = await pullTable(db, table, userId);
+      if (changed) changedTables.push(table);
     }
-    return ok({ pushed: true });
+    return ok({ changedTables });
   } catch (e) {
     return err(toAppError(e, 'network'));
   }

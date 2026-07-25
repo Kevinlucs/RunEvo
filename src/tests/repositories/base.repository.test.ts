@@ -35,6 +35,17 @@ class PlainRepository extends BaseRepository<{ id: string; updated_at: string; n
   protected table = 'plain_table';
 }
 
+interface FlagRow {
+  id: string;
+  updated_at: string;
+  onboarding_seen: boolean | number | null;
+}
+
+class FlagRepository extends BaseRepository<FlagRow> {
+  protected table = 'flag_table';
+  protected override booleanColumns = ['onboarding_seen'] as const;
+}
+
 /**
  * Gap sistêmico de JSON (docs/fase-4-brief.md, achado no Grupo 3/4): sem
  * desserializar colunas jsonb-like na leitura, `plan.validation`/`blueprint`
@@ -112,5 +123,59 @@ describe('BaseRepository — desserialização sistêmica de colunas jsonb-like'
 
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.value?.note).toBe('{"not":"parsed"}');
+  });
+});
+
+/**
+ * Gap sistêmico de boolean (achado testando o onboarding num usuário novo no
+ * emulador, pós-fix do sync): SQLite não tem tipo boolean, então uma coluna
+ * declarada `boolean` no domínio chegava como `0`/`1` (number) cru na
+ * leitura. Qualquer comparação estrita no consumidor (`=== true`) falhava
+ * silenciosamente. `booleanColumns` resolve simétrico ao `jsonColumns`.
+ */
+describe('BaseRepository — desserialização sistêmica de colunas boolean-like', () => {
+  const repo = new FlagRepository();
+
+  beforeEach(() => {
+    mockGetFirstAsync.mockReset();
+    mockGetAllAsync.mockReset();
+    mockRunAsync.mockReset();
+  });
+
+  it('findById converte 1/0 em true/false', async () => {
+    mockGetFirstAsync.mockResolvedValueOnce({ id: '1', updated_at: 'x', onboarding_seen: 1 });
+    const seen = await repo.findById('1');
+    expect(seen.ok).toBe(true);
+    if (seen.ok) expect(seen.value?.onboarding_seen).toBe(true);
+
+    mockGetFirstAsync.mockResolvedValueOnce({ id: '2', updated_at: 'x', onboarding_seen: 0 });
+    const unseen = await repo.findById('2');
+    expect(unseen.ok).toBe(true);
+    if (unseen.ok) expect(unseen.value?.onboarding_seen).toBe(false);
+  });
+
+  it('valor já é boolean — passa direto', async () => {
+    mockGetFirstAsync.mockResolvedValue({ id: '1', updated_at: 'x', onboarding_seen: true });
+    const result = await repo.findById('1');
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.value?.onboarding_seen).toBe(true);
+  });
+
+  it('valor null (campo boolean nullable) é preservado, não vira false', async () => {
+    mockGetFirstAsync.mockResolvedValue({ id: '1', updated_at: 'x', onboarding_seen: null });
+    const result = await repo.findById('1');
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.value?.onboarding_seen).toBeNull();
+  });
+
+  it('upsert retorna a linha salva com o boolean já convertido', async () => {
+    mockGetFirstAsync
+      .mockResolvedValueOnce(null) // exists() → linha nova
+      .mockResolvedValueOnce({ id: '1', updated_at: 'x', onboarding_seen: 1 }); // leitura final
+
+    const result = await repo.upsert({ id: '1', onboarding_seen: true });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.value.onboarding_seen).toBe(true);
   });
 });

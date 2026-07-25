@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { Session } from '@supabase/supabase-js';
 import { authService } from '@/services/auth/auth.service';
 import type { Result } from '@/utils/result';
+import { withTimeout } from '@/utils/timeout';
 
 type AuthState = {
   session: Session | null;
@@ -13,22 +14,6 @@ type AuthState = {
 
 /** Uma chamada nativa (Keystore/Keychain) pendurada nunca pode segurar o splash indefinidamente. */
 const BOOTSTRAP_TIMEOUT_MS = 8000;
-
-function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
-  return new Promise((resolve) => {
-    const timer = setTimeout(() => resolve(fallback), ms);
-    promise.then(
-      (value) => {
-        clearTimeout(timer);
-        resolve(value);
-      },
-      () => {
-        clearTimeout(timer);
-        resolve(fallback);
-      },
-    );
-  });
-}
 
 /**
  * Estado de sessão global. `bootstrap` restaura a sessão persistida no boot e
