@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Modal, View, Text, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { TextField } from '@/components/ui/TextField';
 import { ChoiceField } from '@/components/forms/ChoiceField';
 import { NeonButton } from '@/components/ui/NeonButton';
-import { colors, radii, spacing, fontSizes } from '@/theme';
+import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout, Shoe } from '@/domain/entities';
 
 export interface CompleteWorkoutFormInput {
@@ -63,10 +64,17 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.overlay}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={styles.sheet}>
+            <View style={styles.badge}>
+              <Ionicons name="checkmark-circle" size={28} color={colors.bg} />
+            </View>
             <Text style={styles.title}>Concluir treino</Text>
-            <Text style={styles.subtitle}>
-              {workout.title ?? 'Treino'} · {workout.planned_km ?? 0} km planejados
-            </Text>
+
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryTitle}>{workout.title ?? 'Treino'}</Text>
+              <Text style={styles.summaryMeta}>
+                {workout.planned_km ?? 0} km planejados · {workout.phase ?? 'Base'}
+              </Text>
+            </View>
 
             <TextField
               label="Km realizado"
@@ -128,8 +136,27 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     paddingBottom: spacing.xxxl,
   },
-  title: { color: colors.textPrimary, fontSize: fontSizes.xl, fontWeight: '800' },
-  subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs, marginBottom: spacing.lg },
+  badge: {
+    alignSelf: 'center',
+    width: 56,
+    height: 56,
+    borderRadius: radii.lg,
+    backgroundColor: colors.neon,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+  },
+  title: { color: colors.textPrimary, fontSize: fontSizes.xl, ...fontWeight('800'), textAlign: 'center' },
+  summaryCard: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    padding: spacing.md,
+    marginTop: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  summaryTitle: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('700') },
+  summaryMeta: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: spacing.xs },
   emptyShoes: { color: colors.textMuted, fontSize: fontSizes.body, marginBottom: spacing.lg },
   actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
   actionButton: { flex: 1 },

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Modal, View, Text, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { TextField } from '@/components/ui/TextField';
 import { NeonButton } from '@/components/ui/NeonButton';
-import { colors, radii, spacing, fontSizes } from '@/theme';
+import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
 interface Props {
@@ -28,7 +29,18 @@ export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onCon
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.overlay}>
         <View style={styles.sheet}>
+          <View style={styles.badge}>
+            <Ionicons name="play-skip-forward" size={26} color={colors.bg} />
+          </View>
           <Text style={styles.title}>Pular treino</Text>
+
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryTitle}>{workout.title ?? 'Treino'}</Text>
+            <Text style={styles.summaryMeta}>
+              {workout.planned_km ?? 0} km planejados · {workout.phase ?? 'Base'}
+            </Text>
+          </View>
+
           <Text style={styles.message}>
             {workout.title ?? 'Este treino'} será marcado como pulado. O check-in semanal vai considerar essa
             informação.
@@ -66,7 +78,27 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: spacing.xl,
   },
-  title: { color: colors.textPrimary, fontSize: fontSizes.xl, fontWeight: '800' },
+  badge: {
+    alignSelf: 'center',
+    width: 56,
+    height: 56,
+    borderRadius: radii.lg,
+    backgroundColor: colors.neon,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+  },
+  title: { color: colors.textPrimary, fontSize: fontSizes.xl, ...fontWeight('800'), textAlign: 'center' },
+  summaryCard: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    padding: spacing.md,
+    marginTop: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  summaryTitle: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('700') },
+  summaryMeta: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: spacing.xs },
   message: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs, marginBottom: spacing.lg },
   actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
   actionButton: { flex: 1 },

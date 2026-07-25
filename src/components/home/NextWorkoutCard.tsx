@@ -1,13 +1,16 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET } from '@/theme';
+import { StatBox, StatBoxRow } from '@/components/ui/StatBox';
+import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET, fontWeight } from '@/theme';
 import { formatShortDate } from '@/utils/time';
 import type { Workout } from '@/domain/entities';
 
 /**
  * docs/fase-4-brief.md Grupo 2.2 (§27, bloco 3): degradê verde muito sutil,
- * sem círculo verde sólido. Toque abre o detalhe do treino (Grupo 4).
+ * sem círculo verde sólido. Toque abre o detalhe do treino (Grupo 4). Só
+ * seta — nunca um botão "Iniciar treino" (o mockup de design-reference/
+ * sugere um CTA, mas o §27 pede seta; divergência registrada, spec vence).
  */
 export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPress: () => void }): JSX.Element {
   return (
@@ -23,25 +26,24 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
         end={{ x: 1, y: 1 }}
         style={styles.card}
       >
-        <View style={styles.meta}>
-          <Text style={styles.metaText}>
-            {workout.phase ?? 'Base'} · Semana {workout.week_number}
-          </Text>
-        </View>
         <View style={styles.row}>
           <View style={styles.info}>
+            <Text style={styles.metaText}>
+              {workout.phase ?? 'Base'} · Semana {workout.week_number}
+            </Text>
             <Text style={styles.title} numberOfLines={1}>
               {workout.title ?? 'Treino'}
             </Text>
             <Text style={styles.subtitle}>
               {workout.day_label ?? '-'} · {formatShortDate(workout.workout_date)}
             </Text>
-            <Text style={styles.stats}>
-              {workout.planned_km ?? 0} km · {workout.planned_pace ?? '-'}
-            </Text>
           </View>
           <Ionicons name="chevron-forward" size={22} color={colors.neon} />
         </View>
+        <StatBoxRow>
+          <StatBox value={`${workout.planned_km ?? 0} km`} label="Distância" />
+          <StatBox value={workout.planned_pace ?? '-'} label="Pace alvo" />
+        </StatBoxRow>
       </LinearGradient>
     </Pressable>
   );
@@ -56,11 +58,14 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     minHeight: MIN_TOUCH_TARGET,
   },
-  meta: { marginBottom: spacing.sm },
-  metaText: { color: colors.textSecondary, fontSize: fontSizes.caption, textTransform: 'uppercase' },
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.lg,
+  },
   info: { flex: 1, marginRight: spacing.md },
-  title: { color: colors.textPrimary, fontSize: fontSizes.xl, fontWeight: '800' },
+  metaText: { color: colors.textSecondary, fontSize: fontSizes.caption, textTransform: 'uppercase' },
+  title: { color: colors.textPrimary, fontSize: fontSizes.xl, ...fontWeight('800'), marginTop: spacing.xs },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs },
-  stats: { color: colors.neon, fontSize: fontSizes.body, fontWeight: '700', marginTop: spacing.xs },
 });

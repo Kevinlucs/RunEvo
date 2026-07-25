@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui/Card';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
 const STATUS_LABEL: Record<Workout['status'], string> = {
@@ -15,6 +16,13 @@ const STATUS_COLOR: Record<Workout['status'], string> = {
   skipped: colors.textSecondary,
 };
 
+/** Ícone por status — mesma leitura rápida do mockup de design-reference/ (check/pulado/pendente). */
+const STATUS_ICON: Record<Workout['status'], keyof typeof Ionicons.glyphMap> = {
+  pending: 'ellipse-outline',
+  completed: 'checkmark-circle',
+  skipped: 'close-circle-outline',
+};
+
 /** docs/fase-4-brief.md Grupo 2.2 (§27, bloco 5): treinos da semana corrente, ordenados por dia. */
 export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; workouts: Workout[] }): JSX.Element {
   const sorted = [...workouts].sort((a, b) => a.week_index - b.week_index);
@@ -26,8 +34,12 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
       ) : (
         sorted.map((workout) => (
           <View key={workout.id} style={styles.row}>
+            <Ionicons name={STATUS_ICON[workout.status]} size={20} color={STATUS_COLOR[workout.status]} />
             <View style={styles.info}>
-              <Text style={styles.title} numberOfLines={1}>
+              <Text
+                style={[styles.title, workout.status === 'completed' && styles.titleDone]}
+                numberOfLines={1}
+              >
                 {workout.title ?? 'Treino'}
               </Text>
               <Text style={styles.subtitle}>
@@ -56,11 +68,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  info: { flex: 1, marginRight: spacing.md },
-  title: { color: colors.textPrimary, fontSize: fontSizes.body, fontWeight: '600' },
+  info: { flex: 1, marginLeft: spacing.sm, marginRight: spacing.md },
+  title: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600') },
+  titleDone: { color: colors.textMuted, textDecorationLine: 'line-through' },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: 2 },
   right: { alignItems: 'flex-end' },
-  km: { color: colors.textPrimary, fontSize: fontSizes.body, fontWeight: '700' },
+  km: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('700') },
   status: { fontSize: fontSizes.caption, marginTop: 2 },
   empty: { color: colors.textMuted, fontSize: fontSizes.body },
 });
