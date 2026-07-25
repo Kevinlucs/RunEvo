@@ -35,18 +35,6 @@ export const spacing = {
   xxxl: 32,
 } as const;
 
-export const fonts = {
-  family: 'Outfit',
-  weights: {
-    regular: '400',
-    medium: '500',
-    semibold: '600',
-    bold: '700',
-    extrabold: '800',
-    black: '900',
-  },
-} as const;
-
 export const fontSizes = {
   caption: 12,
   body: 14,

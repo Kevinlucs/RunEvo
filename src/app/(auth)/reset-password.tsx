@@ -5,7 +5,7 @@ import { Screen } from '@/components/ui/Screen';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { TextField } from '@/components/ui/TextField';
 import { authService } from '@/services/auth/auth.service';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 
 export default function ResetPassword(): JSX.Element {
   const [email, setEmail] = useState('');
@@ -36,6 +36,6 @@ export default function ResetPassword(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  title: { color: colors.textPrimary, fontSize: fontSizes.title, fontWeight: '800', marginTop: spacing.xxxl, marginBottom: spacing.xl },
+  title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.xxxl, marginBottom: spacing.xl },
   info: { color: colors.textSecondary, fontSize: fontSizes.base, marginBottom: spacing.xl },
 });

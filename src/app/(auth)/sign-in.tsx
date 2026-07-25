@@ -5,7 +5,7 @@ import { Screen } from '@/components/ui/Screen';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { TextField } from '@/components/ui/TextField';
 import { authService } from '@/services/auth/auth.service';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 
 export default function SignIn(): JSX.Element {
   const [email, setEmail] = useState('');
@@ -41,7 +41,7 @@ export default function SignIn(): JSX.Element {
 
 const styles = StyleSheet.create({
   header: { marginTop: spacing.xxxl, marginBottom: spacing.xxl },
-  title: { color: colors.neon, fontSize: fontSizes.display, fontWeight: '900' },
+  title: { color: colors.neon, fontSize: fontSizes.display, ...fontWeight('900') },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.base, marginTop: spacing.sm },
   row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.xl },
   link: { color: colors.textSecondary, fontSize: fontSizes.body },

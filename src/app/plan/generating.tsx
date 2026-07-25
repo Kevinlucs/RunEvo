@@ -7,7 +7,7 @@ import { usePlanGenerationStore } from '@/store/plan-generation.store';
 import { useAuthStore } from '@/store/auth.store';
 import { generatePlanWithProgress, GENERATION_STEP_LABELS, type GenerationStep } from '@/services/plan/generate-plan.service';
 import { isIdenticalToActivePlan } from '@/services/plan/plan-identity.service';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 
 /**
  * Loading com etapas reais (docs/fase-3-brief.md §4.1) — `currentStep` só
@@ -71,6 +71,6 @@ export default function PlanGenerating(): JSX.Element {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.xl },
   label: { color: colors.textSecondary, fontSize: fontSizes.base, textAlign: 'center', paddingHorizontal: spacing.xl },
-  errorTitle: { color: colors.error, fontSize: fontSizes.lg, fontWeight: '800' },
+  errorTitle: { color: colors.error, fontSize: fontSizes.lg, ...fontWeight('800') },
   errorMessage: { color: colors.textSecondary, fontSize: fontSizes.body, textAlign: 'center', paddingHorizontal: spacing.xl },
 });

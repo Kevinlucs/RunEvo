@@ -22,7 +22,7 @@ import {
 import { draftRepository } from '@/repositories/draft.repository';
 import { useAuthStore } from '@/store/auth.store';
 import { usePlanGenerationStore } from '@/store/plan-generation.store';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 import type { AthleteInput } from '@/domain/motor-evo/types';
 
 const DAYS_PER_WEEK_CHOICES = DAYS_PER_WEEK_OPTIONS.map((n) => ({ value: String(n), label: `${n}x/semana` }));
@@ -293,12 +293,12 @@ export default function AiEvo(): JSX.Element {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   scrollContent: { paddingBottom: spacing.xxxl },
-  title: { color: colors.textPrimary, fontSize: fontSizes.title, fontWeight: '800', marginTop: spacing.xl },
+  title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.xl },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.sm, marginBottom: spacing.xl },
   sectionTitle: {
     color: colors.neon,
     fontSize: fontSizes.lg,
-    fontWeight: '700',
+    ...fontWeight('700'),
     marginTop: spacing.lg,
     marginBottom: spacing.md,
   },

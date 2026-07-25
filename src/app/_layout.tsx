@@ -1,13 +1,27 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import * as SplashScreen from 'expo-splash-screen';
+import {
+  useFonts,
+  Outfit_400Regular,
+  Outfit_500Medium,
+  Outfit_600SemiBold,
+  Outfit_700Bold,
+  Outfit_800ExtraBold,
+  Outfit_900Black,
+} from '@expo-google-fonts/outfit';
 import { ThemeProvider } from '@/theme';
 import { queryClient } from '@/store/query-client';
 import { useAuthStore } from '@/store/auth.store';
 import { useSync } from '@/hooks/useSync';
 import { athleteProfileRepository } from '@/repositories';
+
+// Segura o splash nativo até a fonte Outfit carregar (useFonts, abaixo).
+// `.catch` porque Fast Refresh pode chamar de novo com o splash já escondido.
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 /** `undefined` = ainda carregando; `null` = perfil não sincronizado ainda. */
 function useOnboardingSeen(userId: string | null): boolean | undefined {
@@ -74,7 +88,32 @@ function RootNavigator(): JSX.Element {
   );
 }
 
-export default function RootLayout(): JSX.Element {
+/**
+ * Segura o splash nativo até a fonte Outfit terminar de carregar (ou falhar
+ * — nunca prende o app esperando para sempre). Enquanto isso, `RootLayout`
+ * retorna `null`: o splash nativo continua cobrindo a tela.
+ */
+export default function RootLayout(): JSX.Element | null {
+  const [fontsLoaded, fontError] = useFonts({
+    Outfit_400Regular,
+    Outfit_500Medium,
+    Outfit_600SemiBold,
+    Outfit_700Bold,
+    Outfit_800ExtraBold,
+    Outfit_900Black,
+  });
+  const fontsReady = fontsLoaded || Boolean(fontError);
+
+  const hideSplash = useCallback(async () => {
+    if (fontsReady) await SplashScreen.hideAsync();
+  }, [fontsReady]);
+
+  useEffect(() => {
+    void hideSplash();
+  }, [hideSplash]);
+
+  if (!fontsReady) return null;
+
   return (
     <SafeAreaProvider>
       <ThemeProvider>

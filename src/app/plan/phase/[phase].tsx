@@ -7,7 +7,7 @@ import { useActivePlan } from '@/hooks/useActivePlan';
 import { usePlanWorkouts } from '@/hooks/usePlanWorkouts';
 import { useCurrentWeek } from '@/hooks/useCurrentWeek';
 import { buildWeekMeta, type WeekMeta } from '@/services/plan/plan-cycle.service';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
 interface WeekSection {
@@ -76,7 +76,7 @@ export default function PhaseDetail(): JSX.Element {
 const styles = StyleSheet.create({
   listContent: { paddingBottom: spacing.xxxl, backgroundColor: colors.bg },
   header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg },
-  title: { color: colors.textPrimary, fontSize: fontSizes.title, fontWeight: '800' },
+  title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800') },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs, marginBottom: spacing.md },
   empty: { color: colors.textMuted, fontSize: fontSizes.body, paddingHorizontal: spacing.xl, marginTop: spacing.xl },
 });

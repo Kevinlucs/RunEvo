@@ -5,7 +5,7 @@ import { Screen } from '@/components/ui/Screen';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { athleteProfileRepository } from '@/repositories';
 import { useAuthStore } from '@/store/auth.store';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 
 /**
  * Tutorial centralizado de primeiro acesso (docs/fase-3-brief.md §Grupo 5).
@@ -43,6 +43,6 @@ export default function Onboarding(): JSX.Element {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.lg, paddingHorizontal: spacing.xl },
-  title: { color: colors.neon, fontSize: fontSizes.title, fontWeight: '800', textAlign: 'center' },
+  title: { color: colors.neon, fontSize: fontSizes.title, ...fontWeight('800'), textAlign: 'center' },
   paragraph: { color: colors.textSecondary, fontSize: fontSizes.body, textAlign: 'center', lineHeight: 20 },
 });

@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Screen } from '@/components/ui/Screen';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { useAuth } from '@/hooks/useAuth';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 
 export default function Profile(): JSX.Element {
   const { session, signOut } = useAuth();
@@ -18,6 +18,6 @@ export default function Profile(): JSX.Element {
 }
 const styles = StyleSheet.create({
   header: { marginTop: spacing.xl, marginBottom: spacing.xxl },
-  name: { color: colors.textPrimary, fontSize: fontSizes.xl, fontWeight: '700' },
+  name: { color: colors.textPrimary, fontSize: fontSizes.xl, ...fontWeight('700') },
   note: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.sm },
 });

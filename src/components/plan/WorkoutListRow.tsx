@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
 const STATUS_LABEL: Record<Workout['status'], string> = {
@@ -61,9 +61,9 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   info: { flex: 1, marginRight: spacing.md },
-  title: { color: colors.textPrimary, fontSize: fontSizes.body, fontWeight: '600' },
+  title: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600') },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: 2 },
   right: { alignItems: 'flex-end' },
-  km: { color: colors.textPrimary, fontSize: fontSizes.body, fontWeight: '700' },
+  km: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('700') },
   status: { fontSize: fontSizes.caption, marginTop: 2 },
 });

@@ -1,7 +1,7 @@
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useEntitlement } from '@/hooks/useEntitlement';
-import { colors, spacing } from '@/theme';
+import { colors, spacing, fontWeight } from '@/theme';
 
 const LOGO_ASPECT_RATIO = 1778 / 828;
 const LOGO_HEIGHT = 28;
@@ -56,5 +56,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { color: colors.neon, fontWeight: '900' },
+  avatarText: { color: colors.neon, ...fontWeight('900') },
 });

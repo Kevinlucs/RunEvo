@@ -1,7 +1,7 @@
 import { createContext, useContext, type PropsWithChildren } from 'react';
-import { colors, radii, spacing, fonts, fontSizes } from './tokens';
+import { colors, radii, spacing, fontSizes } from './tokens';
 
-const theme = { colors, radii, spacing, fonts, fontSizes } as const;
+const theme = { colors, radii, spacing, fontSizes } as const;
 export type Theme = typeof theme;
 
 const ThemeContext = createContext<Theme>(theme);

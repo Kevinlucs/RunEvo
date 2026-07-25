@@ -1,5 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET } from '@/theme';
+import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET, fontWeight } from '@/theme';
 
 interface Option<T extends string> {
   value: T;
@@ -56,6 +56,6 @@ const styles = StyleSheet.create({
   },
   chipSelected: { backgroundColor: colors.neon, borderColor: colors.neon },
   chipLabel: { color: colors.textPrimary, fontSize: fontSizes.body },
-  chipLabelSelected: { color: colors.bg, fontWeight: '700' },
+  chipLabelSelected: { color: colors.bg, ...fontWeight('700') },
   error: { color: colors.error, fontSize: fontSizes.caption, marginTop: spacing.xs },
 });
