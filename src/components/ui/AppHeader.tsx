@@ -1,4 +1,5 @@
-import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEntitlement } from '@/hooks/useEntitlement';
 import { colors, spacing, fontWeight } from '@/theme';
@@ -6,9 +7,13 @@ import { colors, spacing, fontWeight } from '@/theme';
 // Proporção própria por variante — os dois arquivos não têm o mesmo aspect
 // ratio entre si (marca vs. marca+selo "plus"), então um único valor
 // compartilhado deixaria uma das duas com espaço vazio nas laterais.
-const LOGO_ASPECT_RATIO = 1987 / 1611;
-const LOGO_PLUS_ASPECT_RATIO = 2048 / 853;
-const LOGO_HEIGHT = 28;
+// Assets recortados no bounding box exato do conteúdo (sem margem
+// transparente) para não encolher dentro da caixa de exibição.
+const LOGO_ASPECT_RATIO = 1849 / 1491;
+const LOGO_PLUS_ASPECT_RATIO = 1930 / 789;
+// Normalizado pela altura — as duas variantes precisam parecer do mesmo
+// tamanho, mesmo com proporções diferentes entre si.
+const LOGO_HEIGHT = 40;
 
 /**
  * Header padrão das abas (docs/fase-4-brief.md Grupo 2.1, débito da Fase 1):
@@ -24,7 +29,7 @@ export function AppHeader(): JSX.Element {
       <Image
         source={isPlus ? require('../../../assets/logo-runevo-plus.png') : require('../../../assets/logo-runevo.png')}
         style={[styles.logo, { width: LOGO_HEIGHT * (isPlus ? LOGO_PLUS_ASPECT_RATIO : LOGO_ASPECT_RATIO) }]}
-        resizeMode="contain"
+        contentFit="contain"
         accessibilityRole="image"
         accessibilityLabel={isPlus ? 'RunEvo+' : 'RunEvo'}
       />
