@@ -8,7 +8,7 @@ import { usePlanGenerationStore } from '@/store/plan-generation.store';
 import { useAuthStore } from '@/store/auth.store';
 import { adoptPlan } from '@/services/plan/adopt-plan.service';
 import { isIdenticalToActivePlan } from '@/services/plan/plan-identity.service';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Zone } from '@/domain/motor-evo/types';
 
 /**
@@ -190,10 +190,10 @@ function InfoRow({ label, value }: { label: string; value: string }): JSX.Elemen
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.lg, paddingHorizontal: spacing.xl },
-  identicalTitle: { color: colors.neon, fontSize: fontSizes.lg, fontWeight: '800', textAlign: 'center' },
+  identicalTitle: { color: colors.neon, fontSize: fontSizes.lg, ...fontWeight('800'), textAlign: 'center' },
   identicalHint: { color: colors.textSecondary, fontSize: fontSizes.body, textAlign: 'center' },
   scrollContent: { paddingBottom: spacing.xxxl },
-  title: { color: colors.textPrimary, fontSize: fontSizes.title, fontWeight: '800', marginTop: spacing.xl },
+  title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.xl },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, marginBottom: spacing.xl },
   paragraph: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.sm, lineHeight: 20 },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm, gap: spacing.md },
@@ -206,14 +206,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  zoneLabel: { color: colors.neon, fontWeight: '800', fontSize: fontSizes.body },
+  zoneLabel: { color: colors.neon, ...fontWeight('800'), fontSize: fontSizes.body },
   zoneRange: { color: colors.textSecondary, fontSize: fontSizes.caption, flexShrink: 1, textAlign: 'right' },
   warning: { color: colors.textSecondary, fontSize: fontSizes.body, marginBottom: spacing.xs },
   riskReasons: { marginTop: spacing.sm },
   riskReason: { color: colors.textSecondary, fontSize: fontSizes.caption, marginBottom: spacing.xs },
   disclaimer: { color: colors.textMuted, fontSize: fontSizes.caption, marginTop: spacing.md, fontStyle: 'italic' },
   weekBlock: { marginBottom: spacing.md, paddingBottom: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  weekTitle: { color: colors.textPrimary, fontWeight: '700', fontSize: fontSizes.body, marginBottom: spacing.xs },
+  weekTitle: { color: colors.textPrimary, ...fontWeight('700'), fontSize: fontSizes.body, marginBottom: spacing.xs },
   workoutLine: { color: colors.textSecondary, fontSize: fontSizes.caption, marginBottom: 2 },
   error: { color: colors.error, fontSize: fontSizes.body, textAlign: 'center', marginBottom: spacing.md },
   row: { marginTop: spacing.md },

@@ -4,7 +4,7 @@ import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useActivePlan } from '@/hooks/useActivePlan';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 
 export default function Stats(): JSX.Element {
   const { plan, isLoading } = useActivePlan();
@@ -27,6 +27,6 @@ export default function Stats(): JSX.Element {
   );
 }
 const styles = StyleSheet.create({
-  h1: { color: colors.textPrimary, fontSize: fontSizes.title, fontWeight: '800', marginTop: spacing.xl },
+  h1: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.xl },
   note: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.sm },
 });

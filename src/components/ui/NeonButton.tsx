@@ -1,6 +1,6 @@
 import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET } from '@/theme';
+import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET, fontWeight } from '@/theme';
 
 type Props = {
   label: string;
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   secondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.border },
   disabled: { opacity: 0.5 },
   pressed: { opacity: 0.85 },
-  label: { fontSize: fontSizes.base, fontWeight: '700' },
+  label: { fontSize: fontSizes.base, ...fontWeight('700') },
   labelPrimary: { color: colors.bg },
   labelSecondary: { color: colors.textPrimary },
 });

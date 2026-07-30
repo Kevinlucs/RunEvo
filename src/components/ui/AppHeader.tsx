@@ -1,10 +1,19 @@
-import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEntitlement } from '@/hooks/useEntitlement';
-import { colors, spacing } from '@/theme';
+import { colors, spacing, fontWeight } from '@/theme';
 
-const LOGO_ASPECT_RATIO = 1778 / 828;
-const LOGO_HEIGHT = 28;
+// Proporção própria por variante — os dois arquivos não têm o mesmo aspect
+// ratio entre si (marca vs. marca+selo "plus"), então um único valor
+// compartilhado deixaria uma das duas com espaço vazio nas laterais.
+// Assets recortados no bounding box exato do conteúdo (sem margem
+// transparente) para não encolher dentro da caixa de exibição.
+const LOGO_ASPECT_RATIO = 1849 / 1491;
+const LOGO_PLUS_ASPECT_RATIO = 1930 / 789;
+// Normalizado pela altura — as duas variantes precisam parecer do mesmo
+// tamanho, mesmo com proporções diferentes entre si.
+const LOGO_HEIGHT = 40;
 
 /**
  * Header padrão das abas (docs/fase-4-brief.md Grupo 2.1, débito da Fase 1):
@@ -19,8 +28,8 @@ export function AppHeader(): JSX.Element {
     <View style={styles.row}>
       <Image
         source={isPlus ? require('../../../assets/logo-runevo-plus.png') : require('../../../assets/logo-runevo.png')}
-        style={styles.logo}
-        resizeMode="contain"
+        style={[styles.logo, { width: LOGO_HEIGHT * (isPlus ? LOGO_PLUS_ASPECT_RATIO : LOGO_ASPECT_RATIO) }]}
+        contentFit="contain"
         accessibilityRole="image"
         accessibilityLabel={isPlus ? 'RunEvo+' : 'RunEvo'}
       />
@@ -45,7 +54,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
   },
-  logo: { height: LOGO_HEIGHT, width: LOGO_HEIGHT * LOGO_ASPECT_RATIO },
+  logo: { height: LOGO_HEIGHT },
   avatar: {
     width: 32,
     height: 32,
@@ -56,5 +65,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { color: colors.neon, fontWeight: '900' },
+  avatarText: { color: colors.neon, ...fontWeight('900') },
 });

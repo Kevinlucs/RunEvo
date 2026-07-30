@@ -12,7 +12,7 @@ import { usePlanWorkouts } from '@/hooks/usePlanWorkouts';
 import { useCurrentWeek } from '@/hooks/useCurrentWeek';
 import { usePlanProgress } from '@/hooks/usePlanProgress';
 import { buildWeekMeta, groupWeeksByPhase, type WeekMeta } from '@/services/plan/plan-cycle.service';
-import { colors, radii, spacing, fontSizes } from '@/theme';
+import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
 interface WeekSection {
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   screen: { paddingHorizontal: 0 },
   listContent: { paddingBottom: spacing.xxxl },
   header: { paddingHorizontal: spacing.xl },
-  title: { color: colors.textPrimary, fontSize: fontSizes.title, fontWeight: '800', marginTop: spacing.sm },
+  title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.sm },
   progress: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs, marginBottom: spacing.lg },
   disabledSection: { marginTop: spacing.lg, marginBottom: spacing.sm, gap: spacing.sm },
   disabledRow: {
@@ -132,6 +132,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     opacity: 0.5,
   },
-  disabledLabel: { color: colors.textPrimary, fontSize: fontSizes.body, fontWeight: '600' },
+  disabledLabel: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600') },
   disabledNote: { color: colors.textMuted, fontSize: fontSizes.caption },
 });

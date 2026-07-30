@@ -3,6 +3,7 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { Card } from '@/components/ui/Card';
 import { NeonButton } from '@/components/ui/NeonButton';
+import { StatBox, StatBoxRow } from '@/components/ui/StatBox';
 import { TrainingZonesCard } from '@/components/workout/TrainingZonesCard';
 import { WorkoutDescriptionCard } from '@/components/workout/WorkoutDescriptionCard';
 import { CompleteWorkoutModal, type CompleteWorkoutFormInput } from '@/components/workout/CompleteWorkoutModal';
@@ -14,7 +15,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { readTrainingZones, splitWorkoutDescription, isRaceWorkout } from '@/services/workout/workout-detail.service';
 import { completeWorkout, skipWorkout } from '@/services/workout/complete-workout.service';
 import { formatShortDate } from '@/utils/time';
-import { colors, radii, spacing, fontSizes } from '@/theme';
+import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
 /**
  * docs/fase-4-brief.md Grupo 4 (§28) — detalhe do treino. Concluir/Pular só
@@ -100,15 +101,11 @@ export default function WorkoutDetail(): JSX.Element {
           <Text style={styles.date}>{formatShortDate(workout.workout_date)}</Text>
         </View>
 
-        <View style={styles.statsRow}>
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>{workout.planned_km ?? 0} km</Text>
-            <Text style={styles.statLabel}>Distância</Text>
-          </View>
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>{workout.planned_pace ?? '-'}</Text>
-            <Text style={styles.statLabel}>Pace planejado</Text>
-          </View>
+        <View style={styles.statsWrap}>
+          <StatBoxRow>
+            <StatBox value={`${workout.planned_km ?? 0} km`} label="Distância" />
+            <StatBox value={workout.planned_pace ?? '-'} label="Pace planejado" />
+          </StatBoxRow>
         </View>
 
         <TrainingZonesCard zones={zones} />
@@ -169,21 +166,10 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   meta: { color: colors.textSecondary, fontSize: fontSizes.caption, textTransform: 'uppercase' },
   raceBadge: { backgroundColor: colors.glow, borderRadius: radii.pill, paddingHorizontal: spacing.sm, paddingVertical: 2 },
-  raceBadgeText: { color: colors.neon, fontSize: fontSizes.caption, fontWeight: '700' },
-  title: { color: colors.textPrimary, fontSize: fontSizes.title, fontWeight: '800', marginTop: spacing.xs },
+  raceBadgeText: { color: colors.neon, fontSize: fontSizes.caption, ...fontWeight('700') },
+  title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.xs },
   date: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs },
-  statsRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
-  stat: {
-    flex: 1,
-    backgroundColor: colors.card,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    alignItems: 'center',
-  },
-  statValue: { color: colors.textPrimary, fontSize: fontSizes.lg, fontWeight: '800' },
-  statLabel: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: spacing.xs },
+  statsWrap: { marginBottom: spacing.lg },
   error: { color: colors.error, fontSize: fontSizes.body, marginBottom: spacing.md },
   actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
   actionButton: { flex: 1 },

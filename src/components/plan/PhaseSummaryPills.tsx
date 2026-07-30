@@ -1,6 +1,6 @@
 import { ScrollView, Pressable, Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET } from '@/theme';
+import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET, fontWeight } from '@/theme';
 import type { PhaseGroup } from '@/services/plan/plan-cycle.service';
 
 /** Ciclo completo por fase (§29) — toque abre o detalhe da fase (Grupo 3). */
@@ -37,6 +37,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     justifyContent: 'center',
   },
-  phase: { color: colors.textPrimary, fontSize: fontSizes.body, fontWeight: '800' },
+  phase: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('800') },
   weeks: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: 2 },
 });

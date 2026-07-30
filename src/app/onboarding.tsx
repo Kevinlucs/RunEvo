@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/ui/Screen';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { athleteProfileRepository } from '@/repositories';
 import { useAuthStore } from '@/store/auth.store';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 
 /**
  * Tutorial centralizado de primeiro acesso (docs/fase-3-brief.md §Grupo 5).
@@ -14,6 +15,7 @@ import { colors, spacing, fontSizes } from '@/theme';
  */
 export default function Onboarding(): JSX.Element {
   const userId = useAuthStore((s) => s.userId);
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
 
   const onStart = async (): Promise<void> => {
@@ -21,6 +23,10 @@ export default function Onboarding(): JSX.Element {
     setLoading(true);
     await athleteProfileRepository.upsert({ id: userId, onboarding_seen: true });
     setLoading(false);
+    // Escrita local direta, fora do ciclo de runSync (que já invalida
+    // sozinho) — sem isto, o guard do _layout lê o cache velho de
+    // `onboarding-seen` e manda de volta para cá assim que navega.
+    await queryClient.invalidateQueries({ queryKey: ['onboarding-seen', userId] });
     router.replace('/(tabs)/ai-evo');
   };
 
@@ -43,6 +49,6 @@ export default function Onboarding(): JSX.Element {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.lg, paddingHorizontal: spacing.xl },
-  title: { color: colors.neon, fontSize: fontSizes.title, fontWeight: '800', textAlign: 'center' },
+  title: { color: colors.neon, fontSize: fontSizes.title, ...fontWeight('800'), textAlign: 'center' },
   paragraph: { color: colors.textSecondary, fontSize: fontSizes.body, textAlign: 'center', lineHeight: 20 },
 });

@@ -1,6 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { TextField } from '@/components/ui/TextField';
-import { colors, spacing, fontSizes, radii, MIN_TOUCH_TARGET } from '@/theme';
+import { colors, spacing, fontSizes, radii, MIN_TOUCH_TARGET, fontWeight } from '@/theme';
 
 interface Props {
   label: string;
@@ -64,6 +64,6 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   checkboxChecked: { backgroundColor: colors.neon, borderColor: colors.neon },
-  checkmark: { color: colors.bg, fontSize: fontSizes.caption, fontWeight: '900' },
+  checkmark: { color: colors.bg, fontSize: fontSizes.caption, ...fontWeight('900') },
   checkboxLabel: { color: colors.textSecondary, fontSize: fontSizes.body },
 });

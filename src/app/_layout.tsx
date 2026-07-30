@@ -1,16 +1,30 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import * as SplashScreen from 'expo-splash-screen';
+import {
+  useFonts,
+  Outfit_400Regular,
+  Outfit_500Medium,
+  Outfit_600SemiBold,
+  Outfit_700Bold,
+  Outfit_800ExtraBold,
+  Outfit_900Black,
+} from '@expo-google-fonts/outfit';
 import { ThemeProvider } from '@/theme';
 import { queryClient } from '@/store/query-client';
 import { useAuthStore } from '@/store/auth.store';
 import { useSync } from '@/hooks/useSync';
 import { athleteProfileRepository } from '@/repositories';
+import { deriveOnboardingState, type OnboardingState } from '@/services/auth/onboarding-state';
 
-/** `undefined` = ainda carregando; `null` = perfil não sincronizado ainda. */
-function useOnboardingSeen(userId: string | null): boolean | undefined {
+// Segura o splash nativo até a fonte Outfit carregar (useFonts, abaixo).
+// `.catch` porque Fast Refresh pode chamar de novo com o splash já escondido.
+SplashScreen.preventAutoHideAsync().catch(() => {});
+
+function useOnboardingSeen(userId: string | null, initialSyncDone: boolean): OnboardingState {
   const query = useQuery({
     queryKey: ['onboarding-seen', userId],
     enabled: Boolean(userId),
@@ -20,9 +34,7 @@ function useOnboardingSeen(userId: string | null): boolean | undefined {
       return result.ok ? (result.value?.onboarding_seen ?? null) : null;
     },
   });
-  if (!userId) return undefined;
-  if (query.data === null || query.data === undefined) return undefined;
-  return query.data;
+  return deriveOnboardingState(query.data, initialSyncDone);
 }
 
 /**
@@ -35,8 +47,8 @@ function RootNavigator(): JSX.Element {
   const { session, initializing, bootstrap } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
-  const onboardingSeen = useOnboardingSeen(session?.user.id ?? null);
-  useSync();
+  const { initialSyncDone } = useSync();
+  const onboardingState = useOnboardingSeen(session?.user.id ?? null, initialSyncDone);
 
   useEffect(() => {
     void bootstrap();
@@ -47,20 +59,29 @@ function RootNavigator(): JSX.Element {
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboarding = segments[0] === 'onboarding';
 
-    if (!session && !inAuthGroup) {
-      router.replace('/(auth)/sign-in');
+    if (!session) {
+      if (!inAuthGroup) router.replace('/(auth)/sign-in');
       return;
     }
-    if (session && inAuthGroup) {
-      router.replace('/(tabs)');
+
+    // Sessão presente: só decide destino quando soubermos loading/seen/unseen
+    // — nunca mais que o timeout do 1º sync (evita spinner infinito).
+    if (onboardingState === 'loading') return;
+
+    if (onboardingState === 'unseen') {
+      if (!inOnboarding) router.replace('/onboarding');
       return;
     }
-    // Perfil ainda não sincronizado localmente (onboardingSeen === undefined):
-    // não redireciona para não "piscar" a tela de tutorial por engano.
-    if (session && onboardingSeen === false && !inOnboarding) {
-      router.replace('/onboarding');
-    }
-  }, [session, initializing, onboardingSeen, segments, router]);
+
+    // onboardingState === 'seen': autenticado e onboarded — sai do grupo
+    // (auth)/onboarding E da rota raiz "/" (reabertura do app com sessão já
+    // válida cai aqui direto, sem passar por (auth)). Outras rotas
+    // autenticadas (workout/plan/profile) não são tocadas. `useSegments()` é
+    // tipado como sempre não-vazio, mas na raiz "/" é `[]` em runtime — daí
+    // o cast só para esta checagem.
+    const atRoot = (segments as readonly string[]).length === 0;
+    if (inAuthGroup || inOnboarding || atRoot) router.replace('/(tabs)');
+  }, [session, initializing, onboardingState, segments, router]);
 
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#000' } }}>
@@ -74,7 +95,32 @@ function RootNavigator(): JSX.Element {
   );
 }
 
-export default function RootLayout(): JSX.Element {
+/**
+ * Segura o splash nativo até a fonte Outfit terminar de carregar (ou falhar
+ * — nunca prende o app esperando para sempre). Enquanto isso, `RootLayout`
+ * retorna `null`: o splash nativo continua cobrindo a tela.
+ */
+export default function RootLayout(): JSX.Element | null {
+  const [fontsLoaded, fontError] = useFonts({
+    Outfit_400Regular,
+    Outfit_500Medium,
+    Outfit_600SemiBold,
+    Outfit_700Bold,
+    Outfit_800ExtraBold,
+    Outfit_900Black,
+  });
+  const fontsReady = fontsLoaded || Boolean(fontError);
+
+  const hideSplash = useCallback(async () => {
+    if (fontsReady) await SplashScreen.hideAsync();
+  }, [fontsReady]);
+
+  useEffect(() => {
+    void hideSplash();
+  }, [hideSplash]);
+
+  if (!fontsReady) return null;
+
   return (
     <SafeAreaProvider>
       <ThemeProvider>

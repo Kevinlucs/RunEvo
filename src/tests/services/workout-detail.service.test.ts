@@ -64,20 +64,16 @@ const trainingZonesFixture = {
 };
 
 describe('readTrainingZones', () => {
-  it('lê trainingZones quando blueprint já é objeto (ex.: plano recém-gerado em memória)', () => {
+  // TrainingPlanRepository já desserializa `blueprint` (jsonColumns do
+  // BaseRepository — ver base.repository.test.ts); aqui só o cast de tipo.
+  it('lê trainingZones do blueprint já desserializado', () => {
     const p = plan({ blueprint: { paceZones: { trainingZones: trainingZonesFixture } } as unknown as Record<string, unknown> });
     expect(readTrainingZones(p)?.Z1.label).toBe('Z1');
-  });
-
-  it('lê trainingZones quando blueprint chega como TEXT serializado do SQLite local', () => {
-    const serialized = JSON.stringify({ paceZones: { trainingZones: trainingZonesFixture } });
-    const p = plan({ blueprint: serialized as unknown as Record<string, unknown> });
     expect(readTrainingZones(p)?.anchor.method).toBe('capacity_anchored');
   });
 
   it('sem blueprint/paceZones (plano antigo/sem dados) retorna null — não quebra', () => {
     expect(readTrainingZones(plan({ blueprint: {} }))).toBeNull();
-    expect(readTrainingZones(plan({ blueprint: '{invalid json' as unknown as Record<string, unknown> }))).toBeNull();
   });
 });
 

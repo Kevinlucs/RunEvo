@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, radii, spacing, fontSizes } from '@/theme';
+import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
 interface Props {
   title: string;
@@ -25,5 +25,5 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.lg,
   },
-  title: { color: colors.neon, fontSize: fontSizes.lg, fontWeight: '800', marginBottom: spacing.md },
+  title: { color: colors.neon, fontSize: fontSizes.lg, ...fontWeight('800'), marginBottom: spacing.md },
 });

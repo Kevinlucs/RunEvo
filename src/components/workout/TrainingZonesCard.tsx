@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Card } from '@/components/ui/Card';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 import type { TrainingZones } from '@/domain/motor-evo/types';
 
 const ZONE_KEYS = ['Z1', 'Z2', 'Z3', 'Z4', 'Z5'] as const;
@@ -35,6 +35,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  label: { color: colors.neon, fontSize: fontSizes.body, fontWeight: '800' },
+  label: { color: colors.neon, fontSize: fontSizes.body, ...fontWeight('800') },
   range: { color: colors.textSecondary, fontSize: fontSizes.caption, flexShrink: 1, textAlign: 'right' },
 });

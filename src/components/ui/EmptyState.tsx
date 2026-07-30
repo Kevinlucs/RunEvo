@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { NeonButton } from './NeonButton';
-import { colors, spacing, fontSizes } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 
 interface Props {
   title: string;
@@ -34,6 +34,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     gap: spacing.md,
   },
-  title: { color: colors.textPrimary, fontSize: fontSizes.lg, fontWeight: '800' },
+  title: { color: colors.textPrimary, fontSize: fontSizes.lg, ...fontWeight('800') },
   message: { color: colors.textSecondary, fontSize: fontSizes.body },
 });

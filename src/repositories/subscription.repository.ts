@@ -5,6 +5,7 @@ import type { Subscription } from '@/domain/entities';
 
 class SubscriptionRepository extends BaseRepository<Subscription> {
   protected table = 'subscriptions';
+  protected override jsonColumns = ['raw_payload'] as const;
 
   async getCurrent(userId: string): Promise<Result<Subscription | null>> {
     try {
@@ -13,7 +14,7 @@ class SubscriptionRepository extends BaseRepository<Subscription> {
         `SELECT * FROM ${this.table} WHERE user_id = ? AND _deleted = 0 ORDER BY updated_at DESC LIMIT 1`,
         [userId],
       );
-      return ok(row ?? null);
+      return ok(row ? this.deserialize(row) : null);
     } catch (e) {
       return err(toAppError(e, 'storage'));
     }

@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Card } from '@/components/ui/Card';
-import { colors, radii, spacing, fontSizes } from '@/theme';
+import { StatBox, StatBoxRow } from '@/components/ui/StatBox';
+import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { WeekSummary, WeekStatus } from '@/domain/motor-evo/adaptive-training';
 
 const STATUS_LABEL: Record<WeekStatus, string> = {
@@ -32,23 +33,12 @@ export function AdaptiveTrainingCard({
       <Text style={styles.week}>Semana S{weekNumber}</Text>
       <Text style={styles.status}>{STATUS_LABEL[summary.status]}</Text>
 
-      <View style={styles.statsRow}>
-        <View style={styles.stat}>
-          <Text style={styles.statValue}>
-            {summary.resolved}/{summary.total}
-          </Text>
-          <Text style={styles.statLabel}>Treinos resolvidos</Text>
-        </View>
-        <View style={styles.stat}>
-          <Text style={styles.statValue}>
-            {summary.completedKm}/{summary.plannedKm} km
-          </Text>
-          <Text style={styles.statLabel}>Km realizado/planejado</Text>
-        </View>
-        <View style={styles.stat}>
-          <Text style={styles.statValue}>{summary.averageEffort || '-'}</Text>
-          <Text style={styles.statLabel}>Esforço médio</Text>
-        </View>
+      <View style={styles.statsWrap}>
+        <StatBoxRow>
+          <StatBox value={`${summary.resolved}/${summary.total}`} label="Treinos" emphasis />
+          <StatBox value={`${summary.completedKm}/${summary.plannedKm}`} label="Km" emphasis />
+          <StatBox value={summary.averageEffort ? `${summary.averageEffort}` : '-'} label="Esforço" emphasis />
+        </StatBoxRow>
       </View>
 
       <Text style={styles.guidance}>{GUIDANCE[summary.status]}</Text>
@@ -62,11 +52,8 @@ export function AdaptiveTrainingCard({
 
 const styles = StyleSheet.create({
   week: { color: colors.textSecondary, fontSize: fontSizes.caption, textTransform: 'uppercase' },
-  status: { color: colors.textPrimary, fontSize: fontSizes.lg, fontWeight: '700', marginTop: spacing.xs },
-  statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.md },
-  stat: { flex: 1 },
-  statValue: { color: colors.neon, fontSize: fontSizes.body, fontWeight: '800' },
-  statLabel: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: 2 },
+  status: { color: colors.textPrimary, fontSize: fontSizes.lg, ...fontWeight('700'), marginTop: spacing.xs },
+  statsWrap: { marginTop: spacing.md },
   guidance: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.md },
   ctaDisabled: {
     marginTop: spacing.lg,
@@ -78,5 +65,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     opacity: 0.5,
   },
-  ctaText: { color: colors.textMuted, fontSize: fontSizes.body, fontWeight: '700' },
+  ctaText: { color: colors.textMuted, fontSize: fontSizes.body, ...fontWeight('700') },
 });
