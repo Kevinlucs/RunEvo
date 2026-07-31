@@ -70,8 +70,12 @@ export default function Home(): JSX.Element {
           <CurrentWeekCard weekNumber={currentWeekNumber} workouts={currentWeekWorkouts} />
         )}
 
-        {adaptive.weekNumber !== null && adaptive.summary && (
-          <AdaptiveTrainingCard weekNumber={adaptive.weekNumber} summary={adaptive.summary} />
+        {adaptive.weekNumber !== null && adaptive.summary && adaptive.checkinStatus && (
+          <AdaptiveTrainingCard
+            weekNumber={adaptive.weekNumber}
+            summary={adaptive.summary}
+            checkinStatus={adaptive.checkinStatus}
+          />
         )}
       </ScrollView>
     </Screen>
