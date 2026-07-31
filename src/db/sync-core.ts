@@ -17,6 +17,24 @@ export interface OutboxEntry {
   payload: string; // JSON serializado da linha
   created_at: string; // ISO
   attempts: number;
+  status?: string | null; // 'pending' | 'failed' — ausente/null trata como 'pending'
+  last_error?: string | null;
+}
+
+export type SyncErrorKind = 'transient' | 'permanent';
+
+/**
+ * docs/fase-5-brief.md Grupo 5 (débito da Fase 1). Distingue erro de rede/
+ * disponibilidade (429, 5xx, falha de fetch → status 0/undefined) — vale
+ * re-tentar — de erro 4xx de schema/constraint/validação, onde re-tentar
+ * nunca resolve sozinho. Status ausente (fetch nem completou) é tratado como
+ * transitório: no dúvida, prefira re-tentar a descartar dado.
+ */
+export function classifySyncError(status: number | null | undefined): SyncErrorKind {
+  if (!status) return 'transient';
+  if (status === 429) return 'transient';
+  if (status >= 500) return 'transient';
+  return 'permanent';
 }
 
 export interface Syncable {
