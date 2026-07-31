@@ -38,7 +38,9 @@ export function useCheckinAvailability(weekNumber: number | null): CheckinAvaila
   if (weekNumber === null || !plan) return { status: 'waiting', summary: null, isLoading };
 
   const summary = summarizeWorkoutsForWeek(workouts, weekNumber);
-  const hasCheckin = (checkinsQuery.data ?? []).some((c) => c.week_number === weekNumber);
+  // Check-in invalidado (docs/fase-5-brief.md §22 — edição manual pós-check-in)
+  // não conta como enviado: o atleta precisa refazer.
+  const hasCheckin = (checkinsQuery.data ?? []).some((c) => c.week_number === weekNumber && !c.invalidated);
   const status: CheckinAvailabilityStatus = hasCheckin ? 'done' : summary.canCheckin ? 'available' : 'waiting';
 
   return { status, summary, isLoading };

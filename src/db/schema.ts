@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS weekly_checkins (
   week_number INTEGER, current_weight_kg REAL, fatigue_level INTEGER,
   pain_level INTEGER, feeling TEXT, notes TEXT,
   ai_analysis TEXT DEFAULT '{}', adjustment TEXT DEFAULT '{}',
+  invalidated INTEGER DEFAULT 0, invalidated_reason TEXT,
   created_at TEXT, updated_at TEXT,
   _sync TEXT DEFAULT 'synced', _deleted INTEGER DEFAULT 0
 );

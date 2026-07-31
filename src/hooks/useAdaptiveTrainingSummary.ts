@@ -46,7 +46,9 @@ export function useAdaptiveTrainingSummary(): AdaptiveTrainingSummary {
   if (!plan || currentWeekNumber === null) return { weekNumber: null, summary: null, checkinStatus: null, isLoading };
 
   const weekNumbers = Array.from(new Set(workouts.map((w) => w.week_number))).sort((a, b) => a - b);
-  const checkinWeeks = new Set((checkinsQuery.data ?? []).map((c) => c.week_number));
+  // Check-in invalidado (§22 — edição manual pós-check-in) não conta como
+  // enviado: reabre a semana como candidata a um novo check-in.
+  const checkinWeeks = new Set((checkinsQuery.data ?? []).filter((c) => !c.invalidated).map((c) => c.week_number));
 
   const candidates: CheckinCandidate[] = weekNumbers.map((weekNumber) => ({
     weekIndex: weekNumber,

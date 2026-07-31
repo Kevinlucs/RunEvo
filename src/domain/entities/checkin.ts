@@ -13,6 +13,11 @@ export const checkinSchema = z.object({
   notes: z.string().nullable().default(null),
   ai_analysis: z.record(z.unknown()).default({}),
   adjustment: z.record(z.unknown()).default({}),
+  // §22 (Fase 5): edição manual de um treino invalida o check-in que já
+  // considerou aquela semana — o atleta precisa refazer. Mantido como linha
+  // histórica (não apagado) com o motivo.
+  invalidated: z.boolean().default(false),
+  invalidated_reason: z.string().nullable().default(null),
   created_at: isoTimestamp,
   updated_at: isoTimestamp,
 });
