@@ -12,6 +12,8 @@ export default function ProfileLayout(): JSX.Element {
       }}
     >
       <Stack.Screen name="index" options={{ title: 'Perfil' }} />
+      <Stack.Screen name="shoes/index" options={{ title: 'Meus tênis' }} />
+      <Stack.Screen name="shoes/[id]" options={{ title: 'Tênis' }} />
     </Stack>
   );
 }
