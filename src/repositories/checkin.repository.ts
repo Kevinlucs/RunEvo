@@ -6,6 +6,7 @@ import type { Checkin } from '@/domain/entities';
 class CheckinRepository extends BaseRepository<Checkin> {
   protected table = 'weekly_checkins';
   protected override jsonColumns = ['ai_analysis', 'adjustment'] as const;
+  protected override booleanColumns = ['invalidated'] as const;
 
   /** Débito da Fase 4 (docs/fase-4-brief.md Grupo 2.2) — quais semanas já têm check-in enviado. */
   async listByPlan(planId: string): Promise<Result<Checkin[]>> {

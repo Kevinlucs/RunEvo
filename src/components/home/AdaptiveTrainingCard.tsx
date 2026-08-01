@@ -1,37 +1,42 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 import { Card } from '@/components/ui/Card';
 import { StatBox, StatBoxRow } from '@/components/ui/StatBox';
-import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
-import type { WeekSummary, WeekStatus } from '@/domain/motor-evo/adaptive-training';
+import { colors, radii, spacing, fontSizes, fontWeight, MIN_TOUCH_TARGET } from '@/theme';
+import type { WeekSummary } from '@/domain/motor-evo/adaptive-training';
+import type { CheckinAvailabilityStatus } from '@/hooks/useCheckinAvailability';
 
-const STATUS_LABEL: Record<WeekStatus, string> = {
-  pending: 'Aguardando treinos',
-  in_progress: 'Em andamento',
-  done: 'Liberado para check-in',
+const CHECKIN_LABEL: Record<CheckinAvailabilityStatus, string> = {
+  waiting: 'Aguardando treinos',
+  available: 'Liberado para check-in',
+  done: 'Check-in enviado',
 };
 
-const GUIDANCE: Record<WeekStatus, string> = {
-  pending: 'Complete os treinos da semana para liberar o check-in.',
-  in_progress: 'Continue completando os treinos desta semana.',
-  done: 'Semana resolvida — o check-in ainda não está disponível nesta fase.',
+const CHECKIN_GUIDANCE: Record<CheckinAvailabilityStatus, string> = {
+  waiting: 'Complete os treinos da semana para liberar o check-in.',
+  available: 'Semana resolvida — analise a semana e ajuste o plano.',
+  done: 'Você já enviou o check-in desta semana.',
 };
 
 /**
- * docs/fase-4-brief.md Grupo 2.2 (§27, bloco 6) — só leitura nesta fase. O
- * check-in de verdade é da Fase 5: o CTA fica sempre desabilitado com rótulo
- * honesto, nunca escondido nem fingindo abrir algo.
+ * docs/fase-5-brief.md Grupo 3 (§21) — CTA fica ativo quando `canCheckin`
+ * (débito da Fase 4, docs/fase-4-brief.md Grupo 2.2, resolvido aqui).
  */
 export function AdaptiveTrainingCard({
   weekNumber,
   summary,
+  checkinStatus,
 }: {
   weekNumber: number;
   summary: WeekSummary;
+  checkinStatus: CheckinAvailabilityStatus;
 }): JSX.Element {
+  const isAvailable = checkinStatus === 'available';
+
   return (
     <Card title="Adaptive Training">
       <Text style={styles.week}>Semana S{weekNumber}</Text>
-      <Text style={styles.status}>{STATUS_LABEL[summary.status]}</Text>
+      <Text style={styles.status}>{CHECKIN_LABEL[checkinStatus]}</Text>
 
       <View style={styles.statsWrap}>
         <StatBoxRow>
@@ -41,11 +46,19 @@ export function AdaptiveTrainingCard({
         </StatBoxRow>
       </View>
 
-      <Text style={styles.guidance}>{GUIDANCE[summary.status]}</Text>
+      <Text style={styles.guidance}>{CHECKIN_GUIDANCE[checkinStatus]}</Text>
 
-      <View style={styles.ctaDisabled} accessibilityRole="button" accessibilityState={{ disabled: true }}>
-        <Text style={styles.ctaText}>Disponível em breve</Text>
-      </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ disabled: !isAvailable }}
+        disabled={!isAvailable}
+        onPress={() => router.push(`/plan/checkin/${weekNumber}`)}
+        style={[styles.cta, !isAvailable && styles.ctaDisabled]}
+      >
+        <Text style={[styles.ctaText, isAvailable && styles.ctaTextActive]}>
+          {isAvailable ? 'Fazer check-in' : checkinStatus === 'done' ? 'Check-in enviado' : 'Disponível em breve'}
+        </Text>
+      </Pressable>
     </Card>
   );
 }
@@ -55,15 +68,17 @@ const styles = StyleSheet.create({
   status: { color: colors.textPrimary, fontSize: fontSizes.lg, ...fontWeight('700'), marginTop: spacing.xs },
   statsWrap: { marginTop: spacing.md },
   guidance: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.md },
-  ctaDisabled: {
+  cta: {
     marginTop: spacing.lg,
-    minHeight: 44,
+    minHeight: MIN_TOUCH_TARGET,
     borderRadius: radii.md,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.neon,
+    backgroundColor: colors.neon,
     alignItems: 'center',
     justifyContent: 'center',
-    opacity: 0.5,
   },
+  ctaDisabled: { backgroundColor: 'transparent', borderColor: colors.border, opacity: 0.5 },
   ctaText: { color: colors.textMuted, fontSize: fontSizes.body, ...fontWeight('700') },
+  ctaTextActive: { color: colors.bg },
 });

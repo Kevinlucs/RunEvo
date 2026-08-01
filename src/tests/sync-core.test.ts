@@ -2,6 +2,7 @@ import {
   resolveConflict,
   planPullMerge,
   planOutboxDrain,
+  classifySyncError,
   type Syncable,
   type OutboxEntry,
 } from '@/db/sync-core';
@@ -81,5 +82,26 @@ describe('planOutboxDrain', () => {
       mk(1, 'x', 'insert', '2026-01-01T10:00:00Z'),
     ]);
     expect(drained.map((e) => e.row_id)).toEqual(['x', 'y']);
+  });
+});
+
+describe('classifySyncError (docs/fase-5-brief.md Grupo 5)', () => {
+  it('429 é transitório', () => {
+    expect(classifySyncError(429)).toBe('transient');
+  });
+  it('5xx é transitório', () => {
+    expect(classifySyncError(500)).toBe('transient');
+    expect(classifySyncError(503)).toBe('transient');
+  });
+  it('status ausente/zero (falha de rede) é transitório', () => {
+    expect(classifySyncError(0)).toBe('transient');
+    expect(classifySyncError(null)).toBe('transient');
+    expect(classifySyncError(undefined)).toBe('transient');
+  });
+  it('4xx de schema/constraint/validação é permanente', () => {
+    expect(classifySyncError(400)).toBe('permanent');
+    expect(classifySyncError(404)).toBe('permanent');
+    expect(classifySyncError(409)).toBe('permanent');
+    expect(classifySyncError(422)).toBe('permanent');
   });
 });

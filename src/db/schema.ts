@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS weekly_checkins (
   week_number INTEGER, current_weight_kg REAL, fatigue_level INTEGER,
   pain_level INTEGER, feeling TEXT, notes TEXT,
   ai_analysis TEXT DEFAULT '{}', adjustment TEXT DEFAULT '{}',
+  invalidated INTEGER DEFAULT 0, invalidated_reason TEXT,
   created_at TEXT, updated_at TEXT,
   _sync TEXT DEFAULT 'synced', _deleted INTEGER DEFAULT 0
 );
@@ -67,7 +68,8 @@ CREATE TABLE IF NOT EXISTS outbox (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   table_name TEXT NOT NULL, row_id TEXT NOT NULL,
   op TEXT NOT NULL, payload TEXT NOT NULL,
-  created_at TEXT NOT NULL, attempts INTEGER DEFAULT 0
+  created_at TEXT NOT NULL, attempts INTEGER DEFAULT 0,
+  status TEXT DEFAULT 'pending', last_error TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_outbox_created ON outbox(created_at, id);
 

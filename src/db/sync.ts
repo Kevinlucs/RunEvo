@@ -2,19 +2,35 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 import { supabase } from '@/lib/supabase';
 import { getDb } from './sqlite';
 import { SYNCED_TABLES, type SyncedTable } from './schema';
-import { readOutbox, deleteOutboxEntry, bumpAttempts } from './outbox';
-import { planOutboxDrain, planPullMerge, type Syncable } from './sync-core';
+import { readOutbox, deleteOutboxEntry, bumpAttempts, markOutboxFailed } from './outbox';
+import { planOutboxDrain, planPullMerge, classifySyncError, type Syncable } from './sync-core';
 import { nowIso } from '@/utils/time';
 import { toAppError, type Result, ok, err } from '@/utils/result';
 
 const MAX_ATTEMPTS = 5;
 
+/** Carrega o status HTTP junto da mensagem para permitir classificar o erro depois (Grupo 5). */
+class SyncPushError extends Error {
+  constructor(
+    message: string,
+    readonly status: number | null | undefined,
+  ) {
+    super(message);
+    this.name = 'SyncPushError';
+  }
+}
+
 /**
  * PUSH: drena o outbox para o Supabase, aplicando a ordenação/compactação pura.
  * Sucesso → remove do outbox e marca a linha local como 'synced'.
- * Falha → incrementa tentativas (descarta após MAX_ATTEMPTS para não travar a fila).
+ *
+ * docs/fase-5-brief.md Grupo 5 (débito da Fase 1): falha distingue erro
+ * transitório (rede/5xx/429 — re-tenta, respeitando MAX_ATTEMPTS) de erro
+ * permanente (4xx de schema/constraint/validação — re-tentar não resolve).
+ * Nos dois casos de esgotamento, a entrada vira `failed` com o motivo — nunca
+ * mais é descartada em silêncio.
  */
-async function pushOutbox(db: SQLiteDatabase): Promise<void> {
+export async function pushOutbox(db: SQLiteDatabase): Promise<void> {
   const entries = planOutboxDrain(await readOutbox(db));
   for (const entry of entries) {
     try {
@@ -26,28 +42,41 @@ async function pushOutbox(db: SQLiteDatabase): Promise<void> {
       // mas o schema local não carrega essa garantia no tipo.
       const table = entry.table_name as SyncedTable;
       if (entry.op === 'delete') {
-        const { error } = await supabase.from(table).delete().eq('id', entry.row_id);
-        if (error) throw error;
+        const { error, status } = await supabase.from(table).delete().eq('id', entry.row_id);
+        if (error) throw new SyncPushError(error.message, status);
       } else {
         // cloudRow vem de JSON.parse (linha local sanitizada) — estruturalmente
         // é a linha da tabela, mas com `table: SyncedTable` (união de 6 tabelas)
         // o `.upsert()` tipado rejeita qualquer objeto genérico (RejectExcessProperties
         // sobre a união de Inserts). Não há uma única tabela conhecida em tempo de
         // compilação aqui — cast local e estreito só da assinatura de upsert usada.
-        const { error } = await (
+        const { error, status } = await (
           supabase.from(table) as unknown as {
-            upsert: (row: Record<string, unknown>) => PromiseLike<{ error: { message: string } | null }>;
+            upsert: (
+              row: Record<string, unknown>,
+            ) => PromiseLike<{ error: { message: string } | null; status: number }>;
           }
         ).upsert(cloudRow);
-        if (error) throw error;
+        if (error) throw new SyncPushError(error.message, status);
       }
       await deleteOutboxEntry(db, entry.id);
       await markSynced(db, entry.table_name, entry.row_id);
-    } catch {
+    } catch (e) {
+      const status = e instanceof SyncPushError ? e.status : undefined;
+      const reason = e instanceof Error ? e.message : String(e);
+      const kind = classifySyncError(status);
+
+      if (kind === 'permanent') {
+        console.warn(`[sync] outbox #${entry.id} (${entry.table_name}) falhou de forma permanente: ${reason}`);
+        await markOutboxFailed(db, entry.id, reason);
+        continue;
+      }
+
       await bumpAttempts(db, entry.id);
       if (entry.attempts + 1 >= MAX_ATTEMPTS) {
-        // desiste desta entrada específica para não bloquear as demais
-        await deleteOutboxEntry(db, entry.id);
+        // esgotou as tentativas de um erro transitório — mantém o dado, não descarta calado
+        console.warn(`[sync] outbox #${entry.id} (${entry.table_name}) esgotou tentativas: ${reason}`);
+        await markOutboxFailed(db, entry.id, `Esgotadas as tentativas de sincronização: ${reason}`);
       }
       // não relança: sync é best-effort; próximo ciclo tenta de novo
     }

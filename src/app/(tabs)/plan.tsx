@@ -1,5 +1,5 @@
-import { useMemo, useCallback } from 'react';
-import { View, Text, SectionList, StyleSheet } from 'react-native';
+import { useMemo, useCallback, useState } from 'react';
+import { View, Text, SectionList, Pressable, Alert, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
@@ -7,11 +7,15 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { PhaseSummaryPills } from '@/components/plan/PhaseSummaryPills';
 import { WeekSectionHeader } from '@/components/plan/WeekSectionHeader';
 import { WorkoutListRow } from '@/components/plan/WorkoutListRow';
+import { AddWorkoutModal, type AddWorkoutFormInput } from '@/components/plan/AddWorkoutModal';
 import { useActivePlan } from '@/hooks/useActivePlan';
 import { usePlanWorkouts } from '@/hooks/usePlanWorkouts';
 import { useCurrentWeek } from '@/hooks/useCurrentWeek';
 import { usePlanProgress } from '@/hooks/usePlanProgress';
+import { useAuthStore } from '@/store/auth.store';
 import { buildWeekMeta, groupWeeksByPhase, type WeekMeta } from '@/services/plan/plan-cycle.service';
+import { isRaceWorkout } from '@/services/workout/workout-detail.service';
+import { addWorkout, removeWorkout, moveWorkout } from '@/services/plan/edit-workout.service';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
@@ -29,6 +33,11 @@ export default function Plan(): JSX.Element {
   const { workouts } = usePlanWorkouts(plan?.id);
   const { weekNumber: currentWeekNumber } = useCurrentWeek();
   const { progress } = usePlanProgress();
+  const userId = useAuthStore((s) => s.userId);
+
+  const [editMode, setEditMode] = useState(false);
+  const [addModalWeek, setAddModalWeek] = useState<WeekMeta | null>(null);
+  const [addSubmitting, setAddSubmitting] = useState(false);
 
   const weeksMeta = useMemo(
     () => (plan ? buildWeekMeta(plan, workouts, currentWeekNumber) : []),
@@ -46,17 +55,77 @@ export default function Plan(): JSX.Element {
     [weeksMeta, workouts],
   );
 
+  const handleRemoveWorkout = useCallback((workout: Workout) => {
+    Alert.alert('Remover treino', `"${workout.title ?? 'Treino'}" será removido do plano.`, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Remover', style: 'destructive', onPress: () => void removeWorkout(workout.id) },
+    ]);
+  }, []);
+
   const renderItem = useCallback(
-    ({ item }: { item: Workout }) => (
-      <WorkoutListRow workout={item} onPress={() => router.push(`/workout/${item.id}` as never)} />
-    ),
-    [],
+    ({ item }: { item: Workout }) => {
+      const canEdit = editMode && item.status === 'pending' && !isRaceWorkout(item);
+      return (
+        <WorkoutListRow
+          workout={item}
+          onPress={editMode ? undefined : () => router.push(`/workout/${item.id}` as never)}
+          edit={
+            editMode
+              ? {
+                  canEdit,
+                  onMoveUp: () => void moveWorkout(item.id, 'up'),
+                  onMoveDown: () => void moveWorkout(item.id, 'down'),
+                  onRemove: () => handleRemoveWorkout(item),
+                }
+              : undefined
+          }
+        />
+      );
+    },
+    [editMode, handleRemoveWorkout],
   );
   const renderSectionHeader = useCallback(
     ({ section }: { section: WeekSection }) => <WeekSectionHeader week={section.title} />,
     [],
   );
+  const renderSectionFooter = useCallback(
+    ({ section }: { section: WeekSection }) =>
+      editMode ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setAddModalWeek(section.title)}
+          style={styles.addWorkoutRow}
+        >
+          <Text style={styles.addWorkoutText}>+ Adicionar treino</Text>
+        </Pressable>
+      ) : null,
+    [editMode],
+  );
   const keyExtractor = useCallback((item: Workout) => item.id, []);
+
+  const handleAddWorkout = async (input: AddWorkoutFormInput): Promise<void> => {
+    if (!plan || !userId || !addModalWeek) return;
+    setAddSubmitting(true);
+    const result = await addWorkout({
+      planId: plan.id,
+      userId,
+      weekNumber: addModalWeek.weekNumber,
+      phase: addModalWeek.phase,
+      title: input.title,
+      description: input.description,
+      dayType: input.dayType,
+      dayLabel: input.dayLabel,
+      workoutDate: input.workoutDate,
+      plannedKm: input.plannedKm,
+      plannedPace: input.plannedPace,
+    });
+    setAddSubmitting(false);
+    if (result.ok) {
+      setAddModalWeek(null);
+    } else {
+      Alert.alert('Não foi possível adicionar', result.error.message);
+    }
+  };
 
   if (!isLoading && !plan) {
     return (
@@ -78,6 +147,7 @@ export default function Plan(): JSX.Element {
         sections={sections}
         renderItem={renderItem}
         renderSectionHeader={renderSectionHeader}
+        renderSectionFooter={renderSectionFooter}
         keyExtractor={keyExtractor}
         stickySectionHeadersEnabled
         showsVerticalScrollIndicator={false}
@@ -94,13 +164,33 @@ export default function Plan(): JSX.Element {
             )}
             <PhaseSummaryPills groups={phaseGroups} />
             <View style={styles.disabledSection}>
-              <DisabledRow label="Editor manual" note="Disponível na Fase 5" />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: editMode }}
+                onPress={() => setEditMode((v) => !v)}
+                style={[styles.editableRow, editMode && styles.editableRowActive]}
+              >
+                <Text style={[styles.editableLabel, editMode && styles.editableLabelActive]}>Editor manual</Text>
+                <Text style={[styles.editableNote, editMode && styles.editableLabelActive]}>
+                  {editMode ? 'Ativo — toque para sair' : 'Editar, adicionar, remover'}
+                </Text>
+              </Pressable>
               <DisabledRow label="Exportar (PDF/Excel)" note="Disponível na Fase 7" />
               <DisabledRow label="Histórico completo (RunEvo+)" note="Disponível na Fase 6" />
             </View>
           </View>
         }
       />
+
+      {addModalWeek ? (
+        <AddWorkoutModal
+          visible
+          weekNumber={addModalWeek.weekNumber}
+          submitting={addSubmitting}
+          onCancel={() => setAddModalWeek(null)}
+          onConfirm={handleAddWorkout}
+        />
+      ) : null}
     </Screen>
   );
 }
@@ -134,4 +224,26 @@ const styles = StyleSheet.create({
   },
   disabledLabel: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600') },
   disabledNote: { color: colors.textMuted, fontSize: fontSizes.caption },
+  editableRow: {
+    minHeight: 44,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.neon,
+    paddingHorizontal: spacing.lg,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  editableRowActive: { backgroundColor: colors.neon },
+  editableLabel: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600') },
+  editableLabelActive: { color: colors.bg },
+  editableNote: { color: colors.textSecondary, fontSize: fontSizes.caption },
+  addWorkoutRow: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  addWorkoutText: { color: colors.neon, fontSize: fontSizes.body, ...fontWeight('700') },
 });

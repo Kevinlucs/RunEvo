@@ -16,13 +16,30 @@ const STATUS_COLOR: Record<Workout['status'], string> = {
   skipped: colors.textSecondary,
 };
 
+export interface WorkoutListRowEditControls {
+  /** docs/fase-5-brief.md Grupo 4 (§22) — reordenar/remover só treinos pendentes; nunca a prova. */
+  canEdit: boolean;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  onRemove?: () => void;
+}
+
 /**
  * Item da lista virtualizada de Treinos (§29) — memoizado, plano pode ter
  * ~300 treinos. `onPress` (docs/fase-4-brief.md Grupo 4) abre o detalhe do
  * treino; sem ele a linha fica só informativa (nenhum uso atual precisa disso,
- * mas evita quebrar quem ainda não passa a prop).
+ * mas evita quebrar quem ainda não passa a prop). `edit` (Fase 5 Grupo 4)
+ * troca o chevron pelos controles de reordenar/remover.
  */
-function WorkoutListRowBase({ workout, onPress }: { workout: Workout; onPress?: () => void }): JSX.Element {
+function WorkoutListRowBase({
+  workout,
+  onPress,
+  edit,
+}: {
+  workout: Workout;
+  onPress?: () => void;
+  edit?: WorkoutListRowEditControls;
+}): JSX.Element {
   return (
     <Pressable
       accessibilityRole={onPress ? 'button' : undefined}
@@ -43,7 +60,21 @@ function WorkoutListRowBase({ workout, onPress }: { workout: Workout; onPress?: 
         <Text style={styles.km}>{workout.planned_km ?? 0} km</Text>
         <Text style={[styles.status, { color: STATUS_COLOR[workout.status] }]}>{STATUS_LABEL[workout.status]}</Text>
       </View>
-      {onPress ? <Ionicons name="chevron-forward" size={18} color={colors.textMuted} /> : null}
+      {edit?.canEdit ? (
+        <View style={styles.editControls}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Mover para cima" onPress={edit.onMoveUp} style={styles.iconButton}>
+            <Ionicons name="chevron-up" size={18} color={colors.textSecondary} />
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Mover para baixo" onPress={edit.onMoveDown} style={styles.iconButton}>
+            <Ionicons name="chevron-down" size={18} color={colors.textSecondary} />
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Remover treino" onPress={edit.onRemove} style={styles.iconButton}>
+            <Ionicons name="trash" size={18} color={colors.error} />
+          </Pressable>
+        </View>
+      ) : onPress ? (
+        <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+      ) : null}
     </Pressable>
   );
 }
@@ -66,4 +97,6 @@ const styles = StyleSheet.create({
   right: { alignItems: 'flex-end' },
   km: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('700') },
   status: { fontSize: fontSizes.caption, marginTop: 2 },
+  editControls: { flexDirection: 'row', marginLeft: spacing.sm },
+  iconButton: { padding: spacing.xs },
 });
