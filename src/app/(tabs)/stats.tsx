@@ -12,15 +12,8 @@ import { useActivePlan } from '@/hooks/useActivePlan';
 import { useAthleteStats } from '@/hooks/useAthleteStats';
 import { useEntitlement } from '@/hooks/useEntitlement';
 import { classifyImc } from '@/services/stats/stats.service';
+import { PLUS_FEATURES } from '@/services/subscription/plus-features';
 import { colors, spacing, fontSizes, fontWeight } from '@/theme';
-
-const PLUS_FEATURES = [
-  { icon: 'trending-up-outline', label: 'Evolução entre ciclos' },
-  { icon: 'walk-outline', label: 'Progressão dos longões' },
-  { icon: 'pulse-outline', label: 'Esforço percebido ao longo do tempo' },
-  { icon: 'git-compare-outline', label: 'Ajustes aplicados pela IA' },
-  { icon: 'time-outline', label: 'Histórico completo de planilhas' },
-] as const;
 
 /**
  * docs/fase-6-brief.md Grupo 2 (§31, mockup 13). §31 pede "sem vão preto
@@ -110,7 +103,11 @@ export default function Stats(): JSX.Element {
             </Text>
           </Card>
         ) : (
-          <LockedSection title="Desbloqueie a evolução completa" onPressCta={() => router.push('/runevo-plus' as never)}>
+          <LockedSection
+            title="Desbloqueie a evolução completa"
+            ctaLabel="Assinar RunEvo+"
+            onPressCta={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
+          >
             <Card title="Evolução entre ciclos">
               {PLUS_FEATURES.map((f) => (
                 <View key={f.label} style={styles.featureRow}>
