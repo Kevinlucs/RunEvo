@@ -20,3 +20,11 @@ export function formatShortDate(dateStr: string | null | undefined): string {
   if (!m || !d) return '-';
   return `${d} ${SHORT_MONTHS[m - 1]}`;
 }
+
+/** Timestamp ISO → `"jul. de 2026"` (data de entrada no Perfil, docs/fase-6-brief.md §32). */
+export function formatMonthYear(isoStr: string | null | undefined): string {
+  if (!isoStr) return '-';
+  const date = new Date(isoStr);
+  if (Number.isNaN(date.getTime())) return '-';
+  return `${SHORT_MONTHS[date.getMonth()]}. de ${date.getFullYear()}`;
+}
