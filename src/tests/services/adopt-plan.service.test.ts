@@ -18,11 +18,13 @@ const upsertWorkoutMock = jest.fn();
 const listByPlanMock = jest.fn();
 const clearDraftMock = jest.fn();
 const invalidateQueriesMock = jest.fn();
+const upsertProfileMock = jest.fn();
 
 jest.mock('@/repositories', () => ({
   trainingPlanRepository: { getActive: getActiveMock, upsert: upsertPlanMock },
   workoutRepository: { upsert: upsertWorkoutMock, listByPlan: listByPlanMock },
   draftRepository: { clear: clearDraftMock },
+  athleteProfileRepository: { upsert: upsertProfileMock },
 }));
 jest.mock('@/store/query-client', () => ({ queryClient: { invalidateQueries: invalidateQueriesMock } }));
 
@@ -41,6 +43,7 @@ beforeEach(() => {
   upsertWorkoutMock.mockResolvedValue(ok({}));
   clearDraftMock.mockResolvedValue(ok(undefined));
   invalidateQueriesMock.mockResolvedValue(undefined);
+  upsertProfileMock.mockResolvedValue(ok({}));
 });
 
 describe('adoptPlan', () => {
@@ -85,6 +88,20 @@ describe('adoptPlan', () => {
     expect(result.ok).toBe(false);
     expect(upsertPlanMock).toHaveBeenCalledTimes(1); // só a tentativa de arquivar, não o insert do novo
     expect(clearDraftMock).not.toHaveBeenCalled();
+  });
+
+  it('grava altura/peso/IMC do plano em athlete_profiles (docs/fase-6-brief.md Grupo 2 — dado nunca persistido antes)', async () => {
+    getActiveMock.mockResolvedValue(ok(null));
+
+    const result = await adoptPlan(plan, USER_ID);
+
+    expect(result.ok).toBe(true);
+    expect(upsertProfileMock).toHaveBeenCalledWith({
+      id: USER_ID,
+      height_cm: plan.userData.height,
+      current_weight_kg: plan.userData.weight,
+      imc: plan.userData.imc,
+    });
   });
 
   it('falha ao gravar um treino → propaga erro', async () => {
