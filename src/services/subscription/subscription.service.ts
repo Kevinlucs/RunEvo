@@ -1,20 +1,29 @@
 import { subscriptionRepository } from '@/repositories';
 import { runSync } from '@/db/sync';
-import { ok, err, AppError, type Result } from '@/utils/result';
-import type { Entitlement, Subscription } from '@/domain/entities';
+import * as purchasesClient from './purchases.client';
+import { ok, err, type Result } from '@/utils/result';
+import type { Entitlement, Subscription, SubscriptionOfferings } from '@/domain/entities';
 
 /**
- * docs/fase-6-brief.md Grupo 1 — fronteira única de entitlement. Lê sempre do
- * cache local (subscriptionRepository, offline-first); `refresh()` dispara um
- * ciclo de sync best-effort antes de reler, mas nunca falha por falta de rede
- * (o app precisa saber "free vs plus" mesmo offline). `purchase()`/`restore()`
- * são stubs até a Fase 7 — billing real pluga atrás desta mesma interface.
+ * docs/fase-7-brief.md Grupo 1 — fronteira única de entitlement e billing; a
+ * UI nunca importa `react-native-purchases` nem fala com o RevenueCat direto,
+ * só com este serviço.
+ *
+ * `getEntitlement`/`refresh` continuam lendo de `subscriptionRepository`
+ * (cache local, offline-first, sincronizado do Supabase) — a VERDADE do
+ * entitlement é `subscriptions`, escrita só pelo webhook (service_role). O
+ * RevenueCat nunca é lido aqui como fonte final: ele só inicia a compra
+ * (`purchase`) e alimenta o servidor via webhook; quem confirma "virou Plus"
+ * pra sempre é o próximo `refresh()` (sync puxa a linha atualizada).
  */
 export interface SubscriptionService {
   getEntitlement(userId: string): Promise<Result<Entitlement>>;
   refresh(userId: string): Promise<Result<Entitlement>>;
-  purchase(productId: string): Promise<Result<void>>;
+  getOfferings(): Promise<Result<SubscriptionOfferings>>;
+  purchase(packageIdentifier: string): Promise<Result<void>>;
   restore(): Promise<Result<void>>;
+  /** Associa o SDK do RevenueCat ao user id do Supabase — chamado a cada mudança de sessão (auth.store.ts). */
+  identify(userId: string | null): Promise<void>;
 }
 
 const FREE: Entitlement = { plan: 'free', status: 'free', periodEnd: null };
@@ -42,11 +51,19 @@ export const subscriptionService: SubscriptionService = {
     return subscriptionService.getEntitlement(userId);
   },
 
-  async purchase() {
-    return err(new AppError('not_implemented', 'Compra ainda não conectada — chega na Fase 7.'));
+  async getOfferings() {
+    return purchasesClient.getOfferings();
+  },
+
+  async purchase(packageIdentifier) {
+    return purchasesClient.purchase(packageIdentifier);
   },
 
   async restore() {
-    return err(new AppError('not_implemented', 'Restauração de compra ainda não conectada — chega na Fase 7.'));
+    return purchasesClient.restore();
+  },
+
+  async identify(userId) {
+    return purchasesClient.syncPurchasesIdentity(userId);
   },
 };

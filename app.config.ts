@@ -8,7 +8,10 @@ import type { ExpoConfig } from 'expo/config';
 const config: ExpoConfig = {
   name: 'RunEvo',
   slug: 'runevo',
-  scheme: 'runevo',
+  // 'runevo' é o scheme do app; 'rc-45ca7bf701' é o scheme de deep-link do
+  // RevenueCat (magic links de restauração/gestão de assinatura enviados
+  // por e-mail) — registrado aqui para o SO rotear de volta pro app.
+  scheme: ['runevo', 'rc-45ca7bf701'],
   version: '0.1.0',
   orientation: 'portrait',
   userInterfaceStyle: 'dark',
@@ -38,6 +41,9 @@ const config: ExpoConfig = {
   extra: {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+    // Chave pública do SDK RevenueCat (Android) — não é segredo, a validação
+    // real da compra acontece no servidor via webhook (docs/fase-7-brief.md).
+    revenueCatApiKeyAndroid: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID,
   },
 };
 

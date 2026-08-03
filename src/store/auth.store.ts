@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Session } from '@supabase/supabase-js';
 import { authService } from '@/services/auth/auth.service';
+import { subscriptionService } from '@/services/subscription';
 import type { Result } from '@/utils/result';
 import { withTimeout } from '@/utils/timeout';
 
@@ -37,13 +38,18 @@ export const useAuthStore = create<AuthState>((set) => ({
       );
       const session = res?.ok ? res.value : null;
       set({ session, userId: session?.user.id ?? null });
+      void subscriptionService.identify(session?.user.id ?? null);
       authService.onAuthStateChange((s) => {
         set({ session: s, userId: s?.user.id ?? null });
+        void subscriptionService.identify(s?.user.id ?? null);
       });
     } finally {
       set({ initializing: false });
     }
   },
 
-  setSession: (session) => set({ session, userId: session?.user.id ?? null }),
+  setSession: (session) => {
+    set({ session, userId: session?.user.id ?? null });
+    void subscriptionService.identify(session?.user.id ?? null);
+  },
 }));

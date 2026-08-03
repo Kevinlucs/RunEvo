@@ -5,3 +5,4 @@ export * from './workout';
 export * from './checkin';
 export * from './shoe';
 export * from './subscription';
+export * from './revenuecat';
