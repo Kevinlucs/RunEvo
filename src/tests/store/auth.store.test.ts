@@ -1,6 +1,7 @@
 /* eslint-disable import/first */
 const mockGetSession = jest.fn();
 const mockOnAuthStateChange = jest.fn();
+const mockIdentify = jest.fn();
 
 jest.mock('@/services/auth/auth.service', () => ({
   authService: {
@@ -8,6 +9,10 @@ jest.mock('@/services/auth/auth.service', () => ({
     onAuthStateChange: (cb: (s: unknown) => void) => mockOnAuthStateChange(cb),
   },
 }));
+// subscriptionService puxa @/repositories → expo-sqlite (runtime nativo,
+// fora do alcance do Jest) — mockado pra isolar só o que este teste cobre
+// (o hang do SecureStore no bootstrap, não a identidade do RevenueCat).
+jest.mock('@/services/subscription', () => ({ subscriptionService: { identify: mockIdentify } }));
 
 import { useAuthStore } from '@/store/auth.store';
 import { ok } from '@/utils/result';
@@ -22,6 +27,7 @@ describe('useAuthStore.bootstrap', () => {
   beforeEach(() => {
     mockGetSession.mockReset();
     mockOnAuthStateChange.mockReset().mockReturnValue(() => {});
+    mockIdentify.mockReset().mockResolvedValue(undefined);
     useAuthStore.setState({ session: null, initializing: true, userId: null });
   });
 

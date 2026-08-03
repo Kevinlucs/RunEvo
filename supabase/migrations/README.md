@@ -7,6 +7,7 @@ Ordem versionada (fonte de verdade do schema):
 3. `0003_rls.sql` — Row Level Security por usuário; `subscriptions` só leitura no cliente.
 4. `0004_profile_bootstrap.sql` — cria `athlete_profiles` no cadastro.
 5. `0005_delete_account.sql` — RPC `delete_own_account` (SECURITY DEFINER).
+6. `0008_subscriptions_unique_user.sql` — índice único em `subscriptions.user_id`, necessário pro upsert idempotente do webhook do RevenueCat (docs/fase-7-brief.md Grupo 1).
 
 ## Aplicar
 

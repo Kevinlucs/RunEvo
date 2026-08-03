@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { AppError } from '@/utils/result';
 
-type Extra = { supabaseUrl?: string; supabaseAnonKey?: string };
+type Extra = { supabaseUrl?: string; supabaseAnonKey?: string; revenueCatApiKeyAndroid?: string };
 
 function readExtra(): Extra {
   return (Constants.expoConfig?.extra ?? {}) as Extra;
@@ -20,5 +20,12 @@ export const env = {
   },
   get supabaseAnonKey(): string {
     return required(readExtra().supabaseAnonKey, 'EXPO_PUBLIC_SUPABASE_ANON_KEY');
+  },
+  /**
+   * Opcional (não lança): sem a chave, o app segue funcional em modo Free —
+   * só o billing real fica indisponível (ex.: build local sem `.env`).
+   */
+  get revenueCatApiKeyAndroid(): string | null {
+    return readExtra().revenueCatApiKeyAndroid ?? null;
   },
 } as const;

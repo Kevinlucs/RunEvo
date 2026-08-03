@@ -1,15 +1,27 @@
 /**
- * Testes headless do SubscriptionService (docs/fase-6-brief.md Grupo 1).
- * Entitlement é decidido só aqui — nunca na UI. Lê sempre do cache local
- * (subscriptionRepository), nunca bate direto no Supabase: por isso o app
- * sabe "free vs plus" mesmo offline.
+ * Testes headless do SubscriptionService (docs/fase-7-brief.md Grupo 1).
+ * Entitlement é decidido só aqui — nunca na UI. `getEntitlement`/`refresh`
+ * leem sempre do cache local (subscriptionRepository), nunca do RevenueCat
+ * direto: a verdade é o webhook → `subscriptions`, não o cliente.
+ * `purchases.client.ts` (o único lugar que importa `react-native-purchases`,
+ * SDK nativo) é mockado — Jest roda sem dev build, como pede o brief.
  */
 /* eslint-disable import/first */
 const getCurrentMock = jest.fn();
 const runSyncMock = jest.fn();
+const getOfferingsMock = jest.fn();
+const purchaseMock = jest.fn();
+const restoreMock = jest.fn();
+const syncPurchasesIdentityMock = jest.fn();
 
 jest.mock('@/repositories', () => ({ subscriptionRepository: { getCurrent: getCurrentMock } }));
 jest.mock('@/db/sync', () => ({ runSync: runSyncMock }));
+jest.mock('@/services/subscription/purchases.client', () => ({
+  getOfferings: getOfferingsMock,
+  purchase: purchaseMock,
+  restore: restoreMock,
+  syncPurchasesIdentity: syncPurchasesIdentityMock,
+}));
 
 import { subscriptionService } from '@/services/subscription';
 import { ok, err, AppError } from '@/utils/result';
@@ -94,16 +106,45 @@ describe('refresh — offline resiliente', () => {
   });
 });
 
-describe('purchase/restore — stubs até a Fase 7', () => {
-  it('purchase() nunca simula uma compra: retorna not_implemented', async () => {
-    const result = await subscriptionService.purchase('plus-monthly');
-    expect(result.ok).toBe(false);
-    expect(!result.ok && result.error.code).toBe('not_implemented');
+describe('getOfferings/purchase/restore — delegam ao purchases.client (RevenueCat)', () => {
+  it('getOfferings() repassa o resultado do client', async () => {
+    const offerings = { packages: [{ identifier: '$rc_monthly', productId: 'runevo_plus_monthly', period: 'monthly' as const, priceString: 'R$ 19,90', priceAmount: 19.9, currencyCode: 'BRL', title: 'Mensal' }] };
+    getOfferingsMock.mockResolvedValue(ok(offerings));
+
+    const result = await subscriptionService.getOfferings();
+    expect(result).toEqual(ok(offerings));
   });
 
-  it('restore() também é not_implemented', async () => {
-    const result = await subscriptionService.restore();
+  it('purchase() repassa o identifier do pacote e o resultado do client', async () => {
+    purchaseMock.mockResolvedValue(ok(undefined));
+
+    const result = await subscriptionService.purchase('$rc_annual');
+    expect(purchaseMock).toHaveBeenCalledWith('$rc_annual');
+    expect(result.ok).toBe(true);
+  });
+
+  it('purchase() nunca finge sucesso: erro do client (ex. cancelado) propaga', async () => {
+    purchaseMock.mockResolvedValue(err(new AppError('cancelled', 'Compra cancelada.')));
+
+    const result = await subscriptionService.purchase('$rc_monthly');
     expect(result.ok).toBe(false);
-    expect(!result.ok && result.error.code).toBe('not_implemented');
+    expect(!result.ok && result.error.code).toBe('cancelled');
+  });
+
+  it('restore() repassa o resultado do client', async () => {
+    restoreMock.mockResolvedValue(ok(undefined));
+    const result = await subscriptionService.restore();
+    expect(result.ok).toBe(true);
+    expect(restoreMock).toHaveBeenCalled();
+  });
+});
+
+describe('identify — associa o RevenueCat ao user id do Supabase', () => {
+  it('repassa o userId (ou null, no logout) pro purchases.client', async () => {
+    await subscriptionService.identify('user-1');
+    expect(syncPurchasesIdentityMock).toHaveBeenCalledWith('user-1');
+
+    await subscriptionService.identify(null);
+    expect(syncPurchasesIdentityMock).toHaveBeenCalledWith(null);
   });
 });

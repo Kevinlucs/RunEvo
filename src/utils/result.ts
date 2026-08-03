@@ -21,6 +21,7 @@ export type AppErrorCode =
   | 'validation'
   | 'storage'
   | 'not_implemented'
+  | 'cancelled'
   | 'unknown';
 
 export class AppError extends Error {
