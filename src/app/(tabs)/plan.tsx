@@ -12,10 +12,13 @@ import { useActivePlan } from '@/hooks/useActivePlan';
 import { usePlanWorkouts } from '@/hooks/usePlanWorkouts';
 import { useCurrentWeek } from '@/hooks/useCurrentWeek';
 import { usePlanProgress } from '@/hooks/usePlanProgress';
+import { useAthleteProfile } from '@/hooks/useAthleteProfile';
+import { useEntitlement } from '@/hooks/useEntitlement';
 import { useAuthStore } from '@/store/auth.store';
 import { buildWeekMeta, groupWeeksByPhase, type WeekMeta } from '@/services/plan/plan-cycle.service';
 import { isRaceWorkout } from '@/services/workout/workout-detail.service';
 import { addWorkout, removeWorkout, moveWorkout } from '@/services/plan/edit-workout.service';
+import { exportPlanAsPdf } from '@/services/plan/export-plan';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
@@ -34,10 +37,13 @@ export default function Plan(): JSX.Element {
   const { weekNumber: currentWeekNumber } = useCurrentWeek();
   const { progress } = usePlanProgress();
   const userId = useAuthStore((s) => s.userId);
+  const { profile } = useAthleteProfile(userId);
+  const { isPlus } = useEntitlement();
 
   const [editMode, setEditMode] = useState(false);
   const [addModalWeek, setAddModalWeek] = useState<WeekMeta | null>(null);
   const [addSubmitting, setAddSubmitting] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const weeksMeta = useMemo(
     () => (plan ? buildWeekMeta(plan, workouts, currentWeekNumber) : []),
@@ -127,6 +133,19 @@ export default function Plan(): JSX.Element {
     }
   };
 
+  const handleExportPdf = useCallback(async (): Promise<void> => {
+    if (!plan || exporting) return;
+    setExporting(true);
+    try {
+      const result = await exportPlanAsPdf({ plan, workouts, athlete: profile, advanced: isPlus });
+      if (!result.ok) {
+        Alert.alert('Não foi possível exportar', result.error.message);
+      }
+    } finally {
+      setExporting(false);
+    }
+  }, [plan, workouts, profile, isPlus, exporting]);
+
   if (!isLoading && !plan) {
     return (
       <Screen>
@@ -175,7 +194,16 @@ export default function Plan(): JSX.Element {
                   {editMode ? 'Ativo — toque para sair' : 'Editar, adicionar, remover'}
                 </Text>
               </Pressable>
-              <DisabledRow label="Exportar (PDF/Excel)" note="Disponível na Fase 7" />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ disabled: exporting }}
+                disabled={exporting}
+                onPress={() => void handleExportPdf()}
+                style={styles.editableRow}
+              >
+                <Text style={styles.editableLabel}>Exportar PDF</Text>
+                <Text style={styles.editableNote}>{exporting ? 'Gerando…' : isPlus ? 'Versão avançada' : 'Planilha ativa'}</Text>
+              </Pressable>
               <DisabledRow label="Histórico completo (RunEvo+)" note="Disponível na Fase 6" />
             </View>
           </View>
