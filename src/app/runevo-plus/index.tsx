@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, View, Text, Pressable, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { Screen } from '@/components/ui/Screen';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { useEntitlement } from '@/hooks/useEntitlement';
-import { PLUS_FEATURES } from '@/services/subscription/plus-features';
+import { useAuth } from '@/hooks/useAuth';
+import { subscriptionService, completePurchase, completeRestore, annualDiscountPercent, PLUS_FEATURES } from '@/services/subscription';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
+import type { SubscriptionPackage } from '@/domain/entities';
 
 const CONVERSION_MESSAGES: Record<string, string> = {
   'first-cycle': 'Você concluiu seu primeiro ciclo. Acompanhe sua evolução, compare estratégias e leve seu histórico — RunEvo+.',
@@ -14,26 +17,82 @@ const CONVERSION_MESSAGES: Record<string, string> = {
 };
 const DEFAULT_MESSAGE = 'Leve sua evolução além de uma prova: histórico entre ciclos, comparação de planilhas e exportação em Excel.';
 
-type PlanCycle = 'monthly' | 'yearly';
-
-function comingSoon(feature: string): void {
-  Alert.alert('Em breve', `${feature} chega com o pagamento real na Fase 7.`);
-}
+type PlanCycle = 'monthly' | 'annual';
 
 /**
- * docs/fase-6-brief.md §34 — oferta RunEvo+. Regras estritas do enunciado:
- * conteúdo Plus visível porém escurecido, UM CTA só (nunca um botão por
- * card — problema explícito no legado), botão "Assinar" desabilitado
- * ("Em breve") porque o pagamento real é a Fase 7 — não simulamos compra
- * aqui. `isPlus` só decide o que ESTA tela mostra; a decisão em si vive no
- * SubscriptionService via useEntitlement(), nunca na UI.
+ * docs/fase-7-brief.md Grupo 2 — oferta RunEvo+ com compra real. Preços vêm
+ * sempre da loja (`getOfferings()`), nunca hardcoded — variam por moeda e
+ * podem mudar sem deploy. `isPlus` só decide o que ESTA tela mostra; quem
+ * decide Free/Plus de verdade é sempre `useEntitlement()`.
  */
 export default function RunEvoPlusOffer(): JSX.Element {
   const { reason } = useLocalSearchParams<{ reason?: string }>();
   const { isPlus } = useEntitlement();
-  const [cycle, setCycle] = useState<PlanCycle>('yearly');
+  const { user } = useAuth();
+  const [cycle, setCycle] = useState<PlanCycle>('annual');
+  const [purchasing, setPurchasing] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+
+  const offeringsQuery = useQuery({
+    queryKey: ['subscription-offerings'],
+    enabled: !isPlus,
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<SubscriptionPackage[]> => {
+      const result = await subscriptionService.getOfferings();
+      if (!result.ok) throw result.error;
+      return result.value.packages;
+    },
+  });
+
+  const packages = offeringsQuery.data ?? [];
+  const monthlyPkg = packages.find((p) => p.period === 'monthly');
+  const annualPkg = packages.find((p) => p.period === 'annual');
+  const selectedPkg = cycle === 'monthly' ? monthlyPkg : annualPkg;
+  const discount = annualDiscountPercent(monthlyPkg, annualPkg);
+
+  useEffect(() => {
+    // Se a loja só devolveu um dos dois pacotes, seleciona o que existe.
+    if (cycle === 'annual' && !annualPkg && monthlyPkg) setCycle('monthly');
+    else if (cycle === 'monthly' && !monthlyPkg && annualPkg) setCycle('annual');
+  }, [cycle, monthlyPkg, annualPkg]);
 
   const message = (reason && CONVERSION_MESSAGES[reason]) || DEFAULT_MESSAGE;
+
+  async function handlePurchase(): Promise<void> {
+    if (!selectedPkg || !user?.id || purchasing) return;
+    setPurchasing(true);
+    try {
+      const result = await completePurchase(selectedPkg.identifier, user.id);
+      if (!result.ok) {
+        if (result.error.code !== 'cancelled') {
+          Alert.alert('Não foi possível concluir a compra', result.error.message);
+        }
+        return;
+      }
+      router.back();
+    } finally {
+      setPurchasing(false);
+    }
+  }
+
+  async function handleRestore(): Promise<void> {
+    if (!user?.id || restoring) return;
+    setRestoring(true);
+    try {
+      const result = await completeRestore(user.id);
+      if (!result.ok) {
+        Alert.alert('Não foi possível restaurar', result.error.message);
+        return;
+      }
+      Alert.alert('Restauração concluída', 'Se havia uma assinatura ativa nesta conta, ela foi restaurada.');
+    } finally {
+      setRestoring(false);
+    }
+  }
+
+  function handleTerms(): void {
+    Alert.alert('Termos', 'Termos de assinatura em breve.');
+  }
 
   return (
     <Screen>
@@ -62,37 +121,50 @@ export default function RunEvoPlusOffer(): JSX.Element {
 
         {!isPlus && (
           <>
+            {offeringsQuery.isError && (
+              <Text style={styles.errorText}>Não foi possível carregar os planos agora. Verifique sua conexão e tente novamente.</Text>
+            )}
+
             <View style={styles.plans}>
               <Pressable
                 style={[styles.planCard, cycle === 'monthly' && styles.planCardSelected]}
                 onPress={() => setCycle('monthly')}
                 accessibilityRole="button"
                 accessibilityState={{ selected: cycle === 'monthly' }}
+                disabled={!monthlyPkg}
               >
                 <Text style={styles.planLabel}>Mensal</Text>
+                {monthlyPkg && <Text style={styles.planPrice}>{monthlyPkg.priceString}</Text>}
               </Pressable>
               <Pressable
-                style={[styles.planCard, cycle === 'yearly' && styles.planCardSelected]}
-                onPress={() => setCycle('yearly')}
+                style={[styles.planCard, cycle === 'annual' && styles.planCardSelected]}
+                onPress={() => setCycle('annual')}
                 accessibilityRole="button"
-                accessibilityState={{ selected: cycle === 'yearly' }}
+                accessibilityState={{ selected: cycle === 'annual' }}
+                disabled={!annualPkg}
               >
                 <Text style={styles.planLabel}>Anual</Text>
-                <Text style={styles.planBadge}>Economize 30%</Text>
+                {annualPkg && <Text style={styles.planPrice}>{annualPkg.priceString}</Text>}
+                {discount !== null && <Text style={styles.planBadge}>Economize {discount}%</Text>}
               </Pressable>
             </View>
 
             <View style={styles.cta}>
-              <NeonButton label="Assinar — Em breve" onPress={() => {}} disabled />
+              <NeonButton
+                label={selectedPkg ? `Assinar — ${selectedPkg.priceString}` : 'Assinar'}
+                onPress={() => void handlePurchase()}
+                loading={purchasing}
+                disabled={!selectedPkg || purchasing}
+              />
             </View>
 
-            <Pressable onPress={() => comingSoon('Restaurar compra')} accessibilityRole="button">
-              <Text style={styles.link}>Restaurar compra</Text>
+            <Pressable onPress={() => void handleRestore()} accessibilityRole="button" disabled={restoring}>
+              <Text style={styles.link}>{restoring ? 'Restaurando…' : 'Restaurar compra'}</Text>
             </Pressable>
           </>
         )}
 
-        <Pressable onPress={() => comingSoon('Termos')} accessibilityRole="button">
+        <Pressable onPress={handleTerms} accessibilityRole="button">
           <Text style={styles.link}>Termos</Text>
         </Pressable>
       </ScrollView>
@@ -130,6 +202,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  errorText: {
+    color: colors.textSecondary,
+    fontSize: fontSizes.caption,
+    textAlign: 'center',
+    marginBottom: spacing.md,
+  },
   plans: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
   planCard: {
     flex: 1,
@@ -143,6 +221,7 @@ const styles = StyleSheet.create({
   },
   planCardSelected: { borderColor: colors.neon, backgroundColor: colors.cardElevated },
   planLabel: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
+  planPrice: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('600') },
   planBadge: { color: colors.neon, fontSize: fontSizes.caption, ...fontWeight('700') },
   cta: { marginBottom: spacing.lg },
   link: {
