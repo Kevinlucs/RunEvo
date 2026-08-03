@@ -20,6 +20,7 @@ export type AppErrorCode =
   | 'conflict'
   | 'validation'
   | 'storage'
+  | 'not_implemented'
   | 'unknown';
 
 export class AppError extends Error {

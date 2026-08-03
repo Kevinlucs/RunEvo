@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { colors } from '@/theme';
 
-export default function ProfileLayout(): JSX.Element {
+export default function RunEvoPlusLayout(): JSX.Element {
   return (
     <Stack
       screenOptions={{
@@ -11,10 +11,8 @@ export default function ProfileLayout(): JSX.Element {
         contentStyle: { backgroundColor: colors.bg },
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'Perfil' }} />
-      <Stack.Screen name="edit" options={{ title: 'Editar perfil' }} />
-      <Stack.Screen name="shoes/index" options={{ title: 'Meus tênis' }} />
-      <Stack.Screen name="shoes/[id]" options={{ title: 'Tênis' }} />
+      <Stack.Screen name="index" options={{ title: 'RunEvo+' }} />
+      <Stack.Screen name="resources" options={{ title: 'Meus recursos' }} />
     </Stack>
   );
 }

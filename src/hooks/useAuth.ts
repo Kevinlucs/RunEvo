@@ -16,5 +16,6 @@ export function useAuth() {
     user: session?.user ?? null,
     isAuthenticated: session !== null,
     signOut: () => authService.signOut(),
+    deleteAccount: () => authService.deleteAccount(),
   };
 }

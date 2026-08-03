@@ -1,52 +1,52 @@
-import { supabase } from '@/lib/supabase';
+import { subscriptionRepository } from '@/repositories';
+import { runSync } from '@/db/sync';
 import { ok, err, AppError, type Result } from '@/utils/result';
-import type { Entitlement } from '@/types/entities';
+import type { Entitlement, Subscription } from '@/domain/entities';
 
-// Entitlement é resolvido AQUI (serviço), lendo a tabela subscriptions +
-// validando período — nunca só na UI (corrige o débito do legado, legacy-audit §6).
-// Billing real (Google Play / App Store) pluga em purchase()/restore() na Fase 7.
+/**
+ * docs/fase-6-brief.md Grupo 1 — fronteira única de entitlement. Lê sempre do
+ * cache local (subscriptionRepository, offline-first); `refresh()` dispara um
+ * ciclo de sync best-effort antes de reler, mas nunca falha por falta de rede
+ * (o app precisa saber "free vs plus" mesmo offline). `purchase()`/`restore()`
+ * são stubs até a Fase 7 — billing real pluga atrás desta mesma interface.
+ */
 export interface SubscriptionService {
   getEntitlement(userId: string): Promise<Result<Entitlement>>;
+  refresh(userId: string): Promise<Result<Entitlement>>;
   purchase(productId: string): Promise<Result<void>>;
   restore(): Promise<Result<void>>;
 }
 
 const FREE: Entitlement = { plan: 'free', status: 'free', periodEnd: null };
 
-function toEntitlement(row: {
-  status: Entitlement['status'];
-  current_period_end: string | null;
-}): Entitlement {
-  const active = row.status === 'active' || row.status === 'trialing';
-  const notExpired = !row.current_period_end || new Date(row.current_period_end) > new Date();
-  return {
-    plan: active && notExpired ? 'plus' : 'free',
-    status: row.status,
-    periodEnd: row.current_period_end,
-  };
+function toEntitlement(sub: Subscription | null): Entitlement {
+  if (!sub) return FREE;
+  const active = sub.status === 'active' || sub.status === 'trialing';
+  const notExpired = !sub.current_period_end || new Date(sub.current_period_end) > new Date();
+  return { plan: active && notExpired ? 'plus' : 'free', status: sub.status, periodEnd: sub.current_period_end };
 }
 
-export const supabaseSubscriptionService: SubscriptionService = {
+export const subscriptionService: SubscriptionService = {
   async getEntitlement(userId) {
-    const { data, error } = await supabase
-      .from('subscriptions')
-      .select('status, current_period_end')
-      .eq('user_id', userId)
-      .order('updated_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const res = await subscriptionRepository.getCurrent(userId);
+    if (!res.ok) return err(res.error);
+    return ok(toEntitlement(res.value));
+  },
 
-    if (error) return err(new AppError('network', error.message, error));
-    if (!data) return ok(FREE);
-    return ok(toEntitlement(data));
+  async refresh(userId) {
+    try {
+      await runSync(userId);
+    } catch {
+      // best-effort: falha de rede não pode impedir reler o cache local
+    }
+    return subscriptionService.getEntitlement(userId);
   },
 
   async purchase() {
-    // Placeholder: billing real conecta na Fase 7 atrás desta mesma interface.
-    return err(new AppError('unknown', 'Compra ainda não conectada.'));
+    return err(new AppError('not_implemented', 'Compra ainda não conectada — chega na Fase 7.'));
   },
 
   async restore() {
-    return err(new AppError('unknown', 'Restauração ainda não conectada.'));
+    return err(new AppError('not_implemented', 'Restauração de compra ainda não conectada — chega na Fase 7.'));
   },
 };

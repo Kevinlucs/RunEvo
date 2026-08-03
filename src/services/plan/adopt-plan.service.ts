@@ -1,4 +1,4 @@
-import { trainingPlanRepository, workoutRepository, draftRepository } from '@/repositories';
+import { trainingPlanRepository, workoutRepository, draftRepository, athleteProfileRepository } from '@/repositories';
 import { planToRows } from '@/mappers/plan.mapper';
 import { queryClient } from '@/store/query-client';
 import { ok, err, toAppError, type Result } from '@/utils/result';
@@ -33,6 +33,22 @@ export async function adoptPlan(plan: Plan, userId: string): Promise<Result<void
     }
 
     await draftRepository.clear(userId);
+
+    // Débito achado na Fase 6 (Grupo 2, §31): altura/peso/IMC digitados no
+    // formulário IA Evo nunca eram salvos em `athlete_profiles` — ficavam só
+    // dentro do blueprint deste plano. Estatísticas e Perfil (§32) precisam
+    // ler do perfil, não de um plano específico. Best-effort: uma falha aqui
+    // não pode travar a adoção da planilha.
+    const { height, weight, imc } = plan.userData;
+    if (height !== undefined || weight !== undefined || imc !== undefined) {
+      await athleteProfileRepository.upsert({
+        id: userId,
+        ...(height !== undefined && { height_cm: height }),
+        ...(weight !== undefined && { current_weight_kg: weight }),
+        ...(imc !== undefined && imc !== null && { imc }),
+      });
+    }
+
     await queryClient.invalidateQueries();
 
     return ok(undefined);
