@@ -1,5 +1,6 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 import { ok, err, AppError, toAppError, type Result } from '@/utils/result';
 
 /**
@@ -11,6 +12,16 @@ import { ok, err, AppError, toAppError, type Result } from '@/utils/result';
 export async function generatePdfFile(html: string): Promise<Result<{ uri: string }>> {
   try {
     const { uri } = await Print.printToFileAsync({ html, base64: false });
+    return ok({ uri });
+  } catch (e) {
+    return err(toAppError(e, 'unknown'));
+  }
+}
+
+export async function writeBase64File(base64: string, fileName: string): Promise<Result<{ uri: string }>> {
+  try {
+    const uri = `${FileSystem.cacheDirectory}${fileName}`;
+    await FileSystem.writeAsStringAsync(uri, base64, { encoding: FileSystem.EncodingType.Base64 });
     return ok({ uri });
   } catch (e) {
     return err(toAppError(e, 'unknown'));

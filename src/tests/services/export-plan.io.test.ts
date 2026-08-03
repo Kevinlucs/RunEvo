@@ -7,11 +7,17 @@
 const printToFileAsyncMock = jest.fn();
 const isAvailableAsyncMock = jest.fn();
 const shareAsyncMock = jest.fn();
+const writeAsStringAsyncMock = jest.fn();
 
 jest.mock('expo-print', () => ({ printToFileAsync: printToFileAsyncMock }));
 jest.mock('expo-sharing', () => ({ isAvailableAsync: isAvailableAsyncMock, shareAsync: shareAsyncMock }));
+jest.mock('expo-file-system', () => ({
+  cacheDirectory: 'file:///cache/',
+  EncodingType: { Base64: 'base64' },
+  writeAsStringAsync: writeAsStringAsyncMock,
+}));
 
-import { generatePdfFile, shareFile } from '@/services/plan/export-plan.io';
+import { generatePdfFile, writeBase64File, shareFile } from '@/services/plan/export-plan.io';
 /* eslint-enable import/first */
 
 beforeEach(() => {
@@ -32,6 +38,25 @@ describe('generatePdfFile', () => {
     printToFileAsyncMock.mockRejectedValue(new Error('falha nativa'));
 
     const result = await generatePdfFile('<html></html>');
+
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('writeBase64File', () => {
+  it('escreve o base64 no cache dir e devolve a uri', async () => {
+    writeAsStringAsyncMock.mockResolvedValue(undefined);
+
+    const result = await writeBase64File('QkFTRTY0', 'plano.xlsx');
+
+    expect(writeAsStringAsyncMock).toHaveBeenCalledWith('file:///cache/plano.xlsx', 'QkFTRTY0', { encoding: 'base64' });
+    expect(result).toEqual({ ok: true, value: { uri: 'file:///cache/plano.xlsx' } });
+  });
+
+  it('erro do FileSystem propaga (nunca finge ter gravado o arquivo)', async () => {
+    writeAsStringAsyncMock.mockRejectedValue(new Error('disco cheio'));
+
+    const result = await writeBase64File('QkFTRTY0', 'plano.xlsx');
 
     expect(result.ok).toBe(false);
   });

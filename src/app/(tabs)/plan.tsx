@@ -18,7 +18,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { buildWeekMeta, groupWeeksByPhase, type WeekMeta } from '@/services/plan/plan-cycle.service';
 import { isRaceWorkout } from '@/services/workout/workout-detail.service';
 import { addWorkout, removeWorkout, moveWorkout } from '@/services/plan/edit-workout.service';
-import { exportPlanAsPdf } from '@/services/plan/export-plan';
+import { exportPlanAsPdf, exportPlanAsExcel } from '@/services/plan/export-plan';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
@@ -133,18 +133,40 @@ export default function Plan(): JSX.Element {
     }
   };
 
-  const handleExportPdf = useCallback(async (): Promise<void> => {
-    if (!plan || exporting) return;
-    setExporting(true);
-    try {
-      const result = await exportPlanAsPdf({ plan, workouts, athlete: profile, advanced: isPlus });
-      if (!result.ok) {
-        Alert.alert('Não foi possível exportar', result.error.message);
+  const handleExport = useCallback(
+    async (format: 'pdf' | 'excel'): Promise<void> => {
+      if (!plan || exporting) return;
+      setExporting(true);
+      try {
+        const input = { plan, workouts, athlete: profile, advanced: isPlus };
+        const result = format === 'pdf' ? await exportPlanAsPdf(input) : await exportPlanAsExcel(input);
+        if (!result.ok) {
+          Alert.alert('Não foi possível exportar', result.error.message);
+        }
+      } finally {
+        setExporting(false);
       }
-    } finally {
-      setExporting(false);
-    }
-  }, [plan, workouts, profile, isPlus, exporting]);
+    },
+    [plan, workouts, profile, isPlus, exporting],
+  );
+
+  const handleExportPress = useCallback(() => {
+    if (!plan || exporting) return;
+    Alert.alert('Exportar planilha', 'Escolha o formato', [
+      { text: 'PDF', onPress: () => void handleExport('pdf') },
+      {
+        text: isPlus ? 'Excel' : 'Excel (RunEvo+)',
+        onPress: () => {
+          if (isPlus) {
+            void handleExport('excel');
+          } else {
+            router.push({ pathname: '/runevo-plus', params: { reason: 'history' } });
+          }
+        },
+      },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
+  }, [plan, exporting, isPlus, handleExport]);
 
   if (!isLoading && !plan) {
     return (
@@ -198,10 +220,10 @@ export default function Plan(): JSX.Element {
                 accessibilityRole="button"
                 accessibilityState={{ disabled: exporting }}
                 disabled={exporting}
-                onPress={() => void handleExportPdf()}
+                onPress={handleExportPress}
                 style={styles.editableRow}
               >
-                <Text style={styles.editableLabel}>Exportar PDF</Text>
+                <Text style={styles.editableLabel}>Exportar (PDF/Excel)</Text>
                 <Text style={styles.editableNote}>{exporting ? 'Gerando…' : isPlus ? 'Versão avançada' : 'Planilha ativa'}</Text>
               </Pressable>
               <DisabledRow label="Histórico completo (RunEvo+)" note="Disponível na Fase 6" />
