@@ -226,7 +226,18 @@ export default function Plan(): JSX.Element {
                 <Text style={styles.editableLabel}>Exportar (PDF/Excel)</Text>
                 <Text style={styles.editableNote}>{exporting ? 'Gerando…' : isPlus ? 'Versão avançada' : 'Planilha ativa'}</Text>
               </Pressable>
-              <DisabledRow label="Histórico completo (RunEvo+)" note="Disponível na Fase 6" />
+              <Pressable
+                accessibilityRole="button"
+                onPress={() =>
+                  isPlus
+                    ? router.push('/(tabs)/stats')
+                    : router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })
+                }
+                style={styles.editableRow}
+              >
+                <Text style={styles.editableLabel}>Histórico completo</Text>
+                <Text style={styles.editableNote}>{isPlus ? 'Ver evolução' : 'RunEvo+'}</Text>
+              </Pressable>
             </View>
           </View>
         }
@@ -245,15 +256,6 @@ export default function Plan(): JSX.Element {
   );
 }
 
-function DisabledRow({ label, note }: { label: string; note: string }): JSX.Element {
-  return (
-    <View style={styles.disabledRow} accessibilityRole="button" accessibilityState={{ disabled: true }}>
-      <Text style={styles.disabledLabel}>{label}</Text>
-      <Text style={styles.disabledNote}>{note}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   screen: { paddingHorizontal: 0 },
   listContent: { paddingBottom: spacing.xxxl },
@@ -261,19 +263,6 @@ const styles = StyleSheet.create({
   title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.sm },
   progress: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs, marginBottom: spacing.lg },
   disabledSection: { marginTop: spacing.lg, marginBottom: spacing.sm, gap: spacing.sm },
-  disabledRow: {
-    minHeight: 44,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.lg,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    opacity: 0.5,
-  },
-  disabledLabel: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600') },
-  disabledNote: { color: colors.textMuted, fontSize: fontSizes.caption },
   editableRow: {
     minHeight: 44,
     borderRadius: radii.md,
