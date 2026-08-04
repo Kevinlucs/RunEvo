@@ -137,6 +137,7 @@ export default function Profile(): JSX.Element {
       <View style={styles.group}>
         <ProfileRow icon="flash-outline" label="RunEvo+" onPress={() => router.push('/runevo-plus')} />
         <ProfileRow icon="grid-outline" label="Meus recursos" onPress={() => router.push('/runevo-plus/resources')} />
+        <ProfileRow icon="time-outline" label="Histórico de ciclos" onPress={() => router.push('/history')} />
       </View>
 
       <SectionLabel>Minhas preferências</SectionLabel>
