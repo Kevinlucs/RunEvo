@@ -99,7 +99,7 @@ export default function Evolution(): JSX.Element {
           <LockedSection
             title="Veja sua evolução completa entre ciclos"
             ctaLabel="Assinar RunEvo+"
-            onPressCta={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
+            onPressCta={() => router.push({ pathname: '/runevo-plus', params: { reason: 'cycles-evolution' } })}
           >
             {content}
           </LockedSection>

@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, Pressable, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
@@ -11,6 +11,7 @@ import { LockedSection } from '@/components/paywall/LockedSection';
 import { useActivePlan } from '@/hooks/useActivePlan';
 import { useAthleteStats } from '@/hooks/useAthleteStats';
 import { useEntitlement } from '@/hooks/useEntitlement';
+import { useCycleHistory } from '@/hooks/useCycleHistory';
 import { classifyImc } from '@/services/stats/stats.service';
 import { PLUS_FEATURES } from '@/services/subscription/plus-features';
 import { colors, spacing, fontSizes, fontWeight } from '@/theme';
@@ -24,6 +25,7 @@ export default function Stats(): JSX.Element {
   const { plan, isLoading: planLoading } = useActivePlan();
   const { stats, isLoading: statsLoading } = useAthleteStats();
   const { isPlus } = useEntitlement();
+  const { cycles } = useCycleHistory();
 
   if (!planLoading && !plan) {
     return (
@@ -95,18 +97,26 @@ export default function Stats(): JSX.Element {
           <BarChart data={adherence} unit="%" />
         </Card>
 
+        <Text style={styles.sectionLabel}>Ciclos anteriores</Text>
+        <Card title="Histórico">
+          <HistoryRow icon="time-outline" label="Ver histórico de ciclos" onPress={() => router.push('/history')} />
+        </Card>
+
         <Text style={styles.sectionLabel}>Recursos RunEvo+</Text>
         {isPlus ? (
           <Card title="Evolução entre ciclos">
-            <Text style={styles.plusNote}>
-              Compare esta planilha com ciclos anteriores assim que concluir mais de uma prova.
-            </Text>
+            <HistoryRow icon="git-compare-outline" label="Comparar ciclos" onPress={() => router.push('/history/compare')} />
+            <HistoryRow icon="trending-up-outline" label="Ver evolução" onPress={() => router.push('/history/evolution')} last />
           </Card>
         ) : (
           <LockedSection
-            title="Desbloqueie a evolução completa"
+            title={
+              cycles.length > 0
+                ? 'Você concluiu ciclos com o RunEvo. Assine o RunEvo+ e veja sua evolução completa.'
+                : 'Desbloqueie a evolução completa'
+            }
             ctaLabel="Assinar RunEvo+"
-            onPressCta={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
+            onPressCta={() => router.push({ pathname: '/runevo-plus', params: { reason: 'cycles-evolution' } })}
           >
             <Card title="Evolução entre ciclos">
               {PLUS_FEATURES.map((f) => (
@@ -123,6 +133,28 @@ export default function Stats(): JSX.Element {
   );
 }
 
+function HistoryRow({
+  icon,
+  label,
+  onPress,
+  last = false,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+  last?: boolean;
+}): JSX.Element {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" style={[styles.historyRow, last && styles.historyRowLast]}>
+      <View style={styles.historyRowLeft}>
+        <Ionicons name={icon} size={18} color={colors.neon} />
+        <Text style={styles.historyRowLabel}>{label}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   scrollContent: { paddingBottom: spacing.xxxl },
   h1: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.sm, marginBottom: spacing.lg },
@@ -135,7 +167,16 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     marginBottom: spacing.md,
   },
-  plusNote: { color: colors.textSecondary, fontSize: fontSizes.body },
   featureRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
   featureText: { color: colors.textSecondary, fontSize: fontSizes.body },
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  historyRowLast: { marginBottom: 0 },
+  historyRowLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  historyRowLabel: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600') },
 });

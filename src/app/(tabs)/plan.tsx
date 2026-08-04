@@ -228,15 +228,11 @@ export default function Plan(): JSX.Element {
               </Pressable>
               <Pressable
                 accessibilityRole="button"
-                onPress={() =>
-                  isPlus
-                    ? router.push('/(tabs)/stats')
-                    : router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })
-                }
+                onPress={() => router.push('/history')}
                 style={styles.editableRow}
               >
                 <Text style={styles.editableLabel}>Histórico completo</Text>
-                <Text style={styles.editableNote}>{isPlus ? 'Ver evolução' : 'RunEvo+'}</Text>
+                <Text style={styles.editableNote}>Ver ciclos anteriores</Text>
               </Pressable>
             </View>
           </View>

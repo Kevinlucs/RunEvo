@@ -123,7 +123,7 @@ export default function CompareCycles(): JSX.Element {
           <LockedSection
             title="Compare dois ciclos e veja sua evolução"
             ctaLabel="Assinar RunEvo+"
-            onPressCta={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
+            onPressCta={() => router.push({ pathname: '/runevo-plus', params: { reason: 'cycles-evolution' } })}
           >
             {content}
           </LockedSection>

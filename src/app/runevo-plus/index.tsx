@@ -14,6 +14,10 @@ import type { SubscriptionPackage } from '@/domain/entities';
 const CONVERSION_MESSAGES: Record<string, string> = {
   'first-cycle': 'Você concluiu seu primeiro ciclo. Acompanhe sua evolução, compare estratégias e leve seu histórico — RunEvo+.',
   history: 'Desbloqueie o histórico completo entre ciclos, comparação de planilhas e auditoria avançada da IA.',
+  // docs/fase-7-5-brief.md Grupo 5 — só usado quando o Free já tem ciclos
+  // arquivados de verdade (Comparar/Evolução em /history), então a promessa
+  // é real, não vazia.
+  'cycles-evolution': 'Você concluiu ciclos com o RunEvo. Assine o RunEvo+ e veja sua evolução completa.',
 };
 const DEFAULT_MESSAGE = 'Leve sua evolução além de uma prova: histórico entre ciclos, comparação de planilhas e exportação em Excel.';
 
