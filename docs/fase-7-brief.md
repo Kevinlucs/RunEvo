@@ -25,7 +25,7 @@
 
 - Conta **Google Play Console** (✅ o usuário tem). Criar os produtos de assinatura: `runevo_plus_monthly` e `runevo_plus_annual` (IDs sugeridos — confirme com o usuário), com preços; anual com desconto.
 - Conta **Apple Developer** (⏳ em criação). Criar os mesmos produtos em App Store Connect quando sair.
-- Conta **RevenueCat** (gratuita): criar projeto, conectar Google Play (service account) e depois Apple, criar uma **entitlement** chamada `RunEvo+` (com o "+" — identifier já provisionado e imutável no RevenueCat) e um **offering** com os dois pacotes.
+- Conta **RevenueCat** (gratuita): criar projeto, conectar Google Play (service account) e depois Apple, criar uma **entitlement** chamada `plus` e um **offering** com os dois pacotes.
 - Chaves públicas do RevenueCat (Android e iOS) — vão no app como config pública (são SDK keys públicas, não segredo de servidor). A **secret** do RevenueCat (webhook) fica só no Supabase.
 
 > O código deve funcionar em **modo Google primeiro**; iOS entra quando a conta Apple e os produtos existirem. Não bloqueie a fase esperando a Apple.
