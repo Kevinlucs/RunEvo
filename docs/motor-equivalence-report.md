@@ -200,3 +200,49 @@ puras, TypeScript strict), com equivalência verificada empiricamente contra
 divergências. Débitos explícitos documentados acima ficam para quando os
 respectivos serviços/repositories forem implementados (Fase 3+); não são
 lacunas silenciosas.
+
+## Fase 7.5 — desvio consciente do legado: guardrail de segurança em `normalizeAICheckinRecommendation`
+
+Validação de segurança obrigatória (docs/fase-5-brief.md, reiterada na Fase
+7.5): check-in real num dev build, Gemini real, `pain=true` + `effort=9`
+numa semana 100% concluída. Resultado observado: a IA sugeriu `maintain`, e
+o app aplicou `maintain` ("Plano mantido") — não `recovery`/`reduce`, apesar
+do motor local (`recommendAdjustment`), para o mesmo check-in, calcular
+corretamente `recovery`.
+
+**Causa**: o guardrail original (`app.js:4908-4968`, portado 1:1 na Fase 2)
+era uma lista de casos proibidos que só verificava `action ===
+'slight_increase'` explicitamente:
+
+```js
+if (feedback.pain && action === 'slight_increase') action = 'recovery';
+if ((effort >= 9 || completionRate < 0.6) && action === 'slight_increase') { ... }
+```
+
+Uma sugestão da IA como `'maintain'` (não `'slight_increase'`) sob dor ou
+esforço alto não caía em nenhum dos dois `if`s e atravessava sem correção
+nenhuma. **O legado tinha exatamente o mesmo furo** — confirmado empiricamente
+em teste (`adaptive-training.test.ts`, caso "(a)"): rodando
+`legacy.normalizeAICheckinRecommendation` com a mesma entrada do teste ao
+vivo (`pain=true, effort=9, ai.action='maintain'`), o legado também retorna
+`'maintain'`.
+
+**Correção** (autorizada explicitamente pelo usuário como exceção pontual —
+único ponto tocado em `src/domain/motor-evo/` fora do escopo normal da Fase
+7.5, closed a modificação): a lista de casos proibidos virou regra positiva.
+Sob qualquer sinal de risco (`pain === true`, `effort >= 9` ou
+`completionRate < 0.6`), o `action` final nunca pode ser menos protetor do
+que `localRecommendation.action`, usando uma ordem de proteção explícita
+(`recovery > reduce > maintain > slight_increase`) — vence o mais protetor
+entre a sugestão da IA e o motor local. Fora desses sinais de risco, a IA
+ajusta livremente, sem mudança de comportamento.
+
+**Isto é uma divergência intencional e documentada do legado**, feita por
+segurança do atleta, não um erro de port. Coberta por 4 testes dedicados em
+`adaptive-training.test.ts` (descreve "piso positivo (Fase 7.5, desvio
+consciente do legado)"): o caso exato do teste ao vivo, o caso antigo
+(`slight_increase` sob dor) confirmando que continua passando, baixa
+aderência com `maintain`, e uma semana boa sem sinais de risco confirmando
+que a IA não é superprotegida indevidamente. Reteste ao vivo pós-correção:
+mesmo cenário (dor + esforço 9) agora resulta em `recovery`. 475/475 testes,
+typecheck 0, lint 0/0.
