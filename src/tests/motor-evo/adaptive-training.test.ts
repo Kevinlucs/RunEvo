@@ -54,8 +54,12 @@ describe('adaptive-training — recommendAdjustment vs. getLocalAdjustmentRecomm
 });
 
 describe('adaptive-training — normalizeAICheckinRecommendation guardrails vs. legado', () => {
-  const local = recommendAdjustment({ pain: false, effort: 6, feeling: 'normal' }, { skipped: 0, completionRate: 1 });
-
+  // `local` é recomputado por caso, a partir do MESMO feedback passado a
+  // `normalizeAICheckinRecommendation` — é assim que o caller real
+  // (submit-checkin.service.ts) sempre chama as duas funções. Um `local`
+  // hoisted/desacoplado (como antes) não é uma entrada válida para o guardrail
+  // de piso positivo (Fase 7.5): o piso só protege de verdade se refletir a
+  // recomendação local para o MESMO check-in, não para um feedback diferente.
   const cases: { label: string; ai: Record<string, unknown> | null; feedback: Record<string, unknown> }[] = [
     {
       label: 'dor + IA sugere slight_increase → força recovery',
@@ -110,9 +114,74 @@ describe('adaptive-training — normalizeAICheckinRecommendation guardrails vs. 
   ];
 
   it.each(cases)('$label', ({ ai, feedback }) => {
+    const fb = feedback as { pain: boolean; effort: number; feeling: Feeling; summary: { completionRate: number } };
+    const local = recommendAdjustment(
+      { pain: fb.pain, effort: fb.effort, feeling: fb.feeling },
+      { skipped: 0, completionRate: fb.summary.completionRate },
+    );
     const newRec = normalizeAICheckinRecommendation(ai as never, feedback as never, local);
     const legacyRec = legacy.normalizeAICheckinRecommendation(ai, feedback, local as never);
     expect(newRec).toEqual(legacyRec);
+  });
+});
+
+describe('adaptive-training — normalizeAICheckinRecommendation piso positivo (Fase 7.5, desvio consciente do legado)', () => {
+  // Achado do teste ao vivo obrigatório (dev build, Gemini real): pain=true +
+  // effort=9 + IA sugeriu "maintain" (não "slight_increase") → o guardrail
+  // antigo (lista de casos proibidos, só via `action === 'slight_increase'`)
+  // deixava passar direto, aplicando "Plano mantido" a um atleta com dor
+  // reportada. O legado tinha o mesmo furo (mesma checagem literal) — corrigido
+  // aqui por segurança do atleta, com a lacuna documentada em
+  // docs/motor-equivalence-report.md.
+  it('(a) caso do teste ao vivo: dor + esforço 9 + IA=maintain, local=recovery → recovery', () => {
+    const feedback = { pain: true, effort: 9, feeling: 'normal' as Feeling, summary: { averageEffort: 9, completionRate: 1 } };
+    const local = recommendAdjustment(
+      { pain: feedback.pain, effort: feedback.effort, feeling: feedback.feeling },
+      { skipped: 0, completionRate: feedback.summary.completionRate },
+    );
+    expect(local.action).toBe('recovery');
+
+    const result = normalizeAICheckinRecommendation({ action: 'maintain', adjustmentPercent: 0 }, feedback, local);
+    expect(result.action).toBe('recovery');
+
+    // Confirma que o legado (e o port antes desta correção) ficava preso em
+    // "maintain" para esta mesma entrada — a lacuna real que motivou o desvio.
+    const legacyRec = legacy.normalizeAICheckinRecommendation({ action: 'maintain', adjustmentPercent: 0 }, feedback, local as never) as {
+      action: string;
+    };
+    expect(legacyRec.action).toBe('maintain');
+  });
+
+  it('(b) dor + IA=slight_increase → recovery (caso antigo continua passando)', () => {
+    const feedback = { pain: true, effort: 6, feeling: 'normal' as Feeling, summary: { averageEffort: 6, completionRate: 1 } };
+    const local = recommendAdjustment(
+      { pain: feedback.pain, effort: feedback.effort, feeling: feedback.feeling },
+      { skipped: 0, completionRate: feedback.summary.completionRate },
+    );
+    const result = normalizeAICheckinRecommendation({ action: 'slight_increase', adjustmentPercent: 5 }, feedback, local);
+    expect(result.action).toBe('recovery');
+  });
+
+  it('(c) aderência <60% + IA=maintain, local=reduce → reduce', () => {
+    const feedback = { pain: false, effort: 5, feeling: 'normal' as Feeling, summary: { averageEffort: 5, completionRate: 0.5 } };
+    const local = recommendAdjustment(
+      { pain: feedback.pain, effort: feedback.effort, feeling: feedback.feeling },
+      { skipped: 0, completionRate: feedback.summary.completionRate },
+    );
+    expect(local.action).toBe('reduce');
+
+    const result = normalizeAICheckinRecommendation({ action: 'maintain', adjustmentPercent: 0 }, feedback, local);
+    expect(result.action).toBe('reduce');
+  });
+
+  it('(d) semana boa sem sinais de risco + IA=slight_increase → permanece slight_increase', () => {
+    const feedback = { pain: false, effort: 4, feeling: 'normal' as Feeling, summary: { averageEffort: 4, completionRate: 1 } };
+    const local = recommendAdjustment(
+      { pain: feedback.pain, effort: feedback.effort, feeling: feedback.feeling },
+      { skipped: 0, completionRate: feedback.summary.completionRate },
+    );
+    const result = normalizeAICheckinRecommendation({ action: 'slight_increase', adjustmentPercent: 3 }, feedback, local);
+    expect(result.action).toBe('slight_increase');
   });
 });
 

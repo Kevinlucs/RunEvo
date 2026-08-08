@@ -139,8 +139,29 @@ export interface NormalizeAICheckinFeedbackInput {
 }
 
 /**
- * app.js:4908-4968. Guardrails de segurança aplicados sobre uma sugestão de IA
- * já obtida (spec §18) — continua pura: não chama IA, só reconcilia.
+ * Ordem de proteção das ações, da mais para a menos protetora — usada pelo
+ * guardrail de piso positivo abaixo (mais alto = mais protetor).
+ */
+const PROTECTION_RANK: Record<AdjustmentAction, number> = {
+  recovery: 3,
+  reduce: 2,
+  maintain: 1,
+  slight_increase: 0,
+};
+
+/**
+ * app.js:4908-4968, com um desvio consciente e documentado do legado (Fase
+ * 7.5, validação de segurança ao vivo — ver docs/motor-equivalence-report.md):
+ * o legado (e o port original) só interceptava `action === 'slight_increase'`
+ * explicitamente, então uma sugestão da IA como `maintain` sob dor/esforço
+ * alto/baixa aderência atravessava sem guardrail nenhum — mesmo o motor local
+ * (`recommendAdjustment`), para o mesmo feedback, calculando corretamente
+ * `recovery`/`reduce`. Regra agora é positiva, não uma lista de casos
+ * proibidos: sob qualquer sinal de risco (dor relatada, esforço ≥9 ou
+ * aderência <60%), o resultado final nunca pode ser menos protetor do que
+ * `localRecommendation.action` — vence a ação de maior `PROTECTION_RANK`
+ * entre a sugestão da IA e a recomendação local. Fora desses sinais, a IA
+ * ajusta livremente (comportamento inalterado).
  */
 export function normalizeAICheckinRecommendation(
   ai: AISuggestion | null | undefined,
@@ -156,10 +177,11 @@ export function normalizeAICheckinRecommendation(
 
   const isPerfectLightWeek = !feedback.pain && completionRate >= 1 && effort <= 5 && feedback.feeling === 'leve';
 
-  // Guardrails: a IA pode sugerir, mas não passa por cima das regras de segurança.
-  if (feedback.pain && action === 'slight_increase') action = 'recovery';
-  if ((effort >= 9 || completionRate < 0.6) && action === 'slight_increase') {
-    action = localRecommendation.action === 'maintain' ? 'reduce' : localRecommendation.action;
+  // Guardrail de piso positivo (spec §18 + Fase 7.5): sob sinal de risco, a IA
+  // nunca suaviza abaixo do piso de proteção do motor local.
+  const hasRiskSignal = feedback.pain === true || effort >= 9 || completionRate < 0.6;
+  if (hasRiskSignal && PROTECTION_RANK[localRecommendation.action] > PROTECTION_RANK[action]) {
+    action = localRecommendation.action;
   }
 
   // Semana perfeita e leve não deve gerar redução automática só porque a semana seguinte já é maior.
