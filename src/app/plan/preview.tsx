@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { usePlanGenerationStore } from '@/store/plan-generation.store';
 import { useAuthStore } from '@/store/auth.store';
+import { useEntitlement } from '@/hooks/useEntitlement';
 import { adoptPlan } from '@/services/plan/adopt-plan.service';
 import { isIdenticalToActivePlan } from '@/services/plan/plan-identity.service';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
@@ -25,6 +26,7 @@ export default function PlanPreview(): JSX.Element {
   const identicalToActive = usePlanGenerationStore((s) => s.identicalToActive);
   const clear = usePlanGenerationStore((s) => s.clear);
   const userId = useAuthStore((s) => s.userId);
+  const { isPlus } = useEntitlement();
   const [adopting, setAdopting] = useState(false);
   const [adoptError, setAdoptError] = useState<string | null>(null);
 
@@ -50,8 +52,13 @@ export default function PlanPreview(): JSX.Element {
         setAdopting(false);
         return;
       }
-      const result = await adoptPlan(plan, userId);
+      const result = await adoptPlan(plan, userId, isPlus);
       if (!result.ok) {
+        if (result.error.code === 'entitlement') {
+          setAdopting(false);
+          router.push({ pathname: '/runevo-plus', params: { reason: 'new-plan' } });
+          return;
+        }
         setAdoptError(result.error.message);
         setAdopting(false);
         return;

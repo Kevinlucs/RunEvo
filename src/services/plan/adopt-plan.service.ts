@@ -1,7 +1,8 @@
 import { trainingPlanRepository, workoutRepository, draftRepository, athleteProfileRepository } from '@/repositories';
 import { planToRows } from '@/mappers/plan.mapper';
 import { queryClient } from '@/store/query-client';
-import { ok, err, toAppError, type Result } from '@/utils/result';
+import { canGenerateNewPlan } from './plan-trial.service';
+import { ok, err, toAppError, AppError, type Result } from '@/utils/result';
 import type { Plan } from '@/domain/motor-evo/plan-generator';
 
 /**
@@ -14,11 +15,21 @@ import type { Plan } from '@/domain/motor-evo/plan-generator';
  * Free e Plus arquivam da mesma forma (`status='archived'`, nunca apagado) —
  * a diferença de plano é sobre QUEM PODE VER o histórico depois (gate de UI
  * fora do escopo desta fase), não sobre este mecanismo de troca em si.
+ *
+ * docs/fase-8-brief.md Grupo 3 — "gerar uma nova planilha = Plus (Free vive
+ * a 1ª planilha)". Gate aqui, no serviço: `isPlus` vem de `useEntitlement()`
+ * na UI, mas quem DECIDE se bloqueia é `canGenerateNewPlan`, nunca a tela.
  */
-export async function adoptPlan(plan: Plan, userId: string): Promise<Result<void>> {
+export async function adoptPlan(plan: Plan, userId: string, isPlus: boolean): Promise<Result<void>> {
   try {
     const activeRes = await trainingPlanRepository.getActive(userId);
-    if (activeRes.ok && activeRes.value) {
+    if (!activeRes.ok) return err(activeRes.error);
+
+    if (!canGenerateNewPlan({ hasExistingPlan: Boolean(activeRes.value), isPlus })) {
+      return err(new AppError('entitlement', 'Gerar uma nova planilha requer RunEvo+.'));
+    }
+
+    if (activeRes.value) {
       const archiveRes = await trainingPlanRepository.upsert({ ...activeRes.value, status: 'archived' });
       if (!archiveRes.ok) return err(archiveRes.error);
     }

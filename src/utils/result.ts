@@ -22,6 +22,8 @@ export type AppErrorCode =
   | 'storage'
   | 'not_implemented'
   | 'cancelled'
+  /** Gate de trial/Plus recusou a operação (docs/fase-8-brief.md Grupo 3) — nunca decidido na UI. */
+  | 'entitlement'
   | 'unknown';
 
 export class AppError extends Error {

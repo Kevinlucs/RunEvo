@@ -50,7 +50,7 @@ describe('adoptPlan', () => {
   it('sem plano ativo: não arquiva nada, insere o novo como active, grava todos os treinos, limpa rascunho', async () => {
     getActiveMock.mockResolvedValue(ok(null));
 
-    const result = await adoptPlan(plan, USER_ID);
+    const result = await adoptPlan(plan, USER_ID, true);
 
     expect(result.ok).toBe(true);
     expect(upsertPlanMock).not.toHaveBeenCalledWith(expect.objectContaining({ status: 'archived' }));
@@ -72,7 +72,7 @@ describe('adoptPlan', () => {
       return Promise.resolve(ok({ id: row.status === 'archived' ? 'old-plan-id' : 'new-plan-id' }));
     });
 
-    const result = await adoptPlan(plan, USER_ID);
+    const result = await adoptPlan(plan, USER_ID, true);
 
     expect(result.ok).toBe(true);
     expect(callOrder).toEqual(['archived', 'active']);
@@ -83,7 +83,7 @@ describe('adoptPlan', () => {
     getActiveMock.mockResolvedValue(ok({ id: 'old-plan-id', status: 'active' }));
     upsertPlanMock.mockResolvedValueOnce(err({ code: 'storage', message: 'disco cheio' }));
 
-    const result = await adoptPlan(plan, USER_ID);
+    const result = await adoptPlan(plan, USER_ID, true);
 
     expect(result.ok).toBe(false);
     expect(upsertPlanMock).toHaveBeenCalledTimes(1); // só a tentativa de arquivar, não o insert do novo
@@ -93,7 +93,7 @@ describe('adoptPlan', () => {
   it('grava altura/peso/IMC do plano em athlete_profiles (docs/fase-6-brief.md Grupo 2 — dado nunca persistido antes)', async () => {
     getActiveMock.mockResolvedValue(ok(null));
 
-    const result = await adoptPlan(plan, USER_ID);
+    const result = await adoptPlan(plan, USER_ID, true);
 
     expect(result.ok).toBe(true);
     expect(upsertProfileMock).toHaveBeenCalledWith({
@@ -108,9 +108,40 @@ describe('adoptPlan', () => {
     getActiveMock.mockResolvedValue(ok(null));
     upsertWorkoutMock.mockResolvedValueOnce(err({ code: 'storage', message: 'falhou' }));
 
-    const result = await adoptPlan(plan, USER_ID);
+    const result = await adoptPlan(plan, USER_ID, true);
 
     expect(result.ok).toBe(false);
     expect(clearDraftMock).not.toHaveBeenCalled();
+  });
+
+  describe('docs/fase-8-brief.md Grupo 3 — gate "gerar nova planilha = Plus"', () => {
+    it('Free sem planilha ativa (1ª planilha): permite, sem tentar arquivar nada', async () => {
+      getActiveMock.mockResolvedValue(ok(null));
+
+      const result = await adoptPlan(plan, USER_ID, false);
+
+      expect(result.ok).toBe(true);
+      expect(upsertPlanMock).not.toHaveBeenCalledWith(expect.objectContaining({ status: 'archived' }));
+    });
+
+    it('Free COM planilha ativa: bloqueia com AppError code "entitlement", não toca no banco', async () => {
+      getActiveMock.mockResolvedValue(ok({ id: 'old-plan-id', status: 'active', user_id: USER_ID }));
+
+      const result = await adoptPlan(plan, USER_ID, false);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.code).toBe('entitlement');
+      expect(upsertPlanMock).not.toHaveBeenCalled();
+      expect(upsertWorkoutMock).not.toHaveBeenCalled();
+    });
+
+    it('Plus COM planilha ativa: permite normalmente (arquiva e substitui)', async () => {
+      getActiveMock.mockResolvedValue(ok({ id: 'old-plan-id', status: 'active', user_id: USER_ID }));
+
+      const result = await adoptPlan(plan, USER_ID, true);
+
+      expect(result.ok).toBe(true);
+      expect(upsertPlanMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'old-plan-id', status: 'archived' }));
+    });
   });
 });
