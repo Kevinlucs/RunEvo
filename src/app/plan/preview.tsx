@@ -8,8 +8,9 @@ import { usePlanGenerationStore } from '@/store/plan-generation.store';
 import { useAuthStore } from '@/store/auth.store';
 import { adoptPlan } from '@/services/plan/adopt-plan.service';
 import { isIdenticalToActivePlan } from '@/services/plan/plan-identity.service';
-import { colors, spacing, fontSizes, fontWeight } from '@/theme';
+import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Zone } from '@/domain/motor-evo/types';
+import { VIABILITY_LEVEL_LABELS, type ViabilityLevel } from '@/services/viability/goal-viability';
 
 /**
  * Prévia da planilha (docs/fase-3-brief.md §4.2/§4.3). Se a planilha nova é
@@ -19,6 +20,8 @@ import type { Zone } from '@/domain/motor-evo/types';
  */
 export default function PlanPreview(): JSX.Element {
   const plan = usePlanGenerationStore((s) => s.generatedPlan);
+  const viability = usePlanGenerationStore((s) => s.viability);
+  const viabilityExplanation = usePlanGenerationStore((s) => s.viabilityExplanation);
   const identicalToActive = usePlanGenerationStore((s) => s.identicalToActive);
   const clear = usePlanGenerationStore((s) => s.clear);
   const userId = useAuthStore((s) => s.userId);
@@ -86,6 +89,20 @@ export default function PlanPreview(): JSX.Element {
         <Text style={styles.subtitle}>
           {plan.raceName} · {plan.totalWeeks} semanas · {plan.daysPerWeek}x/semana
         </Text>
+
+        {viability && viabilityExplanation ? (
+          <View style={[styles.viabilityCard, { borderColor: viabilityColor(viability.level) }]}>
+            <Text style={[styles.viabilityLabel, { color: viabilityColor(viability.level) }]}>
+              {VIABILITY_LEVEL_LABELS[viability.level]}
+            </Text>
+            <Text style={styles.viabilityText}>{viabilityExplanation}</Text>
+            {viability.level === 'fora_de_alcance' && viability.anchoredTarget ? (
+              <Text style={styles.viabilityAnchor}>
+                Alvo intermediário deste plano: ~{viability.anchoredTarget.projectedTimeLabel}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
 
         <Card title="Análise do atleta">
           <InfoRow label="Nível detectado" value={blueprint.athleteAnalysis.detectedLevel} />
@@ -179,6 +196,13 @@ export default function PlanPreview(): JSX.Element {
   );
 }
 
+/** Cores suaves, nunca alarmantes (docs/fase-8-brief.md Grupo 2) — nada de vermelho/erro aqui. */
+function viabilityColor(level: ViabilityLevel): string {
+  if (level === 'realista') return colors.success;
+  if (level === 'ambicioso') return colors.neon;
+  return colors.textSecondary;
+}
+
 function InfoRow({ label, value }: { label: string; value: string }): JSX.Element {
   return (
     <View style={styles.infoRow}>
@@ -196,6 +220,17 @@ const styles = StyleSheet.create({
   title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.xl },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, marginBottom: spacing.xl },
   paragraph: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.sm, lineHeight: 20 },
+  viabilityCard: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    borderWidth: 1.5,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
+  },
+  viabilityLabel: { fontSize: fontSizes.lg, ...fontWeight('800') },
+  viabilityText: { color: colors.textPrimary, fontSize: fontSizes.body, lineHeight: 21 },
+  viabilityAnchor: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('700') },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm, gap: spacing.md },
   infoLabel: { color: colors.textSecondary, fontSize: fontSizes.body, flexShrink: 0 },
   infoValue: { color: colors.textPrimary, fontSize: fontSizes.body, flexShrink: 1, textAlign: 'right' },

@@ -114,6 +114,17 @@ export const VIABILITY_CONFIG = {
   },
 } as const;
 
+/**
+ * Labels de exibição — nunca "impossível" (regra de tom da Fase 8). "Fora de
+ * alcance por ora" é o mais duro que se diz, sempre com o "por ora" que
+ * enquadra como etapa, não rejeição.
+ */
+export const VIABILITY_LEVEL_LABELS: Record<ViabilityLevel, string> = {
+  realista: 'Realista',
+  ambicioso: 'Ambicioso',
+  fora_de_alcance: 'Fora de alcance por ora',
+};
+
 export interface ViabilityFactor {
   key: ViabilityFactorKey;
   points: number;

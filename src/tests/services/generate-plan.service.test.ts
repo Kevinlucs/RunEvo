@@ -30,7 +30,11 @@ describe('generatePlanWithProgress vs. generatePlan (caminho 100% local)', () =>
     const result = await generatePlanWithProgress(fixture.input, (s) => steps.push(s));
     const expected = generatePlan(fixture.input);
 
-    expect(omitVolatile(result)).toEqual(omitVolatile(expected));
+    expect(omitVolatile(result.plan)).toEqual(omitVolatile(expected));
     expect(steps).toEqual(['analisando', 'construindo', 'validando']);
+    // docs/fase-8-brief.md Grupo 2 — sem IA (mockada como indisponível), a
+    // explicação de viabilidade vem sempre do fallback determinístico, nunca vazia.
+    expect(result.viabilityExplanation.length).toBeGreaterThan(0);
+    expect(['realista', 'ambicioso', 'fora_de_alcance']).toContain(result.viability.level);
   });
 });

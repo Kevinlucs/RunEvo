@@ -12,7 +12,10 @@ import {
   localBlueprintProvider,
   resolveBlueprint,
   type PlanBlueprintProvider,
+  type BlueprintResolution,
 } from '@/services/ai/plan-blueprint.provider';
+import { classifyGoalViability } from '@/services/viability/goal-viability';
+import type { PlanBlueprint } from '@/domain/motor-evo/blueprint';
 import { fixtures } from '../motor-evo/fixtures';
 /* eslint-enable import/first */
 
@@ -55,10 +58,11 @@ describe('remoteBlueprintProvider', () => {
   it('IA válida → source "ai", valores clampados pelos limites de segurança', async () => {
     invokeMock.mockResolvedValue({ data: { success: true, model: 'gemini-2.5-flash', text: validAIText }, error: null });
 
-    const blueprint = await remoteBlueprintProvider.generate(input);
-    expect(blueprint.source).toBe('ai');
-    expect(blueprint.strategy.peakWeeklyKm).toBeGreaterThan(0);
-    expect(blueprint.strategy.peakLongRunKm).toBeGreaterThan(0);
+    const result = await remoteBlueprintProvider.generate(input);
+    expect(result.blueprint.source).toBe('ai');
+    expect(result.blueprint.strategy.peakWeeklyKm).toBeGreaterThan(0);
+    expect(result.blueprint.strategy.peakLongRunKm).toBeGreaterThan(0);
+    expect(result.viabilityExplanation.length).toBeGreaterThan(0);
   });
 
   it('IA com JSON inválido → lança (resolveBlueprint decide o fallback)', async () => {
@@ -86,13 +90,23 @@ describe('remoteBlueprintProvider', () => {
   });
 });
 
+const fakeViability = classifyGoalViability(input);
+
+function fakeResolution(source: 'ai' | 'local'): BlueprintResolution {
+  return {
+    blueprint: { source } as PlanBlueprint,
+    viability: fakeViability,
+    viabilityExplanation: `explicação (${source})`,
+  };
+}
+
 describe('resolveBlueprint — fallback local obrigatório (docs/fase-3-brief.md §0.4)', () => {
   it('remoto ok → usa o remoto (source "ai")', async () => {
-    const remote: PlanBlueprintProvider = { generate: jest.fn().mockResolvedValue({ source: 'ai' }) };
+    const remote: PlanBlueprintProvider = { generate: jest.fn().mockResolvedValue(fakeResolution('ai')) };
     const local: PlanBlueprintProvider = { generate: jest.fn() };
 
     const result = await resolveBlueprint(input, remote, local);
-    expect(result).toEqual({ source: 'ai' });
+    expect(result.blueprint.source).toBe('ai');
     expect(local.generate).not.toHaveBeenCalled();
   });
 
@@ -103,17 +117,18 @@ describe('resolveBlueprint — fallback local obrigatório (docs/fase-3-brief.md
     ['Zod reprovou', new Error('Invalid input')],
   ])('%s → cai no local, nunca lança para o chamador', async (_label, thrownError) => {
     const remote: PlanBlueprintProvider = { generate: jest.fn().mockRejectedValue(thrownError) };
-    const local: PlanBlueprintProvider = { generate: jest.fn().mockResolvedValue({ source: 'local' }) };
+    const local: PlanBlueprintProvider = { generate: jest.fn().mockResolvedValue(fakeResolution('local')) };
 
     const result = await resolveBlueprint(input, remote, local);
-    expect(result).toEqual({ source: 'local' });
+    expect(result.blueprint.source).toBe('local');
     expect(local.generate).toHaveBeenCalledWith(input);
   });
 
   it('usa localBlueprintProvider (buildFallbackBlueprint real) por padrão', async () => {
     const remote: PlanBlueprintProvider = { generate: jest.fn().mockRejectedValue(new Error('fail')) };
     const result = await resolveBlueprint(input, remote, localBlueprintProvider);
-    expect(result.source).toBe('local');
-    expect(result.strategy.peakWeeklyKm).toBeGreaterThan(0);
+    expect(result.blueprint.source).toBe('local');
+    expect(result.blueprint.strategy.peakWeeklyKm).toBeGreaterThan(0);
+    expect(result.viabilityExplanation.length).toBeGreaterThan(0);
   });
 });

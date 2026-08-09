@@ -57,6 +57,8 @@ export const aiBlueprintResponseSchema = z
     phaseDistribution: z.array(phaseDistributionEntrySchema),
     warnings: z.array(z.string()),
     engineCalibration: engineCalibrationSchema,
+    /** docs/fase-8-brief.md Grupo 2 — explicação humana da viabilidade, no mesmo retorno do blueprint. */
+    viabilityExplanation: z.string().optional(),
   })
   .passthrough();
 
