@@ -18,8 +18,13 @@ const CONVERSION_MESSAGES: Record<string, string> = {
   // arquivados de verdade (Comparar/Evolução em /history), então a promessa
   // é real, não vazia.
   'cycles-evolution': 'Você concluiu ciclos com o RunEvo. Assine o RunEvo+ e veja sua evolução completa.',
+  // docs/fase-8-brief.md Grupo 3 — usadas pelos redirects do gate de trial.
+  'trial-ended': 'Suas 8 primeiras semanas gratuitas terminaram. Continue com o plano completo rumo à sua prova.',
+  'new-plan': 'Gerar uma nova planilha é um recurso RunEvo+. Continue evoluindo com um treinador que se adapta a cada ciclo.',
 };
-const DEFAULT_MESSAGE = 'Leve sua evolução além de uma prova: histórico entre ciclos, comparação de planilhas e exportação em Excel.';
+// docs/fase-8-brief.md Grupo 4 — mensagem-mãe: vende treinador, não dashboard.
+const DEFAULT_MESSAGE =
+  'O RunEvo+ é o treinador que te leva até a prova: plano completo, adaptação a cada semana, e a evolução que te prepara para o próximo objetivo.';
 
 type PlanCycle = 'monthly' | 'annual';
 
