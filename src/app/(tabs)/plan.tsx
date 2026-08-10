@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { LockedSection } from '@/components/paywall/LockedSection';
 import { PhaseSummaryPills } from '@/components/plan/PhaseSummaryPills';
 import { WeekSectionHeader } from '@/components/plan/WeekSectionHeader';
 import { WorkoutListRow } from '@/components/plan/WorkoutListRow';
@@ -16,6 +17,7 @@ import { useAthleteProfile } from '@/hooks/useAthleteProfile';
 import { useEntitlement } from '@/hooks/useEntitlement';
 import { useAuthStore } from '@/store/auth.store';
 import { buildWeekMeta, groupWeeksByPhase, type WeekMeta } from '@/services/plan/plan-cycle.service';
+import { isWeekAccessible, shouldShowTrialEndingNotice } from '@/services/plan/plan-trial.service';
 import { isRaceWorkout } from '@/services/workout/workout-detail.service';
 import { addWorkout, removeWorkout, moveWorkout } from '@/services/plan/edit-workout.service';
 import { exportPlanAsPdf, exportPlanAsExcel } from '@/services/plan/export-plan';
@@ -50,15 +52,38 @@ export default function Plan(): JSX.Element {
     [plan, workouts, currentWeekNumber],
   );
   const phaseGroups = useMemo(() => groupWeeksByPhase(weeksMeta), [weeksMeta]);
+
+  // docs/fase-8-brief.md Grupo 3 — trial de 8 semanas. Gate decidido no
+  // serviço (isWeekAccessible); a tela só separa em visível/bloqueado.
+  // `currentWeekNumber` só é null antes do plano carregar (sem start_date
+  // ainda) — 1 é um fallback seguro nesse instante transitório.
+  const totalWeeks = plan?.total_weeks ?? weeksMeta.length;
+  const safeCurrentWeekNumber = currentWeekNumber ?? 1;
+  const accessibleWeeks = useMemo(
+    () =>
+      weeksMeta.filter((week) =>
+        isWeekAccessible({ weekNumber: week.weekNumber, currentWeekNumber: safeCurrentWeekNumber, totalWeeks, isPlus }),
+      ),
+    [weeksMeta, safeCurrentWeekNumber, totalWeeks, isPlus],
+  );
+  const lockedWeeks = useMemo(
+    () =>
+      weeksMeta.filter(
+        (week) => !isWeekAccessible({ weekNumber: week.weekNumber, currentWeekNumber: safeCurrentWeekNumber, totalWeeks, isPlus }),
+      ),
+    [weeksMeta, safeCurrentWeekNumber, totalWeeks, isPlus],
+  );
+  const showTrialNotice = shouldShowTrialEndingNotice({ currentWeekNumber: safeCurrentWeekNumber, totalWeeks, isPlus });
+
   const sections = useMemo<WeekSection[]>(
     () =>
-      weeksMeta.map((week) => ({
+      accessibleWeeks.map((week) => ({
         title: week,
         data: workouts
           .filter((w) => w.week_number === week.weekNumber)
           .sort((a, b) => a.week_index - b.week_index),
       })),
-    [weeksMeta, workouts],
+    [accessibleWeeks, workouts],
   );
 
   const handleRemoveWorkout = useCallback((workout: Workout) => {
@@ -193,6 +218,23 @@ export default function Plan(): JSX.Element {
         stickySectionHeadersEnabled
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
+        ListFooterComponent={
+          lockedWeeks.length > 0 ? (
+            <View style={styles.header}>
+              <LockedSection
+                title={`Semanas ${lockedWeeks[0]!.weekNumber} a ${lockedWeeks[lockedWeeks.length - 1]!.weekNumber} — continue com RunEvo+`}
+                ctaLabel="Desbloquear com RunEvo+"
+                onPressCta={() => router.push({ pathname: '/runevo-plus', params: { reason: 'trial-ended' } })}
+              >
+                {lockedWeeks.map((week) => (
+                  <View key={week.weekNumber} style={styles.lockedWeekRow}>
+                    <Text style={styles.lockedWeekLabel}>{week.label}</Text>
+                  </View>
+                ))}
+              </LockedSection>
+            </View>
+          ) : null
+        }
         ListHeaderComponent={
           <View style={styles.header}>
             <AppHeader />
@@ -203,6 +245,12 @@ export default function Plan(): JSX.Element {
                 {progress.plannedKm} km
               </Text>
             )}
+            {showTrialNotice ? (
+              <Text style={styles.trialNotice}>
+                Faltam poucas semanas do seu acesso completo — assine o RunEvo+ para seguir vendo o plano inteiro
+                rumo à sua prova.
+              </Text>
+            ) : null}
             <PhaseSummaryPills groups={phaseGroups} />
             <View style={styles.disabledSection}>
               <Pressable
@@ -258,6 +306,14 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: spacing.xl },
   title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.sm },
   progress: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs, marginBottom: spacing.lg },
+  trialNotice: {
+    color: colors.textSecondary,
+    fontSize: fontSizes.caption,
+    ...fontWeight('600'),
+    marginBottom: spacing.md,
+  },
+  lockedWeekRow: { paddingVertical: spacing.xs },
+  lockedWeekLabel: { color: colors.textSecondary, fontSize: fontSizes.body },
   disabledSection: { marginTop: spacing.lg, marginBottom: spacing.sm, gap: spacing.sm },
   editableRow: {
     minHeight: 44,

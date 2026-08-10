@@ -14,12 +14,21 @@ interface Feature {
  * ciclos/comparação/auditoria avançada/Excel. Lista única reusada em
  * Estatísticas (§31), oferta RunEvo+ e "Meus recursos" — evita 3 cópias
  * divergentes do mesmo texto.
+ *
+ * docs/fase-8-brief.md Grupo 4 — reordenada (não Free→Plus, só a ordem):
+ * lidera com o que o INICIANTE quer resolver primeiro (plano completo
+ * desbloqueado, viabilidade, adaptação) — histórico/gráficos, que só fazem
+ * sentido depois de já ter ciclos concluídos, vêm por último. RunEvo+ vende
+ * um treinador que leva até a prova, não um dashboard.
  */
 export const PLUS_FEATURES: readonly Feature[] = [
+  { icon: 'lock-open-outline', label: 'Plano completo, sem limite de semanas' },
+  { icon: 'analytics-outline', label: 'Análise de viabilidade aprofundada a cada ciclo' },
+  { icon: 'sync-outline', label: 'Adaptação inteligente do plano inteiro' },
   { icon: 'trending-up-outline', label: 'Evolução entre ciclos' },
+  { icon: 'git-compare-outline', label: 'Comparação entre planilhas' },
   { icon: 'walk-outline', label: 'Progressão dos longões' },
   { icon: 'pulse-outline', label: 'Esforço percebido ao longo do tempo' },
-  { icon: 'git-compare-outline', label: 'Comparação entre planilhas' },
   { icon: 'shield-checkmark-outline', label: 'Auditoria avançada da IA' },
   { icon: 'time-outline', label: 'Histórico completo de planilhas' },
   { icon: 'download-outline', label: 'Exportação em Excel' },

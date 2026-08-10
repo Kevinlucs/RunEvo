@@ -32,9 +32,9 @@ export default function PlanGenerating(): JSX.Element {
 
     (async () => {
       try {
-        const plan = await generatePlanWithProgress(pendingInput, setStep);
+        const { plan, viability, viabilityExplanation } = await generatePlanWithProgress(pendingInput, setStep);
         const identical = userId ? await isIdenticalToActivePlan(userId, plan) : false;
-        setGeneratedPlan(plan, identical);
+        setGeneratedPlan(plan, identical, viability, viabilityExplanation);
         router.replace('/plan/preview');
       } catch (e) {
         // Fallback local é obrigatório (docs/fase-3-brief.md §0.4) — se mesmo

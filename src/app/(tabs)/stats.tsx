@@ -118,7 +118,7 @@ export default function Stats(): JSX.Element {
             ctaLabel="Assinar RunEvo+"
             onPressCta={() => router.push({ pathname: '/runevo-plus', params: { reason: 'cycles-evolution' } })}
           >
-            <Card title="Evolução entre ciclos">
+            <Card title="Recursos RunEvo+">
               {PLUS_FEATURES.map((f) => (
                 <View key={f.label} style={styles.featureRow}>
                   <Ionicons name={f.icon} size={18} color={colors.textSecondary} />

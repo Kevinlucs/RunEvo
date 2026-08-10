@@ -2,6 +2,7 @@ import { resolveBlueprint } from '@/services/ai/plan-blueprint.provider';
 import { assemblePlan, type Plan } from '@/domain/motor-evo/plan-generator';
 import { validateAndFixPlan } from '@/domain/motor-evo/validation';
 import type { AthleteInput } from '@/domain/motor-evo/types';
+import type { GoalViabilityResult } from '@/services/viability/goal-viability';
 
 /**
  * docs/motor-evo-specification.md §20 (`generatePlan`), com o blueprint
@@ -28,16 +29,24 @@ export const GENERATION_STEP_LABELS: Record<GenerationStep, string> = {
   validando: 'Validando o plano e calculando o quality score...',
 };
 
+export interface GeneratedPlanResult {
+  plan: Plan;
+  viability: GoalViabilityResult;
+  viabilityExplanation: string;
+}
+
 export async function generatePlanWithProgress(
   input: AthleteInput,
   onStep?: (step: GenerationStep) => void,
-): Promise<Plan> {
+): Promise<GeneratedPlanResult> {
   onStep?.('analisando');
-  const blueprint = await resolveBlueprint(input);
+  const { blueprint, viability, viabilityExplanation } = await resolveBlueprint(input);
 
   onStep?.('construindo');
   const plan = assemblePlan(input, blueprint);
 
   onStep?.('validando');
-  return validateAndFixPlan(plan, plan.userData);
+  const validated = validateAndFixPlan(plan, plan.userData);
+
+  return { plan: validated, viability, viabilityExplanation };
 }
