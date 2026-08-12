@@ -1,17 +1,17 @@
 import type { ExpoConfig } from 'expo/config';
 
 /**
- * Configuração do app. Segredos NUNCA ficam aqui — apenas a URL pública do
- * Supabase e a anon key (que é pública por design e protegida por RLS).
- * A chave da IA vive só no backend/Edge Function.
+ * Configuracao do app. Segredos NUNCA ficam aqui -- apenas a URL publica do
+ * Supabase e a anon key (que e publica por design e protegida por RLS).
+ * A chave da IA vive so no backend/Edge Function.
  */
 const config: ExpoConfig = {
   name: 'RunEvo',
   slug: 'runevo',
   owner: 'keviinlucs',
-  // 'runevo' é o scheme do app; 'rc-45ca7bf701' é o scheme de deep-link do
-  // RevenueCat (magic links de restauração/gestão de assinatura enviados
-  // por e-mail) — registrado aqui para o SO rotear de volta pro app.
+  // 'runevo' e o scheme do app; 'rc-45ca7bf701' e o scheme de deep-link do
+  // RevenueCat (magic links de restauracao/gestao de assinatura enviados
+  // por e-mail) -- registrado aqui para o SO rotear de volta pro app.
   scheme: ['runevo', 'rc-45ca7bf701'],
   version: '0.1.0',
   orientation: 'portrait',
@@ -38,12 +38,20 @@ const config: ExpoConfig = {
     'expo-sqlite',
     'expo-font',
     '@react-native-community/datetimepicker',
+    [
+      'expo-build-properties',
+      {
+        android: {
+          kotlinVersion: '1.9.25',
+        },
+      },
+    ],
   ],
   experiments: { typedRoutes: true },
   extra: {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-    // Chave pública do SDK RevenueCat (Android) — não é segredo, a validação
+    // Chave publica do SDK RevenueCat (Android) -- nao e segredo, a validacao
     // real da compra acontece no servidor via webhook (docs/fase-7-brief.md).
     revenueCatApiKeyAndroid: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID,
     eas: {
