@@ -12,14 +12,16 @@
       "distribution": "internal",
       "environment": "preview",
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease -Pandroid.kotlinVersion=1.9.25"
       }
     },
     "production": {
       "autoIncrement": true,
       "environment": "production",
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "gradleCommand": ":app:bundleRelease -Pandroid.kotlinVersion=1.9.25"
       }
     }
   },

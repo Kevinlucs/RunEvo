@@ -46,7 +46,6 @@ const config: ExpoConfig = {
         },
       },
     ],
-    './plugins/withSuppressKotlinVersionCheck',
   ],
   experiments: { typedRoutes: true },
   extra: {
