@@ -29,6 +29,9 @@ const config: ExpoConfig = {
   },
   android: {
     package: 'br.com.runevo.app',
+    gradleProperties: {
+      "org.gradle.jvmargs": "-Xmx4096m",
+    },
     versionCode: 1,
     adaptiveIcon: { backgroundColor: '#000000' },
   },
