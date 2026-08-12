@@ -13,9 +13,6 @@
       "environment": "preview",
       "android": {
         "buildType": "apk"
-      },
-      "hooks": {
-        "onBuild": "./eas-hooks/eas-build-on-build.sh"
       }
     },
     "production": {
@@ -23,9 +20,6 @@
       "environment": "production",
       "android": {
         "buildType": "app-bundle"
-      },
-      "hooks": {
-        "onBuild": "./eas-hooks/eas-build-on-build.sh"
       }
     }
   },
