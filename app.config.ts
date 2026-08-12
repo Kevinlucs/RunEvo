@@ -43,10 +43,10 @@ const config: ExpoConfig = {
       {
         android: {
           kotlinVersion: '1.9.25',
+          suppresKotlinVersionCompatibilityCheck: 'true',
         },
       },
     ],
-    './plugins/withKotlinVersion',
   ],
   experiments: { typedRoutes: true },
   extra: {
