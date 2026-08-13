@@ -43,6 +43,8 @@ const config: ExpoConfig = {
       {
         android: {
           kotlinVersion: '1.9.25',
+          compileSdkVersion: 35,
+          targetSdkVersion: 35,
         },
       },
     ],
