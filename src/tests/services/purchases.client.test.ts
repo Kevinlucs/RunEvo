@@ -159,12 +159,16 @@ describe('purchase', () => {
   it('encontra o pacote pela oferta atual e chama purchasePackage', async () => {
     const targetPackage = { identifier: '$rc_annual', product: { identifier: 'runevo_plus_annual' } };
     getOfferingsMock.mockResolvedValue({ current: { availablePackages: [targetPackage] } });
-    purchasePackageMock.mockResolvedValue({ productIdentifier: 'runevo_plus_annual' });
+    purchasePackageMock.mockResolvedValue({
+      productIdentifier: 'runevo_plus_annual',
+      customerInfo: { entitlements: { active: { plus: {} } } },
+    });
     const { purchase } = loadClient();
 
     const result = await purchase('$rc_annual');
     expect(purchasePackageMock).toHaveBeenCalledWith(targetPackage);
     expect(result.ok).toBe(true);
+    if (result.ok) expect(result.value.isActive).toBe(true);
   });
 
   it('pacote não encontrado na oferta atual → not_found (nunca simula compra)', async () => {

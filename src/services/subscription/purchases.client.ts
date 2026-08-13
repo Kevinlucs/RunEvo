@@ -101,7 +101,7 @@ export async function getOfferings(): Promise<Result<SubscriptionOfferings>> {
   }
 }
 
-export async function purchase(packageIdentifier: string): Promise<Result<void>> {
+export async function purchase(packageIdentifier: string): Promise<Result<{ isActive: boolean }>> {
   if (!apiKeyOrNull()) {
     return err(new AppError('not_implemented', 'RevenueCat não configurado nesta plataforma/ambiente.'));
   }
@@ -111,8 +111,11 @@ export async function purchase(packageIdentifier: string): Promise<Result<void>>
     if (!target) {
       return err(new AppError('not_found', 'Pacote de assinatura não encontrado na oferta atual.'));
     }
-    await Purchases.purchasePackage(target);
-    return ok(undefined);
+    const { customerInfo } = await Purchases.purchasePackage(target);
+    // O customerInfo retornado já reflete a compra bem-sucedida — entitlements
+    // atualizados localmente sem precisar esperar o webhook.
+    const isActive = Object.keys(customerInfo.entitlements.active).length > 0;
+    return ok({ isActive });
   } catch (e) {
     return err(mapPurchasesError(e));
   }
@@ -127,5 +130,20 @@ export async function restore(): Promise<Result<void>> {
     return ok(undefined);
   } catch (e) {
     return err(mapPurchasesError(e));
+  }
+}
+
+/**
+ * Verifica o entitlement diretamente no cache local do SDK RevenueCat.
+ * Útil como fallback quando o webhook do servidor ainda não processou
+ * (compra recém-feita). Retorna true se o SDK local confirma entitlements ativos.
+ */
+export async function hasActiveEntitlement(): Promise<boolean> {
+  if (!apiKeyOrNull() || !configured) return false;
+  try {
+    const customerInfo = await Purchases.getCustomerInfo();
+    return Object.keys(customerInfo.entitlements.active).length > 0;
+  } catch {
+    return false;
   }
 }

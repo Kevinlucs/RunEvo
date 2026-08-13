@@ -13,6 +13,7 @@ const getOfferingsMock = jest.fn();
 const purchaseMock = jest.fn();
 const restoreMock = jest.fn();
 const syncPurchasesIdentityMock = jest.fn();
+const hasActiveEntitlementMock = jest.fn().mockResolvedValue(false);
 
 jest.mock('@/repositories', () => ({ subscriptionRepository: { getCurrent: getCurrentMock } }));
 jest.mock('@/db/sync', () => ({ runSync: runSyncMock }));
@@ -21,6 +22,7 @@ jest.mock('@/services/subscription/purchases.client', () => ({
   purchase: purchaseMock,
   restore: restoreMock,
   syncPurchasesIdentity: syncPurchasesIdentityMock,
+  hasActiveEntitlement: hasActiveEntitlementMock,
 }));
 
 import { subscriptionService } from '@/services/subscription';

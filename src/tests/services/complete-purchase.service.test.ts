@@ -24,15 +24,15 @@ beforeEach(() => {
 });
 
 describe('completePurchase', () => {
-  it('compra bem-sucedida → força refresh do entitlement e invalida o cache', async () => {
-    purchaseMock.mockResolvedValue(ok(undefined));
+  it('compra bem-sucedida → invalida cache e força refresh do entitlement', async () => {
+    purchaseMock.mockResolvedValue(ok({ isActive: true }));
     refreshMock.mockResolvedValue(ok({ plan: 'plus', status: 'active', periodEnd: null }));
 
     const result = await completePurchase('$rc_annual', 'user-1');
 
     expect(purchaseMock).toHaveBeenCalledWith('$rc_annual');
-    expect(refreshMock).toHaveBeenCalledWith('user-1');
     expect(invalidateQueriesMock).toHaveBeenCalled();
+    expect(refreshMock).toHaveBeenCalledWith('user-1');
     expect(result.ok).toBe(true);
   });
 

@@ -78,7 +78,9 @@ export default function RunEvoPlusOffer(): JSX.Element {
         }
         return;
       }
-      router.back();
+      // Compra confirmada → navega pra Home (não router.back() que pode voltar
+      // pra tela bloqueada). replace() limpa o stack do paywall.
+      router.replace('/(tabs)');
     } finally {
       setPurchasing(false);
     }

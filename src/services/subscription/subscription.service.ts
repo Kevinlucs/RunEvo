@@ -20,7 +20,7 @@ export interface SubscriptionService {
   getEntitlement(userId: string): Promise<Result<Entitlement>>;
   refresh(userId: string): Promise<Result<Entitlement>>;
   getOfferings(): Promise<Result<SubscriptionOfferings>>;
-  purchase(packageIdentifier: string): Promise<Result<void>>;
+  purchase(packageIdentifier: string): Promise<Result<{ isActive: boolean }>>;
   restore(): Promise<Result<void>>;
   /** Associa o SDK do RevenueCat ao user id do Supabase — chamado a cada mudança de sessão (auth.store.ts). */
   identify(userId: string | null): Promise<void>;
@@ -37,9 +37,25 @@ function toEntitlement(sub: Subscription | null): Entitlement {
 
 export const subscriptionService: SubscriptionService = {
   async getEntitlement(userId) {
+    // Fonte primária: banco local (Supabase sync via webhook).
     const res = await subscriptionRepository.getCurrent(userId);
+
+    if (res.ok && res.value) return ok(toEntitlement(res.value));
+
+    // Fallback: SDK local do RevenueCat. Necessário porque o webhook pode
+    // demorar segundos/minutos após uma compra, mas o SDK já tem o estado
+    // atualizado. Sem este fallback, a UI fica "Free" entre a compra e o
+    // processamento do webhook — causando Bug 1 (paywall não destranca).
+    const sdkActive = await purchasesClient.hasActiveEntitlement();
+    if (sdkActive) {
+      return ok({ plan: 'plus', status: 'active', periodEnd: null } as Entitlement);
+    }
+
+    // Se o repository falhou (erro de storage), propaga o erro.
     if (!res.ok) return err(res.error);
-    return ok(toEntitlement(res.value));
+
+    // Sem subscription no banco e SDK também não tem → FREE.
+    return ok(FREE);
   },
 
   async refresh(userId) {
