@@ -13,6 +13,7 @@ import { randomUUID } from 'node:crypto';
 jest.mock('@/utils/uuid', () => ({ newUuid: () => randomUUID() }));
 
 const getActiveMock = jest.fn();
+const listArchivedMock = jest.fn();
 const upsertPlanMock = jest.fn();
 const upsertWorkoutMock = jest.fn();
 const listByPlanMock = jest.fn();
@@ -21,7 +22,7 @@ const invalidateQueriesMock = jest.fn();
 const upsertProfileMock = jest.fn();
 
 jest.mock('@/repositories', () => ({
-  trainingPlanRepository: { getActive: getActiveMock, upsert: upsertPlanMock },
+  trainingPlanRepository: { getActive: getActiveMock, listArchived: listArchivedMock, upsert: upsertPlanMock },
   workoutRepository: { upsert: upsertWorkoutMock, listByPlan: listByPlanMock },
   draftRepository: { clear: clearDraftMock },
   athleteProfileRepository: { upsert: upsertProfileMock },
@@ -44,15 +45,19 @@ beforeEach(() => {
   clearDraftMock.mockResolvedValue(ok(undefined));
   invalidateQueriesMock.mockResolvedValue(undefined);
   upsertProfileMock.mockResolvedValue(ok({}));
+  listArchivedMock.mockResolvedValue(ok([]));
 });
 
 describe('adoptPlan', () => {
-  it('sem plano ativo: não arquiva nada, insere o novo como active, grava todos os treinos, limpa rascunho', async () => {
+  it('sem plano ativo: insere como active, grava treinos, retorna trialWeeks', async () => {
     getActiveMock.mockResolvedValue(ok(null));
 
-    const result = await adoptPlan(plan, USER_ID, true);
+    const result = await adoptPlan(plan, USER_ID, false);
 
     expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.trialWeeks).toBe(Math.min(8, Math.floor(plan.totalWeeks / 2)));
+    }
     expect(upsertPlanMock).not.toHaveBeenCalledWith(expect.objectContaining({ status: 'archived' }));
     expect(upsertPlanMock).toHaveBeenCalledWith(expect.objectContaining({ status: 'active' }));
 
@@ -62,9 +67,19 @@ describe('adoptPlan', () => {
     expect(invalidateQueriesMock).toHaveBeenCalled();
   });
 
-  it('com plano ativo: arquiva o antigo ANTES de inserir o novo (índice único de 1 plano active)', async () => {
+  it('Plus: trialWeeks é null', async () => {
+    getActiveMock.mockResolvedValue(ok(null));
+
+    const result = await adoptPlan(plan, USER_ID, true);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.value.trialWeeks).toBeNull();
+  });
+
+  it('com plano ativo e sem histórico: arquiva o antigo e adota (primeira substituição = trial)', async () => {
     const activePlan = { id: 'old-plan-id', status: 'active', user_id: USER_ID };
     getActiveMock.mockResolvedValue(ok(activePlan));
+    listArchivedMock.mockResolvedValue(ok([])); // sem histórico = trial
 
     const callOrder: string[] = [];
     upsertPlanMock.mockImplementation((row: { status: string }) => {
@@ -72,25 +87,25 @@ describe('adoptPlan', () => {
       return Promise.resolve(ok({ id: row.status === 'archived' ? 'old-plan-id' : 'new-plan-id' }));
     });
 
-    const result = await adoptPlan(plan, USER_ID, true);
+    const result = await adoptPlan(plan, USER_ID, false);
 
     expect(result.ok).toBe(true);
     expect(callOrder).toEqual(['archived', 'active']);
-    expect(upsertPlanMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'old-plan-id', status: 'archived' }));
   });
 
   it('falha ao arquivar o plano ativo → propaga erro e NÃO tenta inserir o novo', async () => {
     getActiveMock.mockResolvedValue(ok({ id: 'old-plan-id', status: 'active' }));
+    listArchivedMock.mockResolvedValue(ok([]));
     upsertPlanMock.mockResolvedValueOnce(err({ code: 'storage', message: 'disco cheio' }));
 
     const result = await adoptPlan(plan, USER_ID, true);
 
     expect(result.ok).toBe(false);
-    expect(upsertPlanMock).toHaveBeenCalledTimes(1); // só a tentativa de arquivar, não o insert do novo
+    expect(upsertPlanMock).toHaveBeenCalledTimes(1);
     expect(clearDraftMock).not.toHaveBeenCalled();
   });
 
-  it('grava altura/peso/IMC do plano em athlete_profiles (docs/fase-6-brief.md Grupo 2 — dado nunca persistido antes)', async () => {
+  it('grava altura/peso/IMC do plano em athlete_profiles', async () => {
     getActiveMock.mockResolvedValue(ok(null));
 
     const result = await adoptPlan(plan, USER_ID, true);
@@ -108,35 +123,45 @@ describe('adoptPlan', () => {
     getActiveMock.mockResolvedValue(ok(null));
     upsertWorkoutMock.mockResolvedValueOnce(err({ code: 'storage', message: 'falhou' }));
 
-    const result = await adoptPlan(plan, USER_ID, true);
+    const result = await adoptPlan(plan, USER_ID, false);
 
     expect(result.ok).toBe(false);
     expect(clearDraftMock).not.toHaveBeenCalled();
   });
 
-  describe('docs/fase-8-brief.md Grupo 3 — gate "gerar nova planilha = Plus"', () => {
-    it('Free sem planilha ativa (1ª planilha): permite, sem tentar arquivar nada', async () => {
+  describe('gate de trial — primeira adoção NUNCA mostra paywall', () => {
+    it('Free sem planilha ativa (1ª planilha): permite e retorna trialWeeks', async () => {
       getActiveMock.mockResolvedValue(ok(null));
 
       const result = await adoptPlan(plan, USER_ID, false);
 
       expect(result.ok).toBe(true);
-      expect(upsertPlanMock).not.toHaveBeenCalledWith(expect.objectContaining({ status: 'archived' }));
+      if (result.ok) expect(result.value.trialWeeks).toBeGreaterThan(0);
     });
 
-    it('Free COM planilha ativa: bloqueia com AppError code "entitlement", não toca no banco', async () => {
+    it('Free COM planilha ativa MAS sem histórico arquivado: permite (é trial, primeira vez)', async () => {
       getActiveMock.mockResolvedValue(ok({ id: 'old-plan-id', status: 'active', user_id: USER_ID }));
+      listArchivedMock.mockResolvedValue(ok([]));
+
+      const result = await adoptPlan(plan, USER_ID, false);
+
+      expect(result.ok).toBe(true);
+    });
+
+    it('Free COM planilha ativa E com histórico arquivado: bloqueia (já usou trial)', async () => {
+      getActiveMock.mockResolvedValue(ok({ id: 'old-plan-id', status: 'active', user_id: USER_ID }));
+      listArchivedMock.mockResolvedValue(ok([{ id: 'archived-1', status: 'archived' }]));
 
       const result = await adoptPlan(plan, USER_ID, false);
 
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error.code).toBe('entitlement');
       expect(upsertPlanMock).not.toHaveBeenCalled();
-      expect(upsertWorkoutMock).not.toHaveBeenCalled();
     });
 
-    it('Plus COM planilha ativa: permite normalmente (arquiva e substitui)', async () => {
+    it('Plus COM histórico arquivado: permite normalmente', async () => {
       getActiveMock.mockResolvedValue(ok({ id: 'old-plan-id', status: 'active', user_id: USER_ID }));
+      listArchivedMock.mockResolvedValue(ok([{ id: 'archived-1', status: 'archived' }]));
 
       const result = await adoptPlan(plan, USER_ID, true);
 

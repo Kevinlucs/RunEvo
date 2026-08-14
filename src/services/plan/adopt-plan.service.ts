@@ -1,31 +1,38 @@
 import { trainingPlanRepository, workoutRepository, draftRepository, athleteProfileRepository } from '@/repositories';
 import { planToRows } from '@/mappers/plan.mapper';
 import { queryClient } from '@/store/query-client';
-import { canGenerateNewPlan } from './plan-trial.service';
+import { calculateTrialWeeks } from './plan-trial.service';
 import { ok, err, toAppError, AppError, type Result } from '@/utils/result';
 import type { Plan } from '@/domain/motor-evo/plan-generator';
 
+export interface AdoptResult {
+  /** Semanas de trial ativadas (só na primeira adoção Free). null se Plus. */
+  trialWeeks: number | null;
+}
+
 /**
- * docs/fase-3-brief.md §4.4. Persistência só via repositories (offline-first
- * → outbox, funciona sem rede). Arquivamento do plano ativo acontece ANTES
- * do insert do novo — o índice único `uniq_active_plan_per_user` (só 1
- * `status='active'` por usuário) rejeitaria o insert se os dois estivessem
- * `active` ao mesmo tempo.
+ * docs/fase-3-brief.md §4.4 + docs/fase-8-brief.md Grupo 3.
  *
- * Free e Plus arquivam da mesma forma (`status='archived'`, nunca apagado) —
- * a diferença de plano é sobre QUEM PODE VER o histórico depois (gate de UI
- * fora do escopo desta fase), não sobre este mecanismo de troca em si.
+ * Gate de adoção (entitlement decidido no serviço, nunca na UI):
+ * - Primeira adoção (sem planos arquivados): SEMPRE permitida, ativa trial.
+ *   Não importa se isPlus é false — trial se ativa automaticamente.
+ * - Substituição (já tem planos arquivados): requer Plus.
+ * - Plus: sempre permitido.
  *
- * docs/fase-8-brief.md Grupo 3 — "gerar uma nova planilha = Plus (Free vive
- * a 1ª planilha)". Gate aqui, no serviço: `isPlus` vem de `useEntitlement()`
- * na UI, mas quem DECIDE se bloqueia é `canGenerateNewPlan`, nunca a tela.
+ * Paywall NUNCA aparece na primeira adoção. Trial = min(8, floor(totalWeeks/2)).
  */
-export async function adoptPlan(plan: Plan, userId: string, isPlus: boolean): Promise<Result<void>> {
+export async function adoptPlan(plan: Plan, userId: string, isPlus: boolean): Promise<Result<AdoptResult>> {
   try {
     const activeRes = await trainingPlanRepository.getActive(userId);
     if (!activeRes.ok) return err(activeRes.error);
 
-    if (!canGenerateNewPlan({ hasExistingPlan: Boolean(activeRes.value), isPlus })) {
+    // Checa se é substituição (já arquivou plano antes).
+    const archivedRes = await trainingPlanRepository.listArchived(userId);
+    const hasArchivedPlans = archivedRes.ok && archivedRes.value.length > 0;
+
+    // Gate: substituição de plano (já tem histórico) requer Plus.
+    // Primeira adoção (sem histórico) SEMPRE passa — é o trial.
+    if (hasArchivedPlans && !isPlus) {
       return err(new AppError('entitlement', 'Gerar uma nova planilha requer RunEvo+.'));
     }
 
@@ -45,11 +52,6 @@ export async function adoptPlan(plan: Plan, userId: string, isPlus: boolean): Pr
 
     await draftRepository.clear(userId);
 
-    // Débito achado na Fase 6 (Grupo 2, §31): altura/peso/IMC digitados no
-    // formulário IA Evo nunca eram salvos em `athlete_profiles` — ficavam só
-    // dentro do blueprint deste plano. Estatísticas e Perfil (§32) precisam
-    // ler do perfil, não de um plano específico. Best-effort: uma falha aqui
-    // não pode travar a adoção da planilha.
     const { height, weight, imc } = plan.userData;
     if (height !== undefined || weight !== undefined || imc !== undefined) {
       await athleteProfileRepository.upsert({
@@ -62,7 +64,9 @@ export async function adoptPlan(plan: Plan, userId: string, isPlus: boolean): Pr
 
     await queryClient.invalidateQueries();
 
-    return ok(undefined);
+    // Trial ativado automaticamente na primeira adoção Free.
+    const trialWeeks = isPlus ? null : calculateTrialWeeks(plan.totalWeeks);
+    return ok({ trialWeeks });
   } catch (e) {
     return err(toAppError(e, 'storage'));
   }

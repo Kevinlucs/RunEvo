@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
 import { Card } from '@/components/ui/Card';
 import { NeonButton } from '@/components/ui/NeonButton';
@@ -29,6 +30,7 @@ export default function PlanPreview(): JSX.Element {
   const { isPlus } = useEntitlement();
   const [adopting, setAdopting] = useState(false);
   const [adoptError, setAdoptError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   if (!plan) {
     router.replace('/(tabs)/ai-evo');
@@ -45,8 +47,6 @@ export default function PlanPreview(): JSX.Element {
     setAdoptError(null);
     setAdopting(true);
     try {
-      // Revalida plano idêntico bem antes de adotar (§4.3) — o plano ativo
-      // pode ter mudado entre a geração e o clique em "Adotar".
       const stillIdentical = await isIdenticalToActivePlan(userId, plan);
       if (stillIdentical) {
         setAdopting(false);
@@ -63,8 +63,19 @@ export default function PlanPreview(): JSX.Element {
         setAdopting(false);
         return;
       }
+
+      // Trial feedback — mostra toast antes de navegar.
+      const { trialWeeks } = result.value;
       clear();
-      router.replace('/(tabs)');
+      if (trialWeeks) {
+        Alert.alert(
+          'Planilha adotada!',
+          `Você tem ${trialWeeks} semanas de acesso completo. Aproveite seu treinamento!`,
+          [{ text: 'Bora!', onPress: () => router.replace('/(tabs)') }],
+        );
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch (e) {
       setAdoptError(e instanceof Error ? e.message : 'Não foi possível adotar a planilha.');
       setAdopting(false);
@@ -88,6 +99,7 @@ export default function PlanPreview(): JSX.Element {
 
   const { blueprint, validation } = plan;
   const trainingZones = blueprint.paceZones.trainingZones;
+  const totalKm = plan.weeks.reduce((sum, w) => sum + w.workouts.reduce((s, wo) => s + wo.km, 0), 0);
 
   return (
     <Screen>
@@ -110,6 +122,13 @@ export default function PlanPreview(): JSX.Element {
             ) : null}
           </View>
         ) : null}
+
+        <Card title="Resumo do plano">
+          <InfoRow label="Semanas totais" value={`${plan.totalWeeks}`} />
+          <InfoRow label="Dias por semana" value={`${plan.daysPerWeek}`} />
+          <InfoRow label="Volume total" value={`${totalKm.toFixed(0)} km`} />
+          <InfoRow label="Objetivo" value={plan.raceName} />
+        </Card>
 
         <Card title="Análise do atleta">
           <InfoRow label="Nível detectado" value={blueprint.athleteAnalysis.detectedLevel} />
@@ -176,21 +195,30 @@ export default function PlanPreview(): JSX.Element {
           <Text style={styles.disclaimer}>Indicador técnico de planejamento — não é diagnóstico médico.</Text>
         </Card>
 
-        <Card title={`Plano semana a semana (${plan.weeks.length} semanas)`}>
-          {plan.weeks.map((week) => (
-            <View key={week.week} style={styles.weekBlock}>
-              <Text style={styles.weekTitle}>
-                {week.week} — {week.phase}
-                {week.off ? ' (recuperação)' : ''}
-              </Text>
-              {week.workouts.map((workout, i) => (
-                <Text key={i} style={styles.workoutLine}>
-                  {workout.dayOfWeek}: {workout.title} — {workout.km}km @ {workout.pace}
+        <Pressable onPress={() => setExpanded(!expanded)} style={styles.expandToggle} accessibilityRole="button">
+          <Text style={styles.expandLabel}>
+            {expanded ? 'Ocultar detalhes' : 'Detalhar planilha semana a semana'}
+          </Text>
+          <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.neon} />
+        </Pressable>
+
+        {expanded ? (
+          <Card title={`Plano semana a semana (${plan.weeks.length} semanas)`}>
+            {plan.weeks.map((week) => (
+              <View key={week.week} style={styles.weekBlock}>
+                <Text style={styles.weekTitle}>
+                  {week.week} — {week.phase}
+                  {week.off ? ' (recuperação)' : ''}
                 </Text>
-              ))}
-            </View>
-          ))}
-        </Card>
+                {week.workouts.map((workout, i) => (
+                  <Text key={i} style={styles.workoutLine}>
+                    {workout.dayOfWeek}: {workout.title} — {workout.km}km @ {workout.pace}
+                  </Text>
+                ))}
+              </View>
+            ))}
+          </Card>
+        ) : null}
 
         {adoptError ? <Text style={styles.error}>{adoptError}</Text> : null}
 
@@ -254,6 +282,15 @@ const styles = StyleSheet.create({
   riskReasons: { marginTop: spacing.sm },
   riskReason: { color: colors.textSecondary, fontSize: fontSizes.caption, marginBottom: spacing.xs },
   disclaimer: { color: colors.textMuted, fontSize: fontSizes.caption, marginTop: spacing.md, fontStyle: 'italic' },
+  expandToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  expandLabel: { color: colors.neon, fontSize: fontSizes.body, ...fontWeight('700') },
   weekBlock: { marginBottom: spacing.md, paddingBottom: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
   weekTitle: { color: colors.textPrimary, ...fontWeight('700'), fontSize: fontSizes.body, marginBottom: spacing.xs },
   workoutLine: { color: colors.textSecondary, fontSize: fontSizes.caption, marginBottom: 2 },
