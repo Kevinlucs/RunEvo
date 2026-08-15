@@ -1,20 +1,25 @@
 /**
  * Design tokens do RunEvo (enunciado §36). Fonte única de verdade visual.
  * Nada de cores/tamanhos hard-coded fora daqui.
+ * Paleta extraída dos mockups (docs/fase-qa-polimento-brief.md).
  */
 export const colors = {
   neon: '#CCFF00',
   neonLight: '#D9FF4D',
+  neonMuted: 'rgba(204, 255, 0, 0.15)',
   bg: '#000000',
   card: '#171A1A',
-  cardElevated: '#1F2424',
-  textPrimary: '#F5F5F5',
-  textSecondary: '#999999',
+  cardElevated: '#1E2222',
+  textPrimary: '#FFFFFF',
+  textSecondary: '#A0A0A0',
   textMuted: '#666666',
   border: '#2A2A2A',
-  success: '#4CD964',
-  error: '#FF3B30',
-  glow: 'rgba(204,255,0,0.30)',
+  success: '#4CAF50',
+  warning: '#FF9800',
+  error: '#FF4444',
+  glow: 'rgba(204, 255, 0, 0.30)',
+  tabInactive: '#666666',
+  tabActive: '#CCFF00',
 } as const;
 
 export const radii = {
