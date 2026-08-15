@@ -29,20 +29,23 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
         <View style={styles.row}>
           <View style={styles.info}>
             <Text style={styles.metaText}>
-              {workout.phase ?? 'Base'} · Semana {workout.week_number}
+              {workout.phase ?? 'Base'} · S{workout.week_number}
             </Text>
             <Text style={styles.title} numberOfLines={1}>
               {workout.title ?? 'Treino'}
             </Text>
-            <Text style={styles.subtitle}>
-              {workout.day_label ?? '-'} · {formatShortDate(workout.workout_date)}
-            </Text>
+            <View style={styles.dateRow}>
+              <Ionicons name="calendar-outline" size={14} color={colors.textSecondary} />
+              <Text style={styles.subtitle}>
+                {workout.day_label ?? '-'}, {formatShortDate(workout.workout_date)}
+              </Text>
+            </View>
           </View>
-          <Ionicons name="chevron-forward" size={22} color={colors.neon} />
+          <Ionicons name="chevron-forward" size={22} color={colors.textMuted} />
         </View>
         <StatBoxRow>
-          <StatBox value={`${workout.planned_km ?? 0} km`} label="Distância" />
-          <StatBox value={workout.planned_pace ?? '-'} label="Pace alvo" />
+          <StatBox icon="footsteps-outline" value={`${workout.planned_km ?? 0} km`} label="Distância" />
+          <StatBox icon="timer-outline" value={workout.planned_pace ?? '-'} label="Pace alvo" />
         </StatBoxRow>
       </LinearGradient>
     </Pressable>
@@ -65,7 +68,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   info: { flex: 1, marginRight: spacing.md },
-  metaText: { color: colors.textSecondary, fontSize: fontSizes.caption, textTransform: 'uppercase' },
+  metaText: { color: colors.neon, fontSize: fontSizes.caption, ...fontWeight('700'), textTransform: 'uppercase' },
   title: { color: colors.textPrimary, fontSize: fontSizes.xl, ...fontWeight('800'), marginTop: spacing.xs },
-  subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs },
+  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: spacing.xs },
+  subtitle: { color: colors.textSecondary, fontSize: fontSizes.body },
 });

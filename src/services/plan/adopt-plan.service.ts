@@ -14,25 +14,23 @@ export interface AdoptResult {
  * docs/fase-3-brief.md §4.4 + docs/fase-8-brief.md Grupo 3.
  *
  * Gate de adoção (entitlement decidido no serviço, nunca na UI):
- * - Primeira adoção (sem planos arquivados): SEMPRE permitida, ativa trial.
- *   Não importa se isPlus é false — trial se ativa automaticamente.
- * - Substituição (já tem planos arquivados): requer Plus.
+ * - Free SEM plano ativo: SEMPRE permitida (trial, primeira planilha).
+ * - Free COM plano ativo: bloqueada (precisa Plus para substituir).
  * - Plus: sempre permitido.
  *
- * Paywall NUNCA aparece na primeira adoção. Trial = min(8, floor(totalWeeks/2)).
+ * Paywall NUNCA aparece na primeira adoção (sem plano ativo = trial).
+ * Trial = min(8, floor(totalWeeks/2)).
  */
 export async function adoptPlan(plan: Plan, userId: string, isPlus: boolean): Promise<Result<AdoptResult>> {
   try {
     const activeRes = await trainingPlanRepository.getActive(userId);
     if (!activeRes.ok) return err(activeRes.error);
 
-    // Checa se é substituição (já arquivou plano antes).
-    const archivedRes = await trainingPlanRepository.listArchived(userId);
-    const hasArchivedPlans = archivedRes.ok && archivedRes.value.length > 0;
+    const hasActivePlan = Boolean(activeRes.value);
 
-    // Gate: substituição de plano (já tem histórico) requer Plus.
-    // Primeira adoção (sem histórico) SEMPRE passa — é o trial.
-    if (hasArchivedPlans && !isPlus) {
+    // Gate: Free com plano ativo precisa de Plus para substituir.
+    // Free sem plano ativo = trial (primeira planilha grátis).
+    if (hasActivePlan && !isPlus) {
       return err(new AppError('entitlement', 'Gerar uma nova planilha requer RunEvo+.'));
     }
 
