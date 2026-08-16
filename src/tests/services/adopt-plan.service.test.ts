@@ -13,6 +13,7 @@ import { randomUUID } from 'node:crypto';
 jest.mock('@/utils/uuid', () => ({ newUuid: () => randomUUID() }));
 
 const getActiveMock = jest.fn();
+const listArchivedMock = jest.fn();
 const upsertPlanMock = jest.fn();
 const upsertWorkoutMock = jest.fn();
 const listByPlanMock = jest.fn();
@@ -21,7 +22,7 @@ const invalidateQueriesMock = jest.fn();
 const upsertProfileMock = jest.fn();
 
 jest.mock('@/repositories', () => ({
-  trainingPlanRepository: { getActive: getActiveMock, upsert: upsertPlanMock },
+  trainingPlanRepository: { getActive: getActiveMock, listArchived: listArchivedMock, upsert: upsertPlanMock },
   workoutRepository: { upsert: upsertWorkoutMock, listByPlan: listByPlanMock },
   draftRepository: { clear: clearDraftMock },
   athleteProfileRepository: { upsert: upsertProfileMock },
@@ -44,6 +45,7 @@ beforeEach(() => {
   clearDraftMock.mockResolvedValue(ok(undefined));
   invalidateQueriesMock.mockResolvedValue(undefined);
   upsertProfileMock.mockResolvedValue(ok({}));
+  listArchivedMock.mockResolvedValue(ok([]));
 });
 
 describe('adoptPlan', () => {
@@ -135,8 +137,18 @@ describe('adoptPlan', () => {
       if (result.ok) expect(result.value.trialWeeks).toBeGreaterThan(0);
     });
 
-    it('Free COM planilha ativa: bloqueia (precisa Plus para substituir)', async () => {
+    it('Free COM planilha ativa MAS sem histórico arquivado: permite (é trial)', async () => {
       getActiveMock.mockResolvedValue(ok({ id: 'old-plan-id', status: 'active', user_id: USER_ID }));
+      listArchivedMock.mockResolvedValue(ok([]));
+
+      const result = await adoptPlan(plan, USER_ID, false);
+
+      expect(result.ok).toBe(true);
+    });
+
+    it('Free COM planilha ativa E com histórico arquivado: bloqueia (já usou trial)', async () => {
+      getActiveMock.mockResolvedValue(ok({ id: 'old-plan-id', status: 'active', user_id: USER_ID }));
+      listArchivedMock.mockResolvedValue(ok([{ id: 'archived-1', status: 'archived' }]));
 
       const result = await adoptPlan(plan, USER_ID, false);
 
@@ -145,8 +157,9 @@ describe('adoptPlan', () => {
       expect(upsertPlanMock).not.toHaveBeenCalled();
     });
 
-    it('Plus COM planilha ativa: permite normalmente', async () => {
+    it('Plus COM histórico arquivado: permite normalmente', async () => {
       getActiveMock.mockResolvedValue(ok({ id: 'old-plan-id', status: 'active', user_id: USER_ID }));
+      listArchivedMock.mockResolvedValue(ok([{ id: 'archived-1', status: 'archived' }]));
 
       const result = await adoptPlan(plan, USER_ID, true);
 

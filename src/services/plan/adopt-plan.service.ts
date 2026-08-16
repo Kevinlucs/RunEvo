@@ -13,27 +13,37 @@ export interface AdoptResult {
 /**
  * docs/fase-3-brief.md §4.4 + docs/fase-8-brief.md Grupo 3.
  *
- * Gate de adoção (entitlement decidido no serviço, nunca na UI):
- * - Free SEM plano ativo: SEMPRE permitida (trial, primeira planilha).
- * - Free COM plano ativo: bloqueada (precisa Plus para substituir).
- * - Plus: sempre permitido.
+ * Gate de adoção — regra INVIOLÁVEL: primeira adoção NUNCA mostra paywall.
  *
- * Paywall NUNCA aparece na primeira adoção (sem plano ativo = trial).
- * Trial = min(8, floor(totalWeeks/2)).
+ * Lógica:
+ * - Plus: SEMPRE permitido.
+ * - Free SEM planos arquivados: SEMPRE permitido (é trial / primeira planilha).
+ *   Não importa se há plano ativo (pode ser dado residual de sync).
+ * - Free COM planos arquivados: bloqueado (já usou o trial, precisa de Plus).
+ *
+ * O gate checa planos ARQUIVADOS, não ativos. Plano ativo pode ser dado
+ * residual, plano gerado via sync, etc. — não é prova de que o trial expirou.
+ * Plano arquivado = o usuário JÁ adotou E substituiu antes = trial usado.
+ *
+ * Se RevenueCat falhar (Expo Go), isPlus = false → não bloqueia primeira
+ * adoção (sem arquivados). Trial = min(8, floor(totalWeeks/2)).
  */
 export async function adoptPlan(plan: Plan, userId: string, isPlus: boolean): Promise<Result<AdoptResult>> {
   try {
     const activeRes = await trainingPlanRepository.getActive(userId);
     if (!activeRes.ok) return err(activeRes.error);
 
-    const hasActivePlan = Boolean(activeRes.value);
-
-    // Gate: Free com plano ativo precisa de Plus para substituir.
-    // Free sem plano ativo = trial (primeira planilha grátis).
-    if (hasActivePlan && !isPlus) {
-      return err(new AppError('entitlement', 'Gerar uma nova planilha requer RunEvo+.'));
+    // Gate: checa planos ARQUIVADOS (evidência de que trial já foi usado).
+    // Free sem histórico arquivado = primeira adoção = trial = permitido.
+    if (!isPlus) {
+      const archivedRes = await trainingPlanRepository.listArchived(userId);
+      const hasArchivedPlans = archivedRes.ok && archivedRes.value.length > 0;
+      if (hasArchivedPlans) {
+        return err(new AppError('entitlement', 'Gerar uma nova planilha requer RunEvo+.'));
+      }
     }
 
+    // Se havia plano ativo, arquiva antes de inserir o novo.
     if (activeRes.value) {
       const archiveRes = await trainingPlanRepository.upsert({ ...activeRes.value, status: 'archived' });
       if (!archiveRes.ok) return err(archiveRes.error);
