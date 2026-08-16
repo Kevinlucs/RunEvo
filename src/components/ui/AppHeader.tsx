@@ -56,10 +56,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
+    paddingVertical: spacing.sm,
   },
-  logo: { height: LOGO_HEIGHT },
+  logo: { height: LOGO_HEIGHT, alignSelf: 'center' },
   avatar: {
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,

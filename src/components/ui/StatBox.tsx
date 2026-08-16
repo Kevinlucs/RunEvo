@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
 interface Props {
@@ -7,6 +8,8 @@ interface Props {
   label: string;
   /** Destaque neon no valor (ex.: dias restantes, km da meta) — default branco. */
   emphasis?: boolean;
+  /** Ícone Ionicons opcional renderizado acima do valor. */
+  icon?: keyof typeof Ionicons.glyphMap;
 }
 
 /**
@@ -14,9 +17,10 @@ interface Props {
  * dentro de cards da Home e do detalhe do treino — calibração visual em cima
  * dos mockups de design-reference/ (docs/fase-4-brief.md §27/§28).
  */
-export function StatBox({ value, label, emphasis = false }: Props): JSX.Element {
+export function StatBox({ value, label, emphasis = false, icon }: Props): JSX.Element {
   return (
     <View style={styles.box}>
+      {icon ? <Ionicons name={icon} size={18} color={colors.textSecondary} style={styles.icon} /> : null}
       <Text style={[styles.value, emphasis && styles.valueEmphasis]} numberOfLines={1}>
         {value}
       </Text>
@@ -40,7 +44,8 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     alignItems: 'center',
   },
+  icon: { marginBottom: spacing.xs },
   value: { color: colors.textPrimary, fontSize: fontSizes.lg, ...fontWeight('800') },
   valueEmphasis: { color: colors.neon },
-  label: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: spacing.xs },
+  label: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: spacing.xs, textTransform: 'uppercase' },
 });

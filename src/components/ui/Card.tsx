@@ -3,14 +3,14 @@ import { View, Text, StyleSheet } from 'react-native';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
 interface Props {
-  title: string;
+  title?: string;
 }
 
 /** Card padrão para seções da prévia do plano (§4.2) e telas afins. */
 export function Card({ title, children }: PropsWithChildren<Props>): JSX.Element {
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>{title}</Text>
+      {title ? <Text style={styles.title}>{title}</Text> : null}
       {children}
     </View>
   );

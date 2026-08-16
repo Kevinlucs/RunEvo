@@ -17,8 +17,8 @@ export default function TabsLayout(): JSX.Element {
         headerShown: false,
         tabBarStyle: {
           backgroundColor: colors.bg,
-          borderTopColor: colors.border,
-          borderTopWidth: 0.5,
+          borderTopWidth: 0,
+          elevation: 0,
         },
         tabBarActiveTintColor: colors.tabActive,
         tabBarInactiveTintColor: colors.tabInactive,

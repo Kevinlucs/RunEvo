@@ -85,12 +85,16 @@ export default function Home(): JSX.Element {
 const styles = StyleSheet.create({
   scrollContent: { paddingBottom: spacing.xxxl },
   capsule: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.cardElevated,
+    alignSelf: 'stretch',
+    backgroundColor: 'transparent',
     borderRadius: radii.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.neon,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.lg,
+    marginTop: spacing.sm,
   },
-  capsuleText: { color: colors.neon, fontSize: fontSizes.caption, ...fontWeight('800'), letterSpacing: 1 },
+  capsuleText: { color: colors.neon, fontSize: fontSizes.base, ...fontWeight('700'), letterSpacing: 1 },
 });
