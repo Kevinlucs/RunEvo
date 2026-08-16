@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     backgroundColor: 'transparent',
     borderRadius: radii.pill,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: colors.neon,
     paddingVertical: spacing.md,
     alignItems: 'center',
