@@ -34,9 +34,25 @@ export default function Home(): JSX.Element {
       <Screen>
         <AppHeader />
         <EmptyState
-          title="Você ainda não tem uma planilha"
-          message="Gere sua planilha personalizada com a IA Evo para começar a treinar."
-          ctaLabel="Criar minha planilha"
+          title="Crie sua primeira planilha"
+          message="Preencha seus dados na aba IA Evo e gere seu plano personalizado."
+          ctaLabel="Ir para IA Evo"
+          onPressCta={() => router.push('/(tabs)/ai-evo')}
+        />
+      </Screen>
+    );
+  }
+
+  // Guard: plano existe mas sem workouts reais — trata como estado vazio
+  // (pode acontecer com dados residuais de sync sem treinos populados).
+  if (!planLoading && plan && workouts.length === 0 && !nextWorkout) {
+    return (
+      <Screen>
+        <AppHeader />
+        <EmptyState
+          title="Crie sua primeira planilha"
+          message="Preencha seus dados na aba IA Evo e gere seu plano personalizado."
+          ctaLabel="Ir para IA Evo"
           onPressCta={() => router.push('/(tabs)/ai-evo')}
         />
       </Screen>
