@@ -17,13 +17,9 @@ export interface AdoptResult {
  *
  * Lógica:
  * - Plus: SEMPRE permitido.
- * - Free SEM planos arquivados: SEMPRE permitido (é trial / primeira planilha).
- *   Não importa se há plano ativo (pode ser dado residual de sync).
- * - Free COM planos arquivados: bloqueado (já usou o trial, precisa de Plus).
- *
- * O gate checa planos ARQUIVADOS, não ativos. Plano ativo pode ser dado
- * residual, plano gerado via sync, etc. — não é prova de que o trial expirou.
- * Plano arquivado = o usuário JÁ adotou E substituiu antes = trial usado.
+ * - Free SEM planos arquivados: SEMPRE permitido (trial / primeira planilha).
+ * - Free COM planos arquivados: bloqueado (já usou trial, precisa Plus).
+ * - __DEV__: logs de debug para diagnóstico no Metro.
  *
  * Se RevenueCat falhar (Expo Go), isPlus = false → não bloqueia primeira
  * adoção (sem arquivados). Trial = min(8, floor(totalWeeks/2)).
@@ -31,20 +27,28 @@ export interface AdoptResult {
 export async function adoptPlan(plan: Plan, userId: string, isPlus: boolean): Promise<Result<AdoptResult>> {
   try {
     const activeRes = await trainingPlanRepository.getActive(userId);
-    if (!activeRes.ok) return err(activeRes.error);
+    if (!activeRes.ok) {
+      if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ADOPT] getActive FAILED:', activeRes.error);
+      return err(activeRes.error);
+    }
 
-    // Gate: checa planos ARQUIVADOS (evidência de que trial já foi usado).
-    // Free sem histórico arquivado = primeira adoção = trial = permitido.
+    if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ADOPT] activePlan:', activeRes.value?.id ?? 'null', '| isPlus:', isPlus);
+
+    // Gate: checa planos ARQUIVADOS (evidência de trial já usado).
     if (!isPlus) {
       const archivedRes = await trainingPlanRepository.listArchived(userId);
-      const hasArchivedPlans = archivedRes.ok && archivedRes.value.length > 0;
-      if (hasArchivedPlans) {
+      const archivedCount = archivedRes.ok ? archivedRes.value.length : 0;
+
+      if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ADOPT] archivedPlans:', archivedCount, '| decision:', archivedCount > 0 ? 'BLOCK' : 'ALLOW');
+
+      if (archivedCount > 0) {
         return err(new AppError('entitlement', 'Gerar uma nova planilha requer RunEvo+.'));
       }
     }
 
     // Se havia plano ativo, arquiva antes de inserir o novo.
     if (activeRes.value) {
+      if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ADOPT] Archiving active plan:', activeRes.value.id);
       const archiveRes = await trainingPlanRepository.upsert({ ...activeRes.value, status: 'archived' });
       if (!archiveRes.ok) return err(archiveRes.error);
     }
@@ -52,6 +56,8 @@ export async function adoptPlan(plan: Plan, userId: string, isPlus: boolean): Pr
     const { plan: planRow, workouts } = planToRows(plan, userId);
     const planRes = await trainingPlanRepository.upsert({ ...planRow, status: 'active' });
     if (!planRes.ok) return err(planRes.error);
+
+    if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ADOPT] Plan saved as active. Saving', workouts.length, 'workouts...');
 
     for (const workout of workouts) {
       const workoutRes = await workoutRepository.upsert(workout);
@@ -74,6 +80,7 @@ export async function adoptPlan(plan: Plan, userId: string, isPlus: boolean): Pr
 
     // Trial ativado automaticamente na primeira adoção Free.
     const trialWeeks = isPlus ? null : calculateTrialWeeks(plan.totalWeeks);
+    if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ADOPT] SUCCESS. trialWeeks:', trialWeeks);
     return ok({ trialWeeks });
   } catch (e) {
     return err(toAppError(e, 'storage'));

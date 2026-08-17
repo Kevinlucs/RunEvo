@@ -18,7 +18,9 @@ export function useEntitlement() {
     queryFn: async (): Promise<Entitlement> => {
       if (!user?.id) return FREE;
       const result = await subscriptionService.getEntitlement(user.id);
-      return result.ok ? result.value : FREE;
+      const entitlement = result.ok ? result.value : FREE;
+      if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ENTITLEMENT] plan:', entitlement.plan, '| status:', entitlement.status);
+      return entitlement;
     },
   });
 

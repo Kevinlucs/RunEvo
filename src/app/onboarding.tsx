@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Screen } from '@/components/ui/Screen';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { athleteProfileRepository } from '@/repositories';
@@ -22,10 +23,9 @@ export default function Onboarding(): JSX.Element {
     if (!userId) return;
     setLoading(true);
     await athleteProfileRepository.upsert({ id: userId, onboarding_seen: true });
+    // Cache monotônico no AsyncStorage — sobrevive a resets de SQLite/sync.
+    await AsyncStorage.setItem('@runevo:onboarding_seen', 'true');
     setLoading(false);
-    // Escrita local direta, fora do ciclo de runSync (que já invalida
-    // sozinho) — sem isto, o guard do _layout lê o cache velho de
-    // `onboarding-seen` e manda de volta para cá assim que navega.
     await queryClient.invalidateQueries({ queryKey: ['onboarding-seen', userId] });
     router.replace('/(tabs)/ai-evo');
   };
