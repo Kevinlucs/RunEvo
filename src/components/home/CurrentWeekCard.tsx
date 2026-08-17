@@ -1,15 +1,16 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
-const STATUS_BADGE: Record<Workout['status'], { label: string; icon: keyof typeof Ionicons.glyphMap; color: string }> = {
-  pending: { label: 'Pendente', icon: 'hourglass-outline', color: colors.warning },
-  completed: { label: 'Concluído', icon: 'checkmark-circle', color: colors.success },
-  skipped: { label: 'Pulado', icon: 'close-circle-outline', color: colors.textMuted },
+const STATUS_BADGE: Record<Workout['status'], { label: string; icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }> = {
+  pending: { label: 'Pendente', icon: 'hourglass-outline', color: colors.neon, bg: colors.neonMuted },
+  completed: { label: 'Concluído', icon: 'checkmark-circle', color: colors.success, bg: 'rgba(76,175,80,0.15)' },
+  skipped: { label: 'Pulado', icon: 'close-circle-outline', color: colors.warning, bg: 'rgba(255,152,0,0.15)' },
 };
 
-/** docs/fase-4-brief.md Grupo 2.2 (§27, bloco 5): treinos da semana corrente como cards individuais. */
+/** docs/fase-4-brief.md Grupo 2.2 (§27, bloco 5): treinos da semana corrente, pixel-perfect TELA HOME 1-2. */
 export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; workouts: Workout[] }): JSX.Element {
   const sorted = [...workouts].sort((a, b) => a.week_index - b.week_index);
 
@@ -30,17 +31,22 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
 
           return (
             <View key={workout.id} style={styles.card}>
-              <View style={styles.dateCircle}>
+              <LinearGradient
+                colors={['#CCFF00', 'rgba(204,255,0,0.4)']}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.dateSquare}
+              >
                 <Text style={styles.dateDay}>{day}</Text>
                 <Text style={styles.dateMonth}>{month}</Text>
-              </View>
+              </LinearGradient>
               <View style={styles.info}>
                 <Text style={styles.title} numberOfLines={1}>{workout.title ?? 'Treino'}</Text>
                 <Text style={styles.subtitle}>
                   {workout.day_label ?? '-'} - {workout.phase ?? 'Base'}
                 </Text>
-                <View style={styles.badgeRow}>
-                  <Ionicons name={badge.icon} size={14} color={badge.color} />
+                <View style={[styles.badgeRow, { backgroundColor: badge.bg }]}>
+                  <Ionicons name={badge.icon} size={12} color={badge.color} />
                   <Text style={[styles.badgeText, { color: badge.color }]}>{badge.label}</Text>
                 </View>
               </View>
@@ -55,7 +61,7 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
 
 const styles = StyleSheet.create({
   container: { marginTop: spacing.lg },
-  sectionTitle: { color: colors.textPrimary, fontSize: fontSizes.xl, ...fontWeight('800'), marginBottom: spacing.md },
+  sectionTitle: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginBottom: spacing.md },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -66,32 +72,30 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.md,
   },
-  dateCircle: {
-    width: 48,
-    height: 48,
+  dateSquare: {
+    width: 52,
+    height: 52,
     borderRadius: radii.sm,
-    backgroundColor: colors.neonMuted,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
   },
-  dateDay: { color: colors.neon, fontSize: fontSizes.base, ...fontWeight('800'), lineHeight: 18 },
-  dateMonth: { color: colors.neon, fontSize: 10, ...fontWeight('600'), lineHeight: 12 },
+  dateDay: { color: colors.bg, fontSize: 18, ...fontWeight('800'), lineHeight: 22 },
+  dateMonth: { color: colors.bg, fontSize: 11, ...fontWeight('600'), lineHeight: 13 },
   info: { flex: 1, marginRight: spacing.sm },
   title: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
-  subtitle: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('400'), marginTop: 2 },
+  subtitle: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: 2 },
   badgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     marginTop: spacing.xs,
-    backgroundColor: colors.cardElevated,
     alignSelf: 'flex-start',
     paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: radii.sm,
   },
-  badgeText: { fontSize: fontSizes.caption, ...fontWeight('600') },
-  km: { color: colors.neon, fontSize: fontSizes.lg, ...fontWeight('800') },
+  badgeText: { fontSize: 11, ...fontWeight('600') },
+  km: { color: colors.neon, fontSize: 18, ...fontWeight('800') },
   empty: { color: colors.textMuted, fontSize: fontSizes.body, ...fontWeight('400') },
 });
