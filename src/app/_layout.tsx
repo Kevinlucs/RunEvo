@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   useFonts,
   Outfit_400Regular,
@@ -24,14 +25,32 @@ import { deriveOnboardingState, type OnboardingState } from '@/services/auth/onb
 // `.catch` porque Fast Refresh pode chamar de novo com o splash já escondido.
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
+const ONBOARDING_KEY = '@runevo:onboarding_seen';
+
 function useOnboardingSeen(userId: string | null, initialSyncDone: boolean): OnboardingState {
   const query = useQuery({
     queryKey: ['onboarding-seen', userId],
     enabled: Boolean(userId),
     queryFn: async (): Promise<boolean | null> => {
       if (!userId) return null;
+
+      // AsyncStorage como cache monotônico: uma vez true, nunca volta a false
+      // (sobrevive a resets de SQLite e sync que sobrescreve com valor antigo).
+      const cached = await AsyncStorage.getItem(ONBOARDING_KEY);
+      if (cached === 'true') {
+        if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ONBOARDING] AsyncStorage cache hit: seen=true');
+        return true;
+      }
+
       const result = await athleteProfileRepository.findById(userId);
-      return result.ok ? (result.value?.onboarding_seen ?? null) : null;
+      const value = result.ok ? (result.value?.onboarding_seen ?? null) : null;
+      if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ONBOARDING] SQLite:', value, '| syncDone:', initialSyncDone);
+
+      // Se SQLite diz true, persiste no AsyncStorage para resiliência.
+      if (value === true) {
+        await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+      }
+      return value;
     },
   });
   return deriveOnboardingState(query.data, initialSyncDone);
