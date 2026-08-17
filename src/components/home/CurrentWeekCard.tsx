@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
@@ -31,15 +30,10 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
 
           return (
             <View key={workout.id} style={styles.card}>
-              <LinearGradient
-                colors={['#CCFF00', 'rgba(204,255,0,0.4)']}
-                start={{ x: 0.5, y: 0 }}
-                end={{ x: 0.5, y: 1 }}
-                style={styles.dateSquare}
-              >
+              <View style={styles.dateSquare}>
                 <Text style={styles.dateDay}>{day}</Text>
                 <Text style={styles.dateMonth}>{month}</Text>
-              </LinearGradient>
+              </View>
               <View style={styles.info}>
                 <Text style={styles.title} numberOfLines={1}>{workout.title ?? 'Treino'}</Text>
                 <Text style={styles.subtitle}>
@@ -73,9 +67,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   dateSquare: {
-    width: 52,
-    height: 52,
+    width: 48,
+    height: 48,
     borderRadius: radii.sm,
+    backgroundColor: colors.neon,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,

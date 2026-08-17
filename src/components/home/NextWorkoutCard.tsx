@@ -5,11 +5,21 @@ import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET, fontWeight } from 
 import { formatShortDate } from '@/utils/time';
 import type { Workout } from '@/domain/entities';
 
+/** Pace numérico = contém ":" seguido de dígitos (ex: "7:26/km", "5:30"). */
+function getNumericPace(workout: Workout): string | null {
+  const pace = workout.planned_pace;
+  if (!pace) return null;
+  if (/\d+:\d+/.test(pace)) return pace;
+  return null;
+}
+
 /**
- * docs/fase-4-brief.md Grupo 2.2 (§27, bloco 3): degradê verde visível,
- * chips compactos inline, chevron neon. Pixel-perfect com TELA HOME 1.
+ * Card do próximo treino — compacto, ~140px max.
+ * Pixel-perfect com mockup TELA HOME 1.
  */
 export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPress: () => void }): JSX.Element {
+  const pace = getNumericPace(workout);
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -46,10 +56,10 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
             <Ionicons name="footsteps-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.chipText}>{workout.planned_km ?? 0} km</Text>
           </View>
-          {workout.planned_pace ? (
+          {pace ? (
             <View style={styles.chip}>
               <Ionicons name="timer-outline" size={16} color={colors.textSecondary} />
-              <Text style={styles.chipText}>{workout.planned_pace}</Text>
+              <Text style={styles.chipText}>{pace}</Text>
             </View>
           ) : null}
         </View>
@@ -59,24 +69,25 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
 }
 
 const styles = StyleSheet.create({
-  pressable: { marginBottom: spacing.lg },
+  pressable: { marginBottom: spacing.md },
   card: {
     borderRadius: radii.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     minHeight: MIN_TOUCH_TARGET,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   info: { flex: 1, marginRight: spacing.md },
   metaText: { color: colors.neon, fontSize: 13, ...fontWeight('600'), textTransform: 'uppercase', letterSpacing: 0.5 },
-  title: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginTop: spacing.xs },
-  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: spacing.sm },
+  title: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginTop: 2 },
+  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('400') },
   chipRow: { flexDirection: 'row', gap: spacing.sm },
   chip: {
@@ -86,7 +97,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.3)',
     borderRadius: radii.pill,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: 6,
   },
   chipText: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600') },
 });
