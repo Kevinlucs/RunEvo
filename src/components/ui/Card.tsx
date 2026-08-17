@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
     padding: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   title: { color: colors.neon, fontSize: fontSizes.lg, ...fontWeight('800'), marginBottom: spacing.md },
 });

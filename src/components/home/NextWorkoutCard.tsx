@@ -6,7 +6,7 @@ import { formatShortDate } from '@/utils/time';
 import type { Workout } from '@/domain/entities';
 
 /**
- * Card do próximo treino — compacto (~120-130px).
+ * Card do próximo treino — compacto (~115-125px).
  * Pixel-perfect com mockup TELA HOME 1.
  */
 export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPress: () => void }): JSX.Element {
@@ -34,23 +34,23 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
               {workout.title ?? 'Treino'}
             </Text>
             <View style={styles.dateRow}>
-              <Ionicons name="calendar-outline" size={14} color={colors.textSecondary} />
+              <Ionicons name="calendar-outline" size={13} color={colors.textSecondary} />
               <Text style={styles.subtitle}>
                 {workout.day_label ?? '-'}, {formatShortDate(workout.workout_date)}
               </Text>
             </View>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={colors.neon} />
+          <Ionicons name="chevron-forward" size={18} color={colors.neon} />
         </View>
 
         <View style={styles.chipRow}>
           <View style={styles.chip}>
-            <Ionicons name="footsteps-outline" size={14} color={colors.textSecondary} />
+            <Ionicons name="footsteps-outline" size={13} color={colors.textSecondary} />
             <Text style={styles.chipText}>{workout.planned_km ?? 0} km</Text>
           </View>
           {pace ? (
             <View style={styles.chip}>
-              <Ionicons name="timer-outline" size={14} color={colors.textSecondary} />
+              <Ionicons name="timer-outline" size={13} color={colors.textSecondary} />
               <Text style={styles.chipText}>{pace}</Text>
             </View>
           ) : null}
@@ -76,11 +76,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 2,
   },
-  info: { flex: 1, marginRight: spacing.md },
-  metaText: { color: colors.neon, fontSize: 13, ...fontWeight('600'), textTransform: 'uppercase', letterSpacing: 0.5 },
-  title: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginTop: 2 },
-  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
-  subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('400') },
+  info: { flex: 1, marginRight: spacing.sm },
+  metaText: { color: colors.neon, fontSize: 12, ...fontWeight('600'), textTransform: 'uppercase', letterSpacing: 0.5 },
+  title: { color: colors.textPrimary, fontSize: 19, ...fontWeight('800'), marginTop: 1 },
+  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 1 },
+  subtitle: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400') },
   chipRow: { flexDirection: 'row', gap: spacing.sm, marginTop: 6 },
   chip: {
     flexDirection: 'row',
@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
     gap: 4,
     backgroundColor: 'rgba(0,0,0,0.3)',
     borderRadius: radii.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
-  chipText: { color: colors.textPrimary, fontSize: 13, ...fontWeight('600') },
+  chipText: { color: colors.textPrimary, fontSize: 12, ...fontWeight('600') },
 });

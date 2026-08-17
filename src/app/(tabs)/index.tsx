@@ -13,7 +13,7 @@ import { usePlanProgress } from '@/hooks/usePlanProgress';
 import { useCurrentWeek } from '@/hooks/useCurrentWeek';
 import { usePlanWorkouts } from '@/hooks/usePlanWorkouts';
 import { useAdaptiveTrainingSummary } from '@/hooks/useAdaptiveTrainingSummary';
-import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
+import { colors, radii, spacing, fontWeight } from '@/theme';
 
 /**
  * Home (docs/fase-4-brief.md Grupo 2.2, §27) — ordem exata dos blocos:
@@ -106,11 +106,11 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     borderWidth: 1,
     borderColor: 'rgba(204,255,0,0.35)',
-    paddingVertical: spacing.md,
+    paddingVertical: 7,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.lg,
-    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+    marginTop: spacing.xs,
   },
-  capsuleText: { color: colors.neon, fontSize: fontSizes.base, ...fontWeight('800'), letterSpacing: 1 },
+  capsuleText: { color: colors.neon, fontSize: 13, ...fontWeight('800'), letterSpacing: 1.2 },
 });

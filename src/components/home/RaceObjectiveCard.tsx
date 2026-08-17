@@ -55,14 +55,14 @@ export function RaceObjectiveCard({ plan, progress }: { plan: TrainingPlan; prog
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.lg },
+  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
   headerIcon: { fontSize: 16 },
   raceName: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('700'), flexShrink: 1, letterSpacing: 0.5, textTransform: 'uppercase' },
-  statsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.lg },
+  statsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
   statCol: { flex: 1, alignItems: 'center' },
-  statValue: { color: colors.textPrimary, fontSize: 28, ...fontWeight('900') },
-  statLabel: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('500'), marginTop: spacing.xs, textTransform: 'uppercase' },
-  divider: { width: 1, height: 40, backgroundColor: colors.border },
+  statValue: { color: colors.textPrimary, fontSize: 26, ...fontWeight('900') },
+  statLabel: { color: colors.textSecondary, fontSize: 11, ...fontWeight('500'), marginTop: 2, textTransform: 'uppercase' },
+  divider: { width: 1, height: 36, backgroundColor: colors.border },
   progressTrack: {
     height: 6,
     borderRadius: radii.pill,

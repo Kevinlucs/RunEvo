@@ -10,8 +10,8 @@ import { colors, spacing, fontWeight } from '@/theme';
 // compartilhado deixaria uma das duas com espaço vazio nas laterais.
 const LOGO_ASPECT_RATIO = 1849 / 1491;
 const LOGO_PLUS_ASPECT_RATIO = 1930 / 789;
-// Normalizado pela altura — brief exige 52px (docs/fase-qa-polimento-brief.md §1.2).
-const LOGO_HEIGHT = 52;
+// Altura normalizada — ajustada para proporção visual idêntica ao mockup.
+const LOGO_HEIGHT = 46;
 const AVATAR_SIZE = 40;
 
 /**
@@ -27,7 +27,7 @@ export function AppHeader(): JSX.Element {
   const initial = user?.email?.charAt(0).toUpperCase() || 'R';
 
   return (
-    <View>
+    <View style={styles.container}>
       <View style={styles.row}>
         <Image
           source={isPlus ? require('../../../assets/logo-runevo-plus.png') : require('../../../assets/logo-runevo.png')}
@@ -52,6 +52,10 @@ export function AppHeader(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    paddingTop: spacing.sm,
+    marginBottom: spacing.xs,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -74,6 +78,7 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.neon,
     opacity: 0.3,
+    marginTop: spacing.xs,
     marginBottom: spacing.sm,
   },
 });

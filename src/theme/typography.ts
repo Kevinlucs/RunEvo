@@ -3,9 +3,12 @@ import type { TextStyle } from 'react-native';
 /**
  * Família Poppins — Design System tipográfico do RunEvo.
  *
- * No Android, `fontWeight` numérico é ignorado quando a fonte é customizada —
- * o peso certo só aparece se a família exata (Poppins_XXXWeight) for aplicada.
- * `fontWeight()` abaixo retorna tanto `fontFamily` quanto `fontWeight` juntos.
+ * No React Native (especialmente Android), quando usamos fontes customizadas
+ * carregadas via expo-font (@expo-google-fonts/poppins), passar a propriedade
+ * `fontWeight` junto com a `fontFamily` faz o sistema nativo do Android descartar
+ * o arquivo TTF customizado e reverter para a fonte do sistema (Roboto / Sans Serif).
+ * Por isso, `fontWeight()` retorna APENAS a família exata (`fontFamily: 'Poppins_XXX'`)
+ * sem a chave `fontWeight`, garantindo renderização 100% fiel em iOS e Android.
  *
  * Carregamento: `_layout.tsx` raiz via `useFonts` + SplashScreen.
  */
@@ -24,9 +27,12 @@ export const FONT_FAMILY_BY_WEIGHT = {
 
 export type OutfitWeight = keyof typeof FONT_FAMILY_BY_WEIGHT;
 
-/** `{ fontFamily, fontWeight }` para um peso — usar via spread: `...fontWeight('800')`. */
-export function fontWeight(weight: OutfitWeight): Pick<TextStyle, 'fontFamily' | 'fontWeight'> {
-  return { fontFamily: FONT_FAMILY_BY_WEIGHT[weight], fontWeight: weight };
+/**
+ * Retorna `{ fontFamily: 'Poppins_XXX' }` para o peso desejado.
+ * Uso via spread: `...fontWeight('800')`.
+ */
+export function fontWeight(weight: OutfitWeight): Pick<TextStyle, 'fontFamily'> {
+  return { fontFamily: FONT_FAMILY_BY_WEIGHT[weight] };
 }
 
 // ─── Semantic Font Families ───────────────────────────────────────────────────

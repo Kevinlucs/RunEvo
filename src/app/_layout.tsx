@@ -136,8 +136,14 @@ export default function RootLayout(): JSX.Element | null {
   const fontsReady = fontsLoaded || Boolean(fontError);
 
   const hideSplash = useCallback(async () => {
+    if (fontError && typeof __DEV__ !== 'undefined' && __DEV__) {
+      console.warn('[FONTS ERROR] Falha ao carregar fontes Poppins:', fontError);
+    }
+    if (fontsLoaded && typeof __DEV__ !== 'undefined' && __DEV__) {
+      console.log('[FONTS] Poppins carregada com sucesso!');
+    }
     if (fontsReady) await SplashScreen.hideAsync();
-  }, [fontsReady]);
+  }, [fontsReady, fontsLoaded, fontError]);
 
   useEffect(() => {
     void hideSplash();

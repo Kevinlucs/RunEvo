@@ -30,7 +30,7 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
 
           return (
             <View key={workout.id} style={styles.card}>
-              <View style={styles.dateCircle}>
+              <View style={styles.dateSquare}>
                 <Text style={styles.dateDay}>{day}</Text>
                 <Text style={styles.dateMonth}>{month}</Text>
               </View>
@@ -54,8 +54,8 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
 }
 
 const styles = StyleSheet.create({
-  container: { marginTop: spacing.md },
-  sectionTitle: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginBottom: spacing.md },
+  container: { marginTop: 0 },
+  sectionTitle: { color: colors.textPrimary, fontSize: 20, ...fontWeight('800'), marginBottom: spacing.md },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -66,9 +66,9 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.md,
   },
-  dateCircle: {
-    width: 52,
-    height: 56,
+  dateSquare: {
+    width: 48,
+    height: 52,
     borderRadius: radii.sm,
     backgroundColor: 'rgba(204,255,0,0.15)',
     borderWidth: 1,
