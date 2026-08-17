@@ -30,13 +30,15 @@ const ONBOARDING_KEY = '@runevo:onboarding_seen';
 
 function useOnboardingSeen(userId: string | null, initialSyncDone: boolean): OnboardingState {
   const query = useQuery({
-    queryKey: ['onboarding-seen', userId],
+    // initialSyncDone no queryKey força re-fetch quando o sync completa.
+    // Sem isso: se o SQLite estava vazio na 1ª leitura e o sync populou depois,
+    // a query cache retorna o valor antigo (null) e o guard decide 'unseen'.
+    queryKey: ['onboarding-seen', userId, initialSyncDone],
     enabled: Boolean(userId),
     queryFn: async (): Promise<boolean | null> => {
       if (!userId) return null;
 
-      // AsyncStorage como cache monotônico: uma vez true, nunca volta a false
-      // (sobrevive a resets de SQLite e sync que sobrescreve com valor antigo).
+      // AsyncStorage como cache monotônico: uma vez true, nunca volta a false.
       const cached = await AsyncStorage.getItem(ONBOARDING_KEY);
       if (cached === 'true') {
         if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ONBOARDING] AsyncStorage cache hit: seen=true');

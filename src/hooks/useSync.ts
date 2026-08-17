@@ -10,8 +10,13 @@ import { keysToInvalidate } from '@/services/sync/invalidation';
 const INITIAL_SYNC_TIMEOUT_MS = 8000;
 
 async function syncAndInvalidate(userId: string, queryClient: QueryClient): Promise<void> {
+  if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[SYNC] starting sync for user:', userId.slice(0, 8));
   const result = await runSync(userId);
-  if (!result.ok) return;
+  if (!result.ok) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[SYNC] FAILED:', result.error.message);
+    return;
+  }
+  if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[SYNC] completed. Changed tables:', result.value.changedTables.join(', ') || 'none');
   for (const keyPrefix of keysToInvalidate(result.value.changedTables)) {
     void queryClient.invalidateQueries({ queryKey: [keyPrefix] });
   }
