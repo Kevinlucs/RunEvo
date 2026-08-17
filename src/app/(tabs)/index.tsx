@@ -112,5 +112,5 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     marginTop: spacing.sm,
   },
-  capsuleText: { color: colors.neon, fontSize: fontSizes.base, ...fontWeight('800'), letterSpacing: 1.5 },
+  capsuleText: { color: colors.neon, fontSize: fontSizes.base, ...fontWeight('800'), letterSpacing: 1 },
 });

@@ -55,7 +55,7 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
 
 const styles = StyleSheet.create({
   container: { marginTop: spacing.lg },
-  sectionTitle: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginBottom: spacing.md },
+  sectionTitle: { color: colors.textPrimary, fontSize: 20, ...fontWeight('800'), marginBottom: spacing.md },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   dateSquare: {
-    width: 48,
+    width: 44,
     height: 48,
     borderRadius: radii.sm,
     backgroundColor: colors.neon,
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   dateDay: { color: colors.bg, fontSize: 18, ...fontWeight('800'), lineHeight: 22 },
   dateMonth: { color: colors.bg, fontSize: 11, ...fontWeight('600'), lineHeight: 13 },
   info: { flex: 1, marginRight: spacing.sm },
-  title: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
+  title: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('800') },
   subtitle: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: 2 },
   badgeRow: {
     flexDirection: 'row',

@@ -14,7 +14,7 @@ function getNumericPace(workout: Workout): string | null {
 }
 
 /**
- * Card do próximo treino — compacto, ~140px max.
+ * Card do próximo treino — compacto (~130px).
  * Pixel-perfect com mockup TELA HOME 1.
  */
 export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPress: () => void }): JSX.Element {
@@ -28,7 +28,7 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
       style={styles.pressable}
     >
       <LinearGradient
-        colors={['rgba(204,255,0,0.12)', 'rgba(204,255,0,0.03)']}
+        colors={['rgba(204,255,0,0.18)', 'rgba(204,255,0,0.04)']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.card}
@@ -73,21 +73,21 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: 'rgba(204,255,0,0.3)',
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingVertical: 10,
     minHeight: MIN_TOUCH_TARGET,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.sm,
+    marginBottom: 4,
   },
   info: { flex: 1, marginRight: spacing.md },
   metaText: { color: colors.neon, fontSize: 13, ...fontWeight('600'), textTransform: 'uppercase', letterSpacing: 0.5 },
   title: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginTop: 2 },
-  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
+  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('400') },
   chipRow: { flexDirection: 'row', gap: spacing.sm },
   chip: {
