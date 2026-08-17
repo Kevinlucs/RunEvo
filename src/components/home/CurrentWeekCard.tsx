@@ -4,7 +4,7 @@ import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
 const STATUS_BADGE: Record<Workout['status'], { label: string; icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }> = {
-  pending: { label: 'Pendente', icon: 'hourglass-outline', color: colors.neon, bg: colors.neonMuted },
+  pending: { label: 'Pendente', icon: 'hourglass-outline', color: '#CCCCCC', bg: 'rgba(255,255,255,0.08)' },
   completed: { label: 'Concluído', icon: 'checkmark-circle', color: colors.success, bg: 'rgba(76,175,80,0.15)' },
   skipped: { label: 'Pulado', icon: 'close-circle-outline', color: colors.warning, bg: 'rgba(255,152,0,0.15)' },
 };
@@ -30,7 +30,7 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
 
           return (
             <View key={workout.id} style={styles.card}>
-              <View style={styles.dateSquare}>
+              <View style={styles.dateCircle}>
                 <Text style={styles.dateDay}>{day}</Text>
                 <Text style={styles.dateMonth}>{month}</Text>
               </View>
@@ -54,8 +54,8 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
 }
 
 const styles = StyleSheet.create({
-  container: { marginTop: spacing.lg },
-  sectionTitle: { color: colors.textPrimary, fontSize: 20, ...fontWeight('800'), marginBottom: spacing.md },
+  container: { marginTop: spacing.md },
+  sectionTitle: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginBottom: spacing.md },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -66,19 +66,21 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.md,
   },
-  dateSquare: {
-    width: 44,
-    height: 48,
+  dateCircle: {
+    width: 52,
+    height: 56,
     borderRadius: radii.sm,
-    backgroundColor: colors.neon,
+    backgroundColor: 'rgba(204,255,0,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(204,255,0,0.25)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
   },
-  dateDay: { color: colors.bg, fontSize: 18, ...fontWeight('800'), lineHeight: 22 },
-  dateMonth: { color: colors.bg, fontSize: 11, ...fontWeight('600'), lineHeight: 13 },
+  dateDay: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800'), lineHeight: 22 },
+  dateMonth: { color: colors.neon, fontSize: 10, ...fontWeight('700'), lineHeight: 12 },
   info: { flex: 1, marginRight: spacing.sm },
-  title: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('800') },
+  title: { color: colors.textPrimary, fontSize: 15, ...fontWeight('700') },
   subtitle: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: 2 },
   badgeRow: {
     flexDirection: 'row',

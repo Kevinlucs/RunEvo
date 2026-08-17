@@ -5,20 +5,12 @@ import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET, fontWeight } from 
 import { formatShortDate } from '@/utils/time';
 import type { Workout } from '@/domain/entities';
 
-/** Pace numérico = contém ":" seguido de dígitos (ex: "7:26/km", "5:30"). */
-function getNumericPace(workout: Workout): string | null {
-  const pace = workout.planned_pace;
-  if (!pace) return null;
-  if (/\d+:\d+/.test(pace)) return pace;
-  return null;
-}
-
 /**
- * Card do próximo treino — compacto (~130px).
+ * Card do próximo treino — compacto (~120-130px).
  * Pixel-perfect com mockup TELA HOME 1.
  */
 export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPress: () => void }): JSX.Element {
-  const pace = getNumericPace(workout);
+  const pace = workout.planned_pace;
 
   return (
     <Pressable
@@ -28,7 +20,7 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
       style={styles.pressable}
     >
       <LinearGradient
-        colors={['rgba(204,255,0,0.18)', 'rgba(204,255,0,0.04)']}
+        colors={['rgba(204,255,0,0.22)', 'rgba(204,255,0,0.06)']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.card}
@@ -48,17 +40,17 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
               </Text>
             </View>
           </View>
-          <Ionicons name="chevron-forward" size={24} color={colors.neon} />
+          <Ionicons name="chevron-forward" size={20} color={colors.neon} />
         </View>
 
         <View style={styles.chipRow}>
           <View style={styles.chip}>
-            <Ionicons name="footsteps-outline" size={16} color={colors.textSecondary} />
+            <Ionicons name="footsteps-outline" size={14} color={colors.textSecondary} />
             <Text style={styles.chipText}>{workout.planned_km ?? 0} km</Text>
           </View>
           {pace ? (
             <View style={styles.chip}>
-              <Ionicons name="timer-outline" size={16} color={colors.textSecondary} />
+              <Ionicons name="timer-outline" size={14} color={colors.textSecondary} />
               <Text style={styles.chipText}>{pace}</Text>
             </View>
           ) : null}
@@ -82,22 +74,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   info: { flex: 1, marginRight: spacing.md },
   metaText: { color: colors.neon, fontSize: 13, ...fontWeight('600'), textTransform: 'uppercase', letterSpacing: 0.5 },
   title: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginTop: 2 },
   dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('400') },
-  chipRow: { flexDirection: 'row', gap: spacing.sm },
+  chipRow: { flexDirection: 'row', gap: spacing.sm, marginTop: 6 },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: 4,
     backgroundColor: 'rgba(0,0,0,0.3)',
     borderRadius: radii.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
   },
-  chipText: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600') },
+  chipText: { color: colors.textPrimary, fontSize: 13, ...fontWeight('600') },
 });

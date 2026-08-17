@@ -102,10 +102,10 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: spacing.xxxl },
   capsule: {
     alignSelf: 'stretch',
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(204,255,0,0.15)',
     borderRadius: radii.pill,
     borderWidth: 1,
-    borderColor: colors.neon,
+    borderColor: 'rgba(204,255,0,0.35)',
     paddingVertical: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',

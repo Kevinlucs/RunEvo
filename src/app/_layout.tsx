@@ -7,14 +7,14 @@ import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   useFonts,
-  Outfit_300Light,
-  Outfit_400Regular,
-  Outfit_500Medium,
-  Outfit_600SemiBold,
-  Outfit_700Bold,
-  Outfit_800ExtraBold,
-  Outfit_900Black,
-} from '@expo-google-fonts/outfit';
+  Poppins_300Light,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+  Poppins_800ExtraBold,
+  Poppins_900Black,
+} from '@expo-google-fonts/poppins';
 import { ThemeProvider } from '@/theme';
 import { queryClient } from '@/store/query-client';
 import { useAuthStore } from '@/store/auth.store';
@@ -22,7 +22,7 @@ import { useSync } from '@/hooks/useSync';
 import { athleteProfileRepository } from '@/repositories';
 import { deriveOnboardingState, type OnboardingState } from '@/services/auth/onboarding-state';
 
-// Segura o splash nativo até a fonte Outfit carregar (useFonts, abaixo).
+// Segura o splash nativo até a fonte Poppins carregar (useFonts, abaixo).
 // `.catch` porque Fast Refresh pode chamar de novo com o splash já escondido.
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -119,19 +119,19 @@ function RootNavigator(): JSX.Element {
 }
 
 /**
- * Segura o splash nativo até a fonte Outfit terminar de carregar (ou falhar
+ * Segura o splash nativo até a fonte Poppins terminar de carregar (ou falhar
  * — nunca prende o app esperando para sempre). Enquanto isso, `RootLayout`
  * retorna `null`: o splash nativo continua cobrindo a tela.
  */
 export default function RootLayout(): JSX.Element | null {
   const [fontsLoaded, fontError] = useFonts({
-    Outfit_300Light,
-    Outfit_400Regular,
-    Outfit_500Medium,
-    Outfit_600SemiBold,
-    Outfit_700Bold,
-    Outfit_800ExtraBold,
-    Outfit_900Black,
+    Poppins_300Light,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    Poppins_800ExtraBold,
+    Poppins_900Black,
   });
   const fontsReady = fontsLoaded || Boolean(fontError);
 

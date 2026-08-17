@@ -1,10 +1,10 @@
 import type { TextStyle } from 'react-native';
 
 /**
- * Família Outfit — Design System tipográfico do RunEvo.
+ * Família Poppins — Design System tipográfico do RunEvo.
  *
  * No Android, `fontWeight` numérico é ignorado quando a fonte é customizada —
- * o peso certo só aparece se a família exata (Outfit_XXXWeight) for aplicada.
+ * o peso certo só aparece se a família exata (Poppins_XXXWeight) for aplicada.
  * `fontWeight()` abaixo retorna tanto `fontFamily` quanto `fontWeight` juntos.
  *
  * Carregamento: `_layout.tsx` raiz via `useFonts` + SplashScreen.
@@ -13,13 +13,13 @@ import type { TextStyle } from 'react-native';
 // ─── Font Family Map ──────────────────────────────────────────────────────────
 
 export const FONT_FAMILY_BY_WEIGHT = {
-  '300': 'Outfit_300Light',
-  '400': 'Outfit_400Regular',
-  '500': 'Outfit_500Medium',
-  '600': 'Outfit_600SemiBold',
-  '700': 'Outfit_700Bold',
-  '800': 'Outfit_800ExtraBold',
-  '900': 'Outfit_900Black',
+  '300': 'Poppins_300Light',
+  '400': 'Poppins_400Regular',
+  '500': 'Poppins_500Medium',
+  '600': 'Poppins_600SemiBold',
+  '700': 'Poppins_700Bold',
+  '800': 'Poppins_800ExtraBold',
+  '900': 'Poppins_900Black',
 } as const;
 
 export type OutfitWeight = keyof typeof FONT_FAMILY_BY_WEIGHT;

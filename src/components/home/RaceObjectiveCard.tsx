@@ -57,11 +57,11 @@ export function RaceObjectiveCard({ plan, progress }: { plan: TrainingPlan; prog
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.lg },
   headerIcon: { fontSize: 16 },
-  raceName: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('700'), flexShrink: 1, letterSpacing: 0.5 },
+  raceName: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('700'), flexShrink: 1, letterSpacing: 0.5, textTransform: 'uppercase' },
   statsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.lg },
   statCol: { flex: 1, alignItems: 'center' },
-  statValue: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('900') },
-  statLabel: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('500'), marginTop: spacing.xs },
+  statValue: { color: colors.textPrimary, fontSize: 28, ...fontWeight('900') },
+  statLabel: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('500'), marginTop: spacing.xs, textTransform: 'uppercase' },
   divider: { width: 1, height: 40, backgroundColor: colors.border },
   progressTrack: {
     height: 6,

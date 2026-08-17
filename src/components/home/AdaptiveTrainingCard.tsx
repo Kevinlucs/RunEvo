@@ -81,7 +81,7 @@ export function AdaptiveTrainingCard({
 }
 
 const styles = StyleSheet.create({
-  container: { marginTop: spacing.lg },
+  container: { marginTop: spacing.xl },
   card: {
     borderRadius: radii.lg,
     borderWidth: 1,
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: spacing.xs,
   },
-  headerLabel: { color: colors.neon, fontSize: fontSizes.caption, ...fontWeight('700'), letterSpacing: 1 },
+  headerLabel: { color: colors.neon, fontSize: fontSizes.body, ...fontWeight('800'), letterSpacing: 1.5, textTransform: 'uppercase' },
   badge: {
     borderRadius: radii.pill,
     borderWidth: 1,
@@ -102,11 +102,11 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   badgeText: { fontSize: fontSizes.caption, ...fontWeight('700') },
-  title: { color: colors.textPrimary, fontSize: fontSizes.xl, ...fontWeight('800'), marginBottom: spacing.lg },
+  title: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700'), marginBottom: spacing.lg },
   statsRow: { flexDirection: 'row', marginBottom: spacing.md },
   statCol: { flex: 1 },
   statLabel: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('500'), marginBottom: spacing.xs },
-  statValue: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('800') },
+  statValue: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('900') },
   guidance: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('400'), marginBottom: spacing.lg, lineHeight: 20 },
   cta: {
     minHeight: MIN_TOUCH_TARGET,
