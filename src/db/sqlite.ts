@@ -3,6 +3,15 @@ import { LOCAL_SCHEMA_SQL } from './schema';
 
 let dbInstance: SQLite.SQLiteDatabase | null = null;
 
+/**
+ * Migrations incrementais — adicionam colunas que podem faltar em bancos
+ * criados antes da atualização. ALTER TABLE ADD COLUMN é no-op se a coluna
+ * já existir (SQLite ignora duplicatas com try/catch).
+ */
+const MIGRATIONS = [
+  'ALTER TABLE plan_workouts ADD COLUMN created_at TEXT',
+];
+
 /** Abre (uma vez) o banco local e garante o schema. */
 export async function getDb(): Promise<SQLite.SQLiteDatabase> {
   if (dbInstance) return dbInstance;
@@ -10,6 +19,16 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
   await db.execAsync('PRAGMA journal_mode = WAL;');
   await db.execAsync('PRAGMA foreign_keys = ON;');
   await db.execAsync(LOCAL_SCHEMA_SQL);
+
+  // Migrations incrementais (idempotentes — ignora erro se coluna já existe).
+  for (const migration of MIGRATIONS) {
+    try {
+      await db.execAsync(migration);
+    } catch {
+      // Coluna já existe — ok, segue.
+    }
+  }
+
   dbInstance = db;
   return db;
 }

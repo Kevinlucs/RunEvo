@@ -35,7 +35,8 @@ CREATE TABLE IF NOT EXISTS plan_workouts (
   workout_date TEXT, day_label TEXT, day_type TEXT, title TEXT, description TEXT,
   planned_km REAL, planned_pace TEXT, status TEXT DEFAULT 'pending',
   completed_km REAL, perceived_effort INTEGER, feeling TEXT, pain INTEGER,
-  feedback TEXT, shoe_id TEXT, completed_at TEXT, updated_at TEXT,
+  feedback TEXT, shoe_id TEXT, completed_at TEXT,
+  created_at TEXT, updated_at TEXT,
   _sync TEXT DEFAULT 'synced', _deleted INTEGER DEFAULT 0
 );
 
