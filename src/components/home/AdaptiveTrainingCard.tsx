@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   statCol: { flex: 1 },
   statLabel: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('500'), marginBottom: spacing.xs },
   statValue: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('800') },
-  guidance: { color: colors.textSecondary, fontSize: fontSizes.body, marginBottom: spacing.lg, lineHeight: 20 },
+  guidance: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('400'), marginBottom: spacing.lg, lineHeight: 20 },
   cta: {
     minHeight: MIN_TOUCH_TARGET,
     borderRadius: radii.md,

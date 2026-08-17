@@ -37,7 +37,7 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
               <View style={styles.info}>
                 <Text style={styles.title} numberOfLines={1}>{workout.title ?? 'Treino'}</Text>
                 <Text style={styles.subtitle}>
-                  {workout.day_label ?? '-'} - {workout.day_type ?? 'Base'}
+                  {workout.day_label ?? '-'} - {workout.phase ?? 'Base'}
                 </Text>
                 <View style={styles.badgeRow}>
                   <Ionicons name={badge.icon} size={14} color={badge.color} />
@@ -69,10 +69,8 @@ const styles = StyleSheet.create({
   dateCircle: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: radii.sm,
     backgroundColor: colors.neonMuted,
-    borderWidth: 1,
-    borderColor: colors.neon,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
@@ -81,7 +79,7 @@ const styles = StyleSheet.create({
   dateMonth: { color: colors.neon, fontSize: 10, ...fontWeight('600'), lineHeight: 12 },
   info: { flex: 1, marginRight: spacing.sm },
   title: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
-  subtitle: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: 2 },
+  subtitle: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('400'), marginTop: 2 },
   badgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -95,5 +93,5 @@ const styles = StyleSheet.create({
   },
   badgeText: { fontSize: fontSizes.caption, ...fontWeight('600') },
   km: { color: colors.neon, fontSize: fontSizes.lg, ...fontWeight('800') },
-  empty: { color: colors.textMuted, fontSize: fontSizes.body },
+  empty: { color: colors.textMuted, fontSize: fontSizes.body, ...fontWeight('400') },
 });
