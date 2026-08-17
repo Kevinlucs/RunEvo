@@ -7,6 +7,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   useFonts,
+  Outfit_300Light,
   Outfit_400Regular,
   Outfit_500Medium,
   Outfit_600SemiBold,
@@ -122,6 +123,7 @@ function RootNavigator(): JSX.Element {
  */
 export default function RootLayout(): JSX.Element | null {
   const [fontsLoaded, fontError] = useFonts({
+    Outfit_300Light,
     Outfit_400Regular,
     Outfit_500Medium,
     Outfit_600SemiBold,
