@@ -13,8 +13,14 @@ export function RaceObjectiveCard({ plan, progress }: { plan: TrainingPlan; prog
   const ratio = progress.plannedKm > 0 ? Math.min(1, progress.completedKm / progress.plannedKm) : 0;
   const days = progress.daysRemaining;
   const raceName = plan.race_name ?? plan.plan_name;
-  const distance = plan.race_distance_km ? `${plan.race_distance_km} KM` : '';
-  const headerLabel = distance ? `${raceName} (${distance})`.toUpperCase() : raceName.toUpperCase();
+  const distanceKm = plan.race_distance_km;
+  // Evita redundância: "5 km (5 KM)". Se o nome já contém a distância, não repete.
+  const nameContainsDistance = distanceKm && raceName.toLowerCase().includes(`${distanceKm}`);
+  const headerLabel = nameContainsDistance
+    ? raceName.toUpperCase()
+    : distanceKm
+      ? `${raceName} (${distanceKm} KM)`.toUpperCase()
+      : raceName.toUpperCase();
 
   return (
     <Card>

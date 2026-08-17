@@ -5,12 +5,20 @@ import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET, fontWeight } from 
 import { formatShortDate } from '@/utils/time';
 import type { Workout } from '@/domain/entities';
 
+/** Verifica se o pace é numérico (ex: "7:26/km", "6:30") vs descritivo ("Moderado", "Leve"). */
+function isNumericPace(pace: string | null | undefined): boolean {
+  if (!pace) return false;
+  return /\d+:\d+/.test(pace);
+}
+
 /**
  * docs/fase-4-brief.md Grupo 2.2 (§27, bloco 3): degradê verde sutil, chips
  * compactos (distância + pace) inline embaixo, chevron neon à direita.
  * Layout alinhado pixel-perfect com mockup TELA HOME 1.
  */
 export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPress: () => void }): JSX.Element {
+  const showPaceChip = isNumericPace(workout.planned_pace);
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -19,7 +27,7 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
       style={styles.pressable}
     >
       <LinearGradient
-        colors={['rgba(204,255,0,0.08)', colors.card]}
+        colors={['rgba(204,255,0,0.08)', 'rgba(204,255,0,0.02)']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.card}
@@ -47,10 +55,12 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
             <Ionicons name="footsteps-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.chipText}>{workout.planned_km ?? 0} km</Text>
           </View>
-          <View style={styles.chip}>
-            <Ionicons name="timer-outline" size={16} color={colors.textSecondary} />
-            <Text style={styles.chipText}>{workout.planned_pace ?? '-'}</Text>
-          </View>
+          {showPaceChip && (
+            <View style={styles.chip}>
+              <Ionicons name="timer-outline" size={16} color={colors.textSecondary} />
+              <Text style={styles.chipText}>{workout.planned_pace}</Text>
+            </View>
+          )}
         </View>
       </LinearGradient>
     </Pressable>
@@ -63,20 +73,20 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.lg,
+    padding: spacing.md,
     minHeight: MIN_TOUCH_TARGET,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   info: { flex: 1, marginRight: spacing.md },
   metaText: { color: colors.neon, fontSize: fontSizes.caption, ...fontWeight('700'), textTransform: 'uppercase' },
   title: { color: colors.textPrimary, fontSize: fontSizes.xl, ...fontWeight('800'), marginTop: spacing.xs },
   dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: spacing.xs },
-  subtitle: { color: colors.textSecondary, fontSize: fontSizes.body },
+  subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('400') },
   chipRow: { flexDirection: 'row', gap: spacing.sm },
   chip: {
     flexDirection: 'row',
@@ -85,7 +95,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cardElevated,
     borderRadius: radii.pill,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.xs + 2,
   },
   chipText: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600') },
 });
