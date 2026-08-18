@@ -3,6 +3,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
 
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+}
+
 const STATUS_BADGE: Record<Workout['status'], { label: string; icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }> = {
   pending: { label: 'Pendente', icon: 'hourglass-outline', color: '#CCCCCC', bg: 'rgba(255,255,255,0.08)' },
   completed: { label: 'Concluído', icon: 'checkmark-circle', color: colors.success, bg: 'rgba(76,175,80,0.15)' },
@@ -37,7 +41,7 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
               <View style={styles.info}>
                 <Text style={styles.title} numberOfLines={1}>{workout.title ?? 'Treino'}</Text>
                 <Text style={styles.subtitle}>
-                  {workout.day_label ?? '-'} - {workout.phase ?? 'Base'}
+                  {workout.day_label ?? '-'} - {capitalize(workout.phase ?? 'Base')}
                 </Text>
                 <View style={[styles.badgeRow, { backgroundColor: badge.bg }]}>
                   <Ionicons name={badge.icon} size={12} color={badge.color} />

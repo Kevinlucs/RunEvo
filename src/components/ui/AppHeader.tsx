@@ -11,7 +11,7 @@ import { colors, spacing, fontWeight } from '@/theme';
 const LOGO_ASPECT_RATIO = 1849 / 1491;
 const LOGO_PLUS_ASPECT_RATIO = 1930 / 789;
 // Altura normalizada — ajustada para proporção visual idêntica ao mockup.
-const LOGO_HEIGHT = 46;
+const LOGO_HEIGHT = 52;
 const AVATAR_SIZE = 40;
 
 /**
