@@ -8,9 +8,7 @@ import { colors, spacing, fontWeight } from '@/theme';
 // Proporção própria por variante — os dois arquivos não têm o mesmo aspect
 // ratio entre si (marca vs. marca+selo "plus"), então um único valor
 // compartilhado deixaria uma das duas com espaço vazio nas laterais.
-const LOGO_ASPECT_RATIO = 1849 / 1491;
-const LOGO_PLUS_ASPECT_RATIO = 1930 / 789;
-// Altura normalizada — ajustada para proporção visual idêntica ao mockup.
+const LOGO_ASPECT_RATIO = 2000 / 1000;
 const LOGO_HEIGHT = 52;
 const AVATAR_SIZE = 40;
 
@@ -31,7 +29,7 @@ export function AppHeader(): JSX.Element {
       <View style={styles.row}>
         <Image
           source={isPlus ? require('../../../assets/logo-runevo-plus.png') : require('../../../assets/logo-runevo.png')}
-          style={[styles.logo, { width: LOGO_HEIGHT * (isPlus ? LOGO_PLUS_ASPECT_RATIO : LOGO_ASPECT_RATIO) }]}
+          style={{ height: LOGO_HEIGHT, width: LOGO_HEIGHT * LOGO_ASPECT_RATIO, alignSelf: 'center' }}
           contentFit="contain"
           accessibilityRole="image"
           accessibilityLabel={isPlus ? 'RunEvo+' : 'RunEvo'}
@@ -54,7 +52,7 @@ export function AppHeader(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     paddingTop: spacing.sm,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
   },
   row: {
     flexDirection: 'row',
@@ -62,7 +60,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: spacing.sm,
   },
-  logo: { height: LOGO_HEIGHT, alignSelf: 'center' },
+  logo: { height: LOGO_HEIGHT, alignSelf: 'center', marginBottom: -20 },
   avatar: {
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
@@ -73,11 +71,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { color: colors.neon, ...fontWeight('900'), fontSize: 16 },
+  avatarText: { color: colors.neon, ...fontWeight('900'), fontSize: 18, lineHeight: 40 },
   divider: {
-    height: 1,
+    height: 0.8,
     backgroundColor: colors.neon,
-    opacity: 0.3,
+    opacity: 0.2,
     marginTop: spacing.xs,
     marginBottom: spacing.sm,
   },
