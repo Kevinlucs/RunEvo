@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, Alert, StyleSheet } from 'react-native';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
+import { Screen } from '@/components/ui/Screen';
+import { AppHeader } from '@/components/ui/AppHeader';
 import { Card } from '@/components/ui/Card';
 import { NeonButton } from '@/components/ui/NeonButton';
-import { StatBox, StatBoxRow } from '@/components/ui/StatBox';
 import { TrainingZonesCard } from '@/components/workout/TrainingZonesCard';
 import { WorkoutDescriptionCard } from '@/components/workout/WorkoutDescriptionCard';
 import { CompleteWorkoutModal, type CompleteWorkoutFormInput } from '@/components/workout/CompleteWorkoutModal';
@@ -20,10 +21,8 @@ import { formatShortDate } from '@/utils/time';
 import { colors, radii, spacing, fontSizes, fontWeight, MIN_TOUCH_TARGET } from '@/theme';
 
 /**
- * docs/fase-4-brief.md Grupo 4 (§28) — detalhe do treino. Concluir/Pular só
- * ficam disponíveis para treinos `pending`; o treino da prova (§ motor:
- * título fixo "Prova alvo") é completável como qualquer outro, mas não tem
- * edição/remoção nesta fase (nenhum treino tem — Editor manual é Fase 5).
+ * docs/fase-4-brief.md Grupo 4 (§28) — detalhe do treino.
+ * Layout pixel-perfect com mockups DESCRICAO TREINO 1-2.
  */
 export default function WorkoutDetail(): JSX.Element {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -64,10 +63,7 @@ export default function WorkoutDetail(): JSX.Element {
     setError(null);
     const result = await completeWorkout({ workoutId: workout.id, ...input });
     setSubmitting(false);
-    if (!result.ok) {
-      setError(result.error.message);
-      return;
-    }
+    if (!result.ok) { setError(result.error.message); return; }
     setCompleteVisible(false);
     router.back();
   };
@@ -77,10 +73,7 @@ export default function WorkoutDetail(): JSX.Element {
     setError(null);
     const result = await skipWorkout({ workoutId: workout.id, reason });
     setSubmitting(false);
-    if (!result.ok) {
-      setError(result.error.message);
-      return;
-    }
+    if (!result.ok) { setError(result.error.message); return; }
     setSkipVisible(false);
     router.back();
   };
@@ -97,10 +90,7 @@ export default function WorkoutDetail(): JSX.Element {
       workoutDate: input.workoutDate,
     });
     setSubmitting(false);
-    if (!result.ok) {
-      setError(result.error.message);
-      return;
-    }
+    if (!result.ok) { setError(result.error.message); return; }
     setEditVisible(false);
   };
 
@@ -115,85 +105,87 @@ export default function WorkoutDetail(): JSX.Element {
           setError(null);
           const result = await removeWorkout(workout.id);
           setSubmitting(false);
-          if (!result.ok) {
-            setError(result.error.message);
-            return;
-          }
+          if (!result.ok) { setError(result.error.message); return; }
           router.back();
         },
       },
     ]);
   };
 
+  const phase = workout.phase ?? 'Base';
+  const phaseCap = phase.charAt(0).toUpperCase() + phase.slice(1).toLowerCase();
+
   return (
     <>
-      <Stack.Screen options={{ title: workout.title ?? 'Treino' }} />
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.header}>
-          <View style={styles.metaRow}>
-            <Text style={styles.meta}>
-              {workout.phase ?? 'Base'} · Semana {workout.week_number}
-            </Text>
-            {isRace ? (
-              <View style={styles.raceBadge}>
-                <Text style={styles.raceBadgeText}>Prova</Text>
-              </View>
-            ) : null}
-          </View>
-          <Text style={styles.title}>{workout.title ?? 'Treino'}</Text>
-          <Text style={styles.date}>{formatShortDate(workout.workout_date)}</Text>
-        </View>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Screen>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+          <AppHeader />
 
-        <View style={styles.statsWrap}>
-          <StatBoxRow>
-            <StatBox value={`${workout.planned_km ?? 0} km`} label="Distância" />
-            <StatBox value={workout.planned_pace ?? '-'} label="Pace planejado" />
-          </StatBoxRow>
-        </View>
-
-        <TrainingZonesCard zones={zones} />
-        <WorkoutDescriptionCard lines={descriptionLines} />
-
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-
-        {isPending ? (
-          <>
-            <View style={styles.actions}>
-              <View style={styles.actionButton}>
-                <NeonButton label="Pular" variant="secondary" onPress={() => setSkipVisible(true)} />
-              </View>
-              <View style={styles.actionButton}>
-                <NeonButton label="Concluir" onPress={() => setCompleteVisible(true)} />
-              </View>
+          {/* Header centralizado como no mockup */}
+          <View style={styles.header}>
+            <Text style={styles.meta}>{phaseCap} • S{workout.week_number}</Text>
+            <Text style={styles.title}>{workout.title ?? 'Treino'}</Text>
+            <View style={styles.dateRow}>
+              <Text style={styles.dateEmoji}>📅</Text>
+              <Text style={styles.date}>{workout.day_label ?? '-'}, {formatShortDate(workout.workout_date)}</Text>
             </View>
+          </View>
 
-            {!isRace ? (
-              <View style={styles.editRow}>
-                <Pressable accessibilityRole="button" onPress={() => setEditVisible(true)} style={styles.editAction}>
-                  <Text style={styles.editActionText}>Editar treino</Text>
-                </Pressable>
-                <Pressable accessibilityRole="button" onPress={handleRemove} style={styles.editAction}>
-                  <Text style={styles.removeActionText}>Remover treino</Text>
-                </Pressable>
-              </View>
-            ) : null}
-          </>
-        ) : (
-          <Card title={workout.status === 'completed' ? 'Concluído' : 'Pulado'}>
-            {workout.status === 'completed' ? (
-              <>
-                <Text style={styles.statusLine}>{workout.completed_km ?? workout.planned_km ?? 0} km realizados</Text>
-                {workout.perceived_effort ? (
-                  <Text style={styles.statusLine}>Esforço: {workout.perceived_effort}/10</Text>
-                ) : null}
-              </>
-            ) : (
-              <Text style={styles.statusLine}>Este treino foi marcado como pulado.</Text>
-            )}
-            {workout.feedback ? <Text style={styles.statusLine}>{workout.feedback}</Text> : null}
-          </Card>
-        )}
-      </ScrollView>
+          {/* Cards de métricas empilhados verticalmente */}
+          <View style={styles.metricCard}>
+            <Text style={styles.metricEmoji}>👟</Text>
+            <Text style={styles.metricValue}>{workout.planned_km ?? 0} km</Text>
+            <Text style={styles.metricLabel}>DISTÂNCIA</Text>
+          </View>
+
+          {workout.planned_pace && /\d+:\d+/.test(workout.planned_pace) ? (
+            <View style={styles.metricCard}>
+              <Text style={styles.metricEmoji}>⏱️</Text>
+              <Text style={styles.metricValue}>{workout.planned_pace}</Text>
+              <Text style={styles.metricLabel}>PACE PLANEJADO</Text>
+            </View>
+          ) : null}
+
+          <TrainingZonesCard zones={zones} />
+          <WorkoutDescriptionCard lines={descriptionLines} />
+
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          {isPending ? (
+            <View style={styles.actions}>
+              <NeonButton label="✅ Concluir treino" onPress={() => setCompleteVisible(true)} />
+              <View style={styles.actionGap} />
+              <NeonButton label="Pular treino" variant="secondary" onPress={() => setSkipVisible(true)} />
+
+              {!isRace ? (
+                <View style={styles.editRow}>
+                  <Pressable accessibilityRole="button" onPress={() => setEditVisible(true)} style={styles.editAction}>
+                    <Text style={styles.editActionText}>Editar treino</Text>
+                  </Pressable>
+                  <Pressable accessibilityRole="button" onPress={handleRemove} style={styles.editAction}>
+                    <Text style={styles.removeActionText}>Remover treino</Text>
+                  </Pressable>
+                </View>
+              ) : null}
+            </View>
+          ) : (
+            <Card title={workout.status === 'completed' ? 'Concluído' : 'Pulado'}>
+              {workout.status === 'completed' ? (
+                <>
+                  <Text style={styles.statusLine}>{workout.completed_km ?? workout.planned_km ?? 0} km realizados</Text>
+                  {workout.perceived_effort ? (
+                    <Text style={styles.statusLine}>Esforço: {workout.perceived_effort}/10</Text>
+                  ) : null}
+                </>
+              ) : (
+                <Text style={styles.statusLine}>Este treino foi marcado como pulado.</Text>
+              )}
+              {workout.feedback ? <Text style={styles.statusLine}>{workout.feedback}</Text> : null}
+            </Card>
+          )}
+        </ScrollView>
+      </Screen>
 
       <CompleteWorkoutModal
         visible={completeVisible}
@@ -222,21 +214,31 @@ export default function WorkoutDetail(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: spacing.xl, paddingBottom: spacing.xxxl, backgroundColor: colors.bg },
+  content: { paddingBottom: spacing.xxxl },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
-  muted: { color: colors.textMuted, fontSize: fontSizes.body },
-  header: { marginBottom: spacing.lg },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  meta: { color: colors.textSecondary, fontSize: fontSizes.caption, textTransform: 'uppercase' },
-  raceBadge: { backgroundColor: colors.glow, borderRadius: radii.pill, paddingHorizontal: spacing.sm, paddingVertical: 2 },
-  raceBadgeText: { color: colors.neon, fontSize: fontSizes.caption, ...fontWeight('700') },
-  title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.xs },
-  date: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs },
-  statsWrap: { marginBottom: spacing.lg },
-  error: { color: colors.error, fontSize: fontSizes.body, marginBottom: spacing.md },
-  actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
-  actionButton: { flex: 1 },
-  statusLine: { color: colors.textPrimary, fontSize: fontSizes.body, marginBottom: spacing.xs },
+  muted: { color: colors.textMuted, fontSize: fontSizes.body, ...fontWeight('400') },
+  header: { alignItems: 'center', marginBottom: spacing.xl },
+  meta: { color: colors.neon, fontSize: 14, ...fontWeight('600'), letterSpacing: 1 },
+  title: { color: colors.textPrimary, fontSize: 32, ...fontWeight('900'), marginTop: spacing.xs, textAlign: 'center' },
+  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: spacing.sm },
+  dateEmoji: { fontSize: 14 },
+  date: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400') },
+  metricCard: {
+    backgroundColor: colors.cardElevated,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(204,255,0,0.2)',
+    alignItems: 'center',
+    paddingVertical: spacing.xxl,
+    marginBottom: spacing.md,
+  },
+  metricEmoji: { fontSize: 28, marginBottom: spacing.sm },
+  metricValue: { color: colors.textPrimary, fontSize: 28, ...fontWeight('900') },
+  metricLabel: { color: colors.textSecondary, fontSize: 12, ...fontWeight('500'), letterSpacing: 1, marginTop: spacing.xs },
+  error: { color: colors.error, fontSize: fontSizes.body, marginBottom: spacing.md, textAlign: 'center' },
+  actions: { marginTop: spacing.lg },
+  actionGap: { height: spacing.md },
+  statusLine: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('400'), marginBottom: spacing.xs },
   editRow: { flexDirection: 'row', justifyContent: 'center', gap: spacing.xl, marginTop: spacing.lg },
   editAction: { minHeight: MIN_TOUCH_TARGET, justifyContent: 'center', paddingHorizontal: spacing.sm },
   editActionText: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('600') },
