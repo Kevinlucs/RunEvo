@@ -13,6 +13,10 @@ function getNumericPace(workout: Workout): string | null {
   return null;
 }
 
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+}
+
 /**
  * Card do próximo treino — compacto (~130px).
  * Pixel-perfect com mockup TELA HOME 1.
@@ -28,7 +32,7 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
       style={styles.pressable}
     >
       <LinearGradient
-        colors={['rgba(204,255,0,0.18)', 'rgba(204,255,0,0.04)']}
+        colors={['rgba(204,255,0,0.20)', 'rgba(204,255,0,0.02)']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.card}
@@ -36,7 +40,7 @@ export function NextWorkoutCard({ workout, onPress }: { workout: Workout; onPres
         <View style={styles.row}>
           <View style={styles.info}>
             <Text style={styles.metaText}>
-              {workout.phase ?? 'Base'} • S{workout.week_number}
+              {capitalize(workout.phase ?? 'Base')} • S{workout.week_number}
             </Text>
             <Text style={styles.title} numberOfLines={1}>
               {workout.title ?? 'Treino'}
@@ -85,7 +89,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   info: { flex: 1, marginRight: spacing.md },
-  metaText: { color: colors.neon, fontSize: 13, ...fontWeight('600'), textTransform: 'uppercase', letterSpacing: 0.5 },
+  metaText: { color: colors.neon, fontSize: 13, ...fontWeight('600'), letterSpacing: 0.5 },
   title: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginTop: 2 },
   dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('400') },

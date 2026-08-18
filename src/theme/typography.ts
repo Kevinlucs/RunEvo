@@ -1,11 +1,14 @@
 import type { TextStyle } from 'react-native';
 
 /**
- * Família Outfit — Design System tipográfico do RunEvo.
+ * Família Poppins — Design System tipográfico do RunEvo.
  *
- * No Android, `fontWeight` numérico é ignorado quando a fonte é customizada —
- * o peso certo só aparece se a família exata (Outfit_XXXWeight) for aplicada.
- * `fontWeight()` abaixo retorna tanto `fontFamily` quanto `fontWeight` juntos.
+ * No React Native (especialmente Android), quando usamos fontes customizadas
+ * carregadas via expo-font (@expo-google-fonts/poppins), passar a propriedade
+ * `fontWeight` junto com a `fontFamily` faz o sistema nativo do Android descartar
+ * o arquivo TTF customizado e reverter para a fonte do sistema (Roboto / Sans Serif).
+ * Por isso, `fontWeight()` retorna APENAS a família exata (`fontFamily: 'Poppins_XXX'`)
+ * sem a chave `fontWeight`, garantindo renderização 100% fiel em iOS e Android.
  *
  * Carregamento: `_layout.tsx` raiz via `useFonts` + SplashScreen.
  */
@@ -13,20 +16,23 @@ import type { TextStyle } from 'react-native';
 // ─── Font Family Map ──────────────────────────────────────────────────────────
 
 export const FONT_FAMILY_BY_WEIGHT = {
-  '300': 'Outfit_300Light',
-  '400': 'Outfit_400Regular',
-  '500': 'Outfit_500Medium',
-  '600': 'Outfit_600SemiBold',
-  '700': 'Outfit_700Bold',
-  '800': 'Outfit_800ExtraBold',
-  '900': 'Outfit_900Black',
+  '300': 'Poppins_300Light',
+  '400': 'Poppins_400Regular',
+  '500': 'Poppins_500Medium',
+  '600': 'Poppins_600SemiBold',
+  '700': 'Poppins_700Bold',
+  '800': 'Poppins_800ExtraBold',
+  '900': 'Poppins_900Black',
 } as const;
 
 export type OutfitWeight = keyof typeof FONT_FAMILY_BY_WEIGHT;
 
-/** `{ fontFamily, fontWeight }` para um peso — usar via spread: `...fontWeight('800')`. */
-export function fontWeight(weight: OutfitWeight): Pick<TextStyle, 'fontFamily' | 'fontWeight'> {
-  return { fontFamily: FONT_FAMILY_BY_WEIGHT[weight], fontWeight: weight };
+/**
+ * Retorna `{ fontFamily: 'Poppins_XXX' }` para o peso desejado.
+ * Uso via spread: `...fontWeight('800')`.
+ */
+export function fontWeight(weight: OutfitWeight): Pick<TextStyle, 'fontFamily'> {
+  return { fontFamily: FONT_FAMILY_BY_WEIGHT[weight] };
 }
 
 // ─── Semantic Font Families ───────────────────────────────────────────────────

@@ -1,13 +1,12 @@
 import { fontWeight, FONT_FAMILY_BY_WEIGHT } from '@/theme/typography';
 
 /**
- * No Android, `fontWeight` numérico é ignorado quando a fonte é customizada
- * (Outfit) — só a família exata por peso funciona. `fontWeight()` é o único
- * jeito correto de aplicar peso nesta base (ver src/theme/typography.ts).
+ * No Android, `fontWeight` numérico faz fallback para Roboto se passado junto
+ * de uma custom font — só a família exata por peso deve ser fornecida.
  */
 describe('fontWeight', () => {
-  it('retorna a família exata do peso, junto com o próprio peso', () => {
-    expect(fontWeight('800')).toEqual({ fontFamily: 'Outfit_800ExtraBold', fontWeight: '800' });
+  it('retorna a família exata do peso', () => {
+    expect(fontWeight('800')).toEqual({ fontFamily: 'Poppins_800ExtraBold' });
   });
 
   it('cobre todos os pesos carregados no _layout raiz', () => {

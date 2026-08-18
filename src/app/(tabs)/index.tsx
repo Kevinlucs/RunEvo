@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.lg,
-    marginTop: spacing.sm,
+    marginTop: 0,
   },
   capsuleText: { color: colors.neon, fontSize: fontSizes.base, ...fontWeight('800'), letterSpacing: 1 },
 });
