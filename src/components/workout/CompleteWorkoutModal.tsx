@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Modal, View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform, Pressable, StyleSheet } from 'react-native';
+import { Modal, View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
@@ -28,8 +29,8 @@ function shoeLabel(shoe: Shoe): string {
 }
 
 /**
- * Modal bottom-sheet "Concluir treino" — pixel-perfect com CONCLUIR TREINO.jpg.
- * Drag handle, ícone ✅, card resumo, inputs, slider neon, botões.
+ * Modal popup "Concluir treino" — centralizado, fade, com Slider neon.
+ * Layout pixel-perfect com mockup CONCLUIR TREINO.jpg.
  */
 export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCancel, onConfirm }: Props): JSX.Element {
   const [completedKm, setCompletedKm] = useState(String(workout.planned_km ?? 0));
@@ -59,19 +60,16 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
 
   const selectedShoe = shoes.find((s) => s.id === shoeId);
   const shoeText = selectedShoe ? shoeLabel(selectedShoe) : 'Não informar';
+  const hasShoes = shoes.length > 0;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onCancel}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.overlay}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <View style={styles.sheet}>
+    <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
+      <Pressable style={styles.overlay} onPress={onCancel}>
+        <Pressable style={styles.sheet} onPress={() => { /* impede fechar ao clicar dentro */ }}>
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             {/* Drag handle */}
             <View style={styles.dragHandle} />
 
-            {/* Ícone */}
-            <View style={styles.iconWrap}>
-              <Text style={styles.iconEmoji}>✅</Text>
-            </View>
             <Text style={styles.title}>Concluir treino</Text>
 
             {/* Card resumo */}
@@ -94,48 +92,53 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
 
             {/* Tênis */}
             <Text style={styles.label}>Tênis usado</Text>
-            <Pressable
-              style={styles.dropdown}
-              onPress={() => setShoeDropdownOpen(!shoeDropdownOpen)}
-              accessibilityRole="button"
-            >
-              <Text style={[styles.dropdownText, !selectedShoe && styles.dropdownPlaceholder]}>
-                {shoeText}
-              </Text>
-              <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
-            </Pressable>
-            {shoeDropdownOpen && shoes.length > 0 ? (
-              <View style={styles.dropdownList}>
-                <Pressable onPress={() => { setShoeId(NO_SHOE_VALUE); setShoeDropdownOpen(false); }} style={styles.dropdownItem}>
-                  <Text style={styles.dropdownItemText}>Não informar</Text>
+            {hasShoes ? (
+              <>
+                <Pressable
+                  style={styles.dropdown}
+                  onPress={() => setShoeDropdownOpen(!shoeDropdownOpen)}
+                  accessibilityRole="button"
+                >
+                  <Text style={[styles.dropdownText, !selectedShoe && styles.dropdownPlaceholder]}>
+                    {shoeText}
+                  </Text>
+                  <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
                 </Pressable>
-                {shoes.map((s) => (
-                  <Pressable key={s.id} onPress={() => { setShoeId(s.id); setShoeDropdownOpen(false); }} style={styles.dropdownItem}>
-                    <Text style={styles.dropdownItemText}>{shoeLabel(s)}</Text>
-                  </Pressable>
-                ))}
+                {shoeDropdownOpen ? (
+                  <View style={styles.dropdownList}>
+                    <Pressable onPress={() => { setShoeId(NO_SHOE_VALUE); setShoeDropdownOpen(false); }} style={styles.dropdownItem}>
+                      <Text style={styles.dropdownItemText}>Não informar</Text>
+                    </Pressable>
+                    {shoes.map((s) => (
+                      <Pressable key={s.id} onPress={() => { setShoeId(s.id); setShoeDropdownOpen(false); }} style={styles.dropdownItem}>
+                        <Text style={styles.dropdownItemText}>{shoeLabel(s)}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                ) : null}
+              </>
+            ) : (
+              <View style={[styles.dropdown, styles.dropdownDisabled]}>
+                <Text style={styles.dropdownPlaceholder}>Sem tênis cadastrado</Text>
+                <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
               </View>
-            ) : null}
+            )}
 
             {/* Esforço percebido */}
             <Text style={styles.label}>
               Esforço percebido <Text style={styles.labelHint}>(1 leve • 10 máximo)</Text>
             </Text>
-            <View style={styles.effortRow}>
-              {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                <Pressable
-                  key={n}
-                  onPress={() => setEffort(n)}
-                  style={[styles.effortDot, n <= effort && styles.effortDotActive]}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Esforço ${n}`}
-                >
-                  <Text style={[styles.effortDotText, n <= effort && styles.effortDotTextActive]}>
-                    {n}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
+            <Slider
+              minimumValue={1}
+              maximumValue={10}
+              step={1}
+              value={effort}
+              onValueChange={(v) => setEffort(Math.round(v))}
+              minimumTrackTintColor={colors.neon}
+              maximumTrackTintColor="#2A2A2A"
+              thumbTintColor={colors.neon}
+              style={styles.slider}
+            />
             <Text style={styles.effortLabel}>Esforço: {effort}/10</Text>
 
             {/* Observação */}
@@ -162,22 +165,27 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
                 <NeonButton label="Concluir treino" onPress={handleConfirm} loading={submitting} />
               </View>
             </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          </ScrollView>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' },
-  scroll: { flexGrow: 1, justifyContent: 'flex-end' },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 20,
+  },
   sheet: {
     backgroundColor: colors.bg,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 20,
     padding: spacing.xl,
-    paddingBottom: spacing.xxxl,
+    width: '100%',
+    maxHeight: '85%',
   },
   dragHandle: {
     width: 40,
@@ -187,8 +195,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: spacing.lg,
   },
-  iconWrap: { alignSelf: 'center', marginBottom: spacing.md },
-  iconEmoji: { fontSize: 48 },
   title: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), textAlign: 'center', marginBottom: spacing.lg },
   summaryCard: {
     backgroundColor: colors.cardElevated,
@@ -226,8 +232,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: spacing.lg,
   },
+  dropdownDisabled: { opacity: 0.5 },
   dropdownText: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('400') },
-  dropdownPlaceholder: { color: colors.textMuted },
+  dropdownPlaceholder: { color: colors.textMuted, fontSize: fontSizes.base, ...fontWeight('400') },
   dropdownList: {
     backgroundColor: colors.cardElevated,
     borderRadius: 12,
@@ -239,18 +246,7 @@ const styles = StyleSheet.create({
   },
   dropdownItem: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: '#2A2A2A' },
   dropdownItemText: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('400') },
-  effortRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.xs },
-  effortDot: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#2A2A2A',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  effortDotActive: { backgroundColor: colors.neon },
-  effortDotText: { color: colors.textMuted, fontSize: 12, ...fontWeight('700') },
-  effortDotTextActive: { color: colors.bg },
+  slider: { marginBottom: spacing.sm, height: 40 },
   effortLabel: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('500'), textAlign: 'center', marginBottom: spacing.lg },
   actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
   cancelBtn: {
