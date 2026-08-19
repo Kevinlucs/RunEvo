@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Modal, View, Text, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { TextField } from '@/components/ui/TextField';
+import { Modal, View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
@@ -15,8 +13,8 @@ interface Props {
 }
 
 /**
- * docs/fase-4-brief.md Grupo 4 (§28): confirmação + motivo opcional.
- * Nunca abre o formulário de conclusão.
+ * Modal popup "Pular treino" — centralizado, fade, visual limpo.
+ * Sem ícone, sem esforço. Card informativo + observação + botões.
  */
 export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onConfirm }: Props): JSX.Element {
   const [reason, setReason] = useState('');
@@ -27,79 +25,119 @@ export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onCon
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.overlay}>
-        <View style={styles.sheet}>
-          <View style={styles.badge}>
-            <Ionicons name="play-skip-forward" size={26} color={colors.bg} />
-          </View>
-          <Text style={styles.title}>Pular treino</Text>
+      <Pressable style={styles.overlay} onPress={onCancel}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <Pressable style={styles.sheet} onPress={() => { /* impede fechar ao clicar dentro */ }}>
+            <Text style={styles.title}>Pular treino</Text>
 
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>{workout.title ?? 'Treino'}</Text>
-            <Text style={styles.summaryMeta}>
-              {workout.planned_km ?? 0} km planejados · {workout.phase ?? 'Base'}
+            {/* Card resumo */}
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryTitle}>{workout.title ?? 'Treino'}</Text>
+              <Text style={styles.summaryMeta}>
+                {workout.planned_km ?? 0} km planejados • {workout.phase ?? 'Base'}
+              </Text>
+            </View>
+
+            {/* Card informativo */}
+            <View style={styles.infoCard}>
+              <Text style={styles.infoTitle}>Treino pulado registrado</Text>
+              <Text style={styles.infoText}>
+                Ele contará para liberar o check-in. O IA Evo irá considerar esse treino pulado e redistribuir carga
+                com prudência na próxima semana, quando for seguro.
+              </Text>
+            </View>
+
+            {/* Observação */}
+            <Text style={styles.label}>
+              Observação <Text style={styles.labelHint}>(opcional)</Text>
             </Text>
-          </View>
+            <TextInput
+              style={styles.input}
+              value={reason}
+              onChangeText={setReason}
+              multiline
+              numberOfLines={3}
+              placeholder="Por que pulou? Dor, agenda, cansaço, clima..."
+              placeholderTextColor={colors.textMuted}
+              textAlignVertical="top"
+            />
 
-          <Text style={styles.message}>
-            {workout.title ?? 'Este treino'} será marcado como pulado. O check-in semanal vai considerar essa
-            informação.
-          </Text>
-
-          <TextField
-            label="Motivo (opcional)"
-            value={reason}
-            onChangeText={setReason}
-            multiline
-            placeholder="Dor, agenda, cansaço, clima..."
-          />
-
-          <View style={styles.actions}>
-            <View style={styles.actionButton}>
-              <NeonButton label="Cancelar" variant="secondary" onPress={onCancel} disabled={submitting} />
+            {/* Botões */}
+            <View style={styles.actions}>
+              <Pressable style={styles.cancelBtn} onPress={onCancel} disabled={submitting} accessibilityRole="button">
+                <Text style={styles.cancelBtnText}>Cancelar</Text>
+              </Pressable>
+              <View style={styles.confirmBtnWrap}>
+                <NeonButton label="Pular" onPress={() => onConfirm(reason.trim() || null)} loading={submitting} />
+              </View>
             </View>
-            <View style={styles.actionButton}>
-              <NeonButton label="Pular treino" onPress={() => onConfirm(reason.trim() || null)} loading={submitting} />
-            </View>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
+          </Pressable>
+        </KeyboardAvoidingView>
+      </Pressable>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.6)', padding: spacing.xl },
-  sheet: {
-    width: '100%',
-    backgroundColor: colors.bg,
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xl,
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 20,
   },
-  badge: {
-    alignSelf: 'center',
-    width: 56,
-    height: 56,
-    borderRadius: radii.lg,
-    backgroundColor: colors.neon,
+  sheet: {
+    backgroundColor: colors.bg,
+    borderRadius: 20,
+    padding: spacing.xl,
+    width: '100%',
+  },
+  title: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), textAlign: 'center', marginBottom: spacing.lg },
+  summaryCard: {
+    backgroundColor: colors.cardElevated,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(204,255,0,0.2)',
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    alignItems: 'center',
+  },
+  summaryTitle: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
+  summaryMeta: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('400'), marginTop: 2 },
+  infoCard: {
+    backgroundColor: 'rgba(204,255,0,0.06)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(204,255,0,0.2)',
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    alignItems: 'center',
+  },
+  infoTitle: { color: colors.neon, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm },
+  infoText: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), textAlign: 'center', lineHeight: 20 },
+  label: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm },
+  labelHint: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400') },
+  input: {
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: '#2A2A2A',
+    borderRadius: 12,
+    color: colors.textPrimary,
+    fontSize: fontSizes.base,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.lg,
+    minHeight: 80,
+  },
+  actions: { flexDirection: 'row', gap: spacing.md },
+  cancelBtn: {
+    flex: 1,
+    height: 52,
+    backgroundColor: '#2A2A2A',
+    borderRadius: radii.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
   },
-  title: { color: colors.textPrimary, fontSize: fontSizes.xl, ...fontWeight('800'), textAlign: 'center' },
-  summaryCard: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    padding: spacing.md,
-    marginTop: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  summaryTitle: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('700') },
-  summaryMeta: { color: colors.textSecondary, fontSize: fontSizes.caption, marginTop: spacing.xs },
-  message: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs, marginBottom: spacing.lg },
-  actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
-  actionButton: { flex: 1 },
+  cancelBtnText: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('600') },
+  confirmBtnWrap: { flex: 1 },
 });
