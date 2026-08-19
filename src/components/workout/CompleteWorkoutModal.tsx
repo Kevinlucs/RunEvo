@@ -67,9 +67,7 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
       <Pressable style={styles.overlay} onPress={onCancel}>
         <Pressable style={styles.sheet} onPress={() => { /* impede fechar ao clicar dentro */ }}>
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-            {/* Drag handle */}
-            <View style={styles.dragHandle} />
-
+           
             <Text style={styles.title}>Concluir treino</Text>
 
             {/* Card resumo */}
@@ -162,7 +160,7 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
               </Pressable>
               <View style={styles.confirmBtnWrap}>
-                <NeonButton label="Concluir treino" onPress={handleConfirm} loading={submitting} />
+                <NeonButton label="Concluir" onPress={handleConfirm} loading={submitting} />
               </View>
             </View>
           </ScrollView>
@@ -185,7 +183,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: spacing.xl,
     width: '100%',
-    maxHeight: '85%',
   },
   dragHandle: {
     width: 40,
@@ -204,8 +201,8 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.xl,
   },
-  summaryTitle: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
-  summaryMeta: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('400'), marginTop: spacing.xs },
+  summaryTitle: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700'), textAlign: 'center' },
+  summaryMeta: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('400'), marginTop: spacing.xs, textAlign: 'center' },
   label: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm },
   labelHint: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400') },
   input: {
