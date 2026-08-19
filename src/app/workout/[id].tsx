@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable, Alert, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
@@ -9,20 +9,19 @@ import { TrainingZonesCard } from '@/components/workout/TrainingZonesCard';
 import { WorkoutDescriptionCard } from '@/components/workout/WorkoutDescriptionCard';
 import { CompleteWorkoutModal, type CompleteWorkoutFormInput } from '@/components/workout/CompleteWorkoutModal';
 import { SkipWorkoutModal } from '@/components/workout/SkipWorkoutModal';
-import { EditWorkoutModal, type EditWorkoutFormInput } from '@/components/workout/EditWorkoutModal';
 import { useWorkout } from '@/hooks/useWorkout';
 import { usePlan } from '@/hooks/usePlan';
 import { useShoes } from '@/hooks/useShoes';
 import { useAuthStore } from '@/store/auth.store';
-import { readTrainingZones, splitWorkoutDescription, isRaceWorkout } from '@/services/workout/workout-detail.service';
+import { readTrainingZones, splitWorkoutDescription } from '@/services/workout/workout-detail.service';
 import { completeWorkout, skipWorkout } from '@/services/workout/complete-workout.service';
-import { updateWorkout, removeWorkout } from '@/services/plan/edit-workout.service';
 import { formatShortDate } from '@/utils/time';
-import { colors, radii, spacing, fontSizes, fontWeight, MIN_TOUCH_TARGET } from '@/theme';
+import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
 /**
  * docs/fase-4-brief.md Grupo 4 (§28) — detalhe do treino.
  * Layout pixel-perfect com mockups DESCRICAO TREINO 1-2.
+ * Editar/Remover removidos — serão reintroduzidos como RunEvo+ futuramente.
  */
 export default function WorkoutDetail(): JSX.Element {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -33,7 +32,6 @@ export default function WorkoutDetail(): JSX.Element {
 
   const [completeVisible, setCompleteVisible] = useState(false);
   const [skipVisible, setSkipVisible] = useState(false);
-  const [editVisible, setEditVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,7 +53,6 @@ export default function WorkoutDetail(): JSX.Element {
 
   const zones = plan ? readTrainingZones(plan) : null;
   const descriptionLines = splitWorkoutDescription(workout.description);
-  const isRace = isRaceWorkout(workout);
   const isPending = workout.status === 'pending';
 
   const handleComplete = async (input: CompleteWorkoutFormInput): Promise<void> => {
@@ -78,40 +75,6 @@ export default function WorkoutDetail(): JSX.Element {
     router.back();
   };
 
-  const handleEdit = async (input: EditWorkoutFormInput): Promise<void> => {
-    setSubmitting(true);
-    setError(null);
-    const result = await updateWorkout({
-      workoutId: workout.id,
-      title: input.title,
-      description: input.description,
-      plannedKm: input.plannedKm,
-      plannedPace: input.plannedPace,
-      workoutDate: input.workoutDate,
-    });
-    setSubmitting(false);
-    if (!result.ok) { setError(result.error.message); return; }
-    setEditVisible(false);
-  };
-
-  const handleRemove = (): void => {
-    Alert.alert('Remover treino', 'Este treino será removido do plano. Esta ação não pode ser desfeita.', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Remover',
-        style: 'destructive',
-        onPress: async () => {
-          setSubmitting(true);
-          setError(null);
-          const result = await removeWorkout(workout.id);
-          setSubmitting(false);
-          if (!result.ok) { setError(result.error.message); return; }
-          router.back();
-        },
-      },
-    ]);
-  };
-
   const phase = workout.phase ?? 'Base';
   const phaseCap = phase.charAt(0).toUpperCase() + phase.slice(1).toLowerCase();
 
@@ -122,7 +85,6 @@ export default function WorkoutDetail(): JSX.Element {
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
           <AppHeader />
 
-          {/* Header centralizado como no mockup */}
           <View style={styles.header}>
             <Text style={styles.meta}>{phaseCap} • S{workout.week_number}</Text>
             <Text style={styles.title}>{workout.title ?? 'Treino'}</Text>
@@ -132,7 +94,6 @@ export default function WorkoutDetail(): JSX.Element {
             </View>
           </View>
 
-          {/* Cards de métricas empilhados verticalmente */}
           <View style={styles.metricCard}>
             <Text style={styles.metricEmoji}>👟</Text>
             <Text style={styles.metricValue}>{workout.planned_km ?? 0} km</Text>
@@ -157,17 +118,6 @@ export default function WorkoutDetail(): JSX.Element {
               <NeonButton label="✅ Concluir treino" onPress={() => setCompleteVisible(true)} />
               <View style={styles.actionGap} />
               <NeonButton label="Pular treino" variant="secondary" onPress={() => setSkipVisible(true)} />
-
-              {!isRace ? (
-                <View style={styles.editRow}>
-                  <Pressable accessibilityRole="button" onPress={() => setEditVisible(true)} style={styles.editAction}>
-                    <Text style={styles.editActionText}>Editar treino</Text>
-                  </Pressable>
-                  <Pressable accessibilityRole="button" onPress={handleRemove} style={styles.editAction}>
-                    <Text style={styles.removeActionText}>Remover treino</Text>
-                  </Pressable>
-                </View>
-              ) : null}
             </View>
           ) : (
             <Card title={workout.status === 'completed' ? 'Concluído' : 'Pulado'}>
@@ -202,13 +152,6 @@ export default function WorkoutDetail(): JSX.Element {
         onCancel={() => setSkipVisible(false)}
         onConfirm={handleSkip}
       />
-      <EditWorkoutModal
-        visible={editVisible}
-        workout={workout}
-        submitting={submitting}
-        onCancel={() => setEditVisible(false)}
-        onConfirm={handleEdit}
-      />
     </>
   );
 }
@@ -239,8 +182,4 @@ const styles = StyleSheet.create({
   actions: { marginTop: spacing.lg },
   actionGap: { height: spacing.md },
   statusLine: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('400'), marginBottom: spacing.xs },
-  editRow: { flexDirection: 'row', justifyContent: 'center', gap: spacing.xl, marginTop: spacing.lg },
-  editAction: { minHeight: MIN_TOUCH_TARGET, justifyContent: 'center', paddingHorizontal: spacing.sm },
-  editActionText: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('600') },
-  removeActionText: { color: colors.error, fontSize: fontSizes.body, ...fontWeight('600') },
 });
