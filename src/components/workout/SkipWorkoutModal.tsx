@@ -40,10 +40,9 @@ export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onCon
 
             {/* Card informativo */}
             <View style={styles.infoCard}>
-              <Text style={styles.infoTitle}>Treino pulado registrado</Text>
+              <Text style={styles.infoTitle}>Oque irá acontecer ?</Text>
               <Text style={styles.infoText}>
-                Ele contará para liberar o check-in. O IA Evo irá considerar esse treino pulado e redistribuir carga
-                com prudência na próxima semana, quando for seguro.
+                Ao pular o treino, o check-in será liberado. O IA Evo irá considerar o treino como pulado e redistribuirá a carga de forma prudente na próxima semana, somente quando for seguro.
               </Text>
             </View>
 
@@ -57,9 +56,9 @@ export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onCon
               onChangeText={setReason}
               multiline
               numberOfLines={3}
-              placeholder="Por que pulou? Dor, agenda, cansaço, clima..."
+              placeholder="Por que pulou? Dor, agenda, cansaço..."
               placeholderTextColor={colors.textMuted}
-              textAlignVertical="top"
+              textAlignVertical="center"
             />
 
             {/* Botões */}

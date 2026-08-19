@@ -96,12 +96,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     backgroundColor: 'rgba(255,152,0,0.08)',
-    borderLeftWidth: 3,
-    borderLeftColor: colors.warning,
     borderRadius: 12,
     padding: spacing.md,
     marginBottom: spacing.sm,
   },
   alertIcon: { marginRight: spacing.sm, marginTop: 1 },
-  alertText: { color: colors.warning, fontSize: 14, ...fontWeight('600'), flex: 1 },
+  alertText: { color: colors.warning, fontSize: 12, ...fontWeight('600'), flex: 1 },
 });
