@@ -21,16 +21,16 @@ export function TrainingZonesCard({ zones }: { zones: TrainingZones | null }): J
         const zone = zones[key];
         return (
           <View key={key} style={styles.zoneCard}>
-            <View style={styles.zoneHeader}>
-              <View style={styles.zoneBadge}>
-                <Text style={styles.zoneBadgeText}>{key}</Text>
-              </View>
-              <Text style={styles.zoneName}>{zone.name}</Text>
+            <View style={styles.zoneBadge}>
+              <Text style={styles.zoneBadgeText}>{key}</Text>
             </View>
-            <Text style={styles.zoneRange}>{zone.from} até {zone.to}</Text>
-            {zone.speedFrom && zone.speedTo ? (
-              <Text style={styles.zoneSpeed}>{zone.speedFrom} até {zone.speedTo}</Text>
-            ) : null}
+            <View style={styles.zoneContent}>
+              <Text style={styles.zoneName}>{zone.name}</Text>
+              <Text style={styles.zoneRange}>{zone.from} até {zone.to}</Text>
+              {zone.speedFrom && zone.speedTo ? (
+                <Text style={styles.zoneSpeed}>{zone.speedFrom} até {zone.speedTo}</Text>
+              ) : null}
+            </View>
           </View>
         );
       })}
@@ -51,23 +51,27 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.lg,
   },
-  sectionLabel: { color: colors.neon, fontSize: 14, ...fontWeight('800'), letterSpacing: 1.5, marginBottom: spacing.xs },
-  sectionTitle: { color: colors.textPrimary, fontSize: 20, ...fontWeight('700'), marginBottom: spacing.lg },
+  sectionLabel: { color: colors.neon, fontSize: 12, ...fontWeight('600'), letterSpacing: 1, marginBottom: -spacing.xs, textAlign: 'center'},
+  sectionTitle: { color: colors.textPrimary, fontSize: 20, ...fontWeight('700'), marginBottom: spacing.md, textAlign: 'center' },
   zoneCard: {
     backgroundColor: colors.cardElevated,
     borderRadius: radii.md,
     padding: spacing.lg,
     marginBottom: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  zoneHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.sm },
   zoneBadge: {
     backgroundColor: '#2A2A2A',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   zoneBadgeText: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('800') },
-  zoneName: { color: colors.textSecondary, fontSize: 14, ...fontWeight('500'), flexShrink: 1 },
+  zoneContent: { flex: 1, marginLeft: 12 },
+  zoneName: { color: colors.textSecondary, fontSize: 14, ...fontWeight('500'), marginBottom: 4 },
   zoneRange: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: 2 },
   zoneSpeed: { color: colors.textMuted, fontSize: 13, ...fontWeight('400') },
   hint: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: spacing.sm, lineHeight: 18 },

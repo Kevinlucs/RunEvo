@@ -127,21 +127,21 @@ export default function WorkoutDetail(): JSX.Element {
             <Text style={styles.meta}>{phaseCap} • S{workout.week_number}</Text>
             <Text style={styles.title}>{workout.title ?? 'Treino'}</Text>
             <View style={styles.dateRow}>
-              <Text style={styles.dateEmoji}>📅</Text>
+              {/*<Text style={styles.dateEmoji}>📅</Text>*/}
               <Text style={styles.date}>{workout.day_label ?? '-'}, {formatShortDate(workout.workout_date)}</Text>
             </View>
           </View>
 
           {/* Cards de métricas empilhados verticalmente */}
           <View style={styles.metricCard}>
-            <Text style={styles.metricEmoji}>👟</Text>
+            {/*<Text style={styles.metricEmoji}>📅</Text>*/}
             <Text style={styles.metricValue}>{workout.planned_km ?? 0} km</Text>
             <Text style={styles.metricLabel}>DISTÂNCIA</Text>
           </View>
 
           {workout.planned_pace && /\d+:\d+/.test(workout.planned_pace) ? (
             <View style={styles.metricCard}>
-              <Text style={styles.metricEmoji}>⏱️</Text>
+              {/*<Text style={styles.metricEmoji}>⏱️</Text>*/}
               <Text style={styles.metricValue}>{workout.planned_pace}</Text>
               <Text style={styles.metricLabel}>PACE PLANEJADO</Text>
             </View>
@@ -154,7 +154,7 @@ export default function WorkoutDetail(): JSX.Element {
 
           {isPending ? (
             <View style={styles.actions}>
-              <NeonButton label="✅ Concluir treino" onPress={() => setCompleteVisible(true)} />
+              <NeonButton label="Concluir treino" onPress={() => setCompleteVisible(true)} />
               <View style={styles.actionGap} />
               <NeonButton label="Pular treino" variant="secondary" onPress={() => setSkipVisible(true)} />
 
@@ -218,9 +218,9 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
   muted: { color: colors.textMuted, fontSize: fontSizes.body, ...fontWeight('400') },
   header: { alignItems: 'center', marginBottom: spacing.xl },
-  meta: { color: colors.neon, fontSize: 14, ...fontWeight('600'), letterSpacing: 1 },
-  title: { color: colors.textPrimary, fontSize: 32, ...fontWeight('900'), marginTop: spacing.xs, textAlign: 'center' },
-  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: spacing.sm },
+  meta: { color: colors.neon, fontSize: 14, ...fontWeight('600'), letterSpacing: 1, marginBottom: -spacing.md },
+  title: { color: colors.textPrimary, fontSize: 28, ...fontWeight('900'), marginBottom: -spacing.md, textAlign: 'center' },
+  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4},
   dateEmoji: { fontSize: 14 },
   date: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400') },
   metricCard: {
@@ -229,11 +229,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(204,255,0,0.2)',
     alignItems: 'center',
-    paddingVertical: spacing.xxl,
+    paddingVertical: spacing.md,
     marginBottom: spacing.md,
   },
   metricEmoji: { fontSize: 28, marginBottom: spacing.sm },
-  metricValue: { color: colors.textPrimary, fontSize: 28, ...fontWeight('900') },
+  metricValue: { color: colors.textPrimary, fontSize: 25, ...fontWeight('800'), letterSpacing: 1, marginBottom: -spacing.md},
   metricLabel: { color: colors.textSecondary, fontSize: 12, ...fontWeight('500'), letterSpacing: 1, marginTop: spacing.xs },
   error: { color: colors.error, fontSize: fontSizes.body, marginBottom: spacing.md, textAlign: 'center' },
   actions: { marginTop: spacing.lg },
