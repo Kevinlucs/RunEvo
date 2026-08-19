@@ -4,13 +4,23 @@
  * (adaptive-training.ts) como sufixos de texto. Este parser os separa para
  * renderização diferenciada na UI.
  *
- * Padrões identificados:
+ * Padrões de alerta:
  * - "Carga reduzida após check-in."
  * - "Ajustado após check-in semanal."
  * - "X km redistribuídos após treino(s) pulado(s)..."
  * - "Carga aumentada" (futuro)
+ *
+ * Padrões de prescrição (início de linha):
+ * - "Xkm em ZY" (distância + zona)
+ * - "X:XX/km" (pace)
+ * - "Xmin" (tempo)
+ * - "Xx" (repetições)
  */
 
+/** Regex que detecta o início de um alerta adaptativo. */
+const ALERT_START = /(?:Carga reduzida|Carga aumentada|[Rr]edistribuíd|[Aa]justad[oa]|[Aa]daptação|[Aa]pós check-in)/;
+
+/** Padrões completos para identificar linha inteira como alerta. */
 const ALERT_PATTERNS = [
   /carga reduzida/i,
   /carga aumentada/i,
@@ -19,6 +29,9 @@ const ALERT_PATTERNS = [
   /ajustad[oa].*check-in/i,
   /adaptação/i,
 ];
+
+/** Padrões que indicam que uma linha COMEÇA com prescrição de treino. */
+const PRESCRIPTION_START = /^\d+(?:[.,]\d+)?\s*(?:km|min|x)\b/i;
 
 export interface DescriptionParts {
   /** Linhas de execução normais (blocos do treino). */
@@ -29,52 +42,53 @@ export interface DescriptionParts {
 
 /**
  * Separa linhas de descrição em blocos de execução e alertas adaptativos.
- * Se uma linha contém um padrão de alerta, ela pode ser a linha inteira
- * (alerta em linha dedicada) ou um sufixo concatenado a um bloco. Neste
- * segundo caso, o parser extrai o sufixo e mantém o bloco limpo.
+ *
+ * Lógica (ordem importa):
+ * 1. Se começa com prescrição E contém alerta → split: prescrição pro bloco, alerta pro card
+ * 2. Se NÃO começa com prescrição E contém alerta → linha inteira é alerta
+ * 3. Caso contrário → bloco normal
  */
 export function extractAdaptiveAlerts(lines: string[]): DescriptionParts {
   const blocks: string[] = [];
   const alerts: string[] = [];
 
   for (const line of lines) {
-    if (isAlertLine(line)) {
-      alerts.push(line);
-    } else {
-      // Verifica se há um alerta concatenado no final da linha (sufixo)
-      const extracted = extractSuffix(line);
-      if (extracted) {
-        blocks.push(extracted.block);
-        alerts.push(extracted.alert);
+    const hasAlert = ALERT_PATTERNS.some((p) => p.test(line));
+    const startsPrescription = PRESCRIPTION_START.test(line);
+
+    if (hasAlert && startsPrescription) {
+      // Caso 1: "1km em Z1 Carga reduzida após check-in." → separa
+      const split = splitAtAlert(line);
+      if (split) {
+        blocks.push(split.block);
+        alerts.push(split.alert);
       } else {
+        // Fallback: se não conseguiu separar, trata como bloco (seguro)
         blocks.push(line);
       }
+    } else if (hasAlert && !startsPrescription) {
+      // Caso 2: linha é alerta puro ("Km redistribuídos da sessão anterior")
+      alerts.push(line);
+    } else {
+      // Caso 3: bloco normal de prescrição
+      blocks.push(line);
     }
   }
 
   return { blocks, alerts };
 }
 
-function isAlertLine(line: string): boolean {
-  return ALERT_PATTERNS.some((p) => p.test(line));
-}
-
 /**
- * Tenta separar um sufixo de alerta concatenado com ponto ou espaço duplo.
- * Ex: "3km em Z1 Carga reduzida após check-in." → block "3km em Z1", alert "Carga reduzida..."
+ * Separa no ponto onde o alerta começa.
+ * "1km em Z1 Carga reduzida após check-in." → { block: "1km em Z1", alert: "Carga reduzida após check-in." }
  */
-function extractSuffix(line: string): { block: string; alert: string } | null {
-  for (const pattern of ALERT_PATTERNS) {
-    const match = line.match(pattern);
-    if (match && match.index !== undefined && match.index > 0) {
-      // Encontra o início do alerta — volta até o último separador (ponto, espaço duplo)
-      const beforeMatch = line.slice(0, match.index);
-      const lastSep = Math.max(beforeMatch.lastIndexOf('. '), beforeMatch.lastIndexOf('  '));
-      const splitAt = lastSep >= 0 ? lastSep : match.index;
-      const block = line.slice(0, splitAt).replace(/[.\s]+$/, '').trim();
-      const alert = line.slice(splitAt).replace(/^[.\s]+/, '').trim();
-      if (block && alert) return { block, alert };
-    }
-  }
-  return null;
+function splitAtAlert(line: string): { block: string; alert: string } | null {
+  const match = line.match(ALERT_START);
+  if (!match || match.index === undefined || match.index === 0) return null;
+
+  const block = line.slice(0, match.index).replace(/[.\s]+$/, '').trim();
+  const alert = line.slice(match.index).trim();
+
+  if (!block || !alert) return null;
+  return { block, alert };
 }
