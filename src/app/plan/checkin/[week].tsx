@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   headerMeta: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginTop: spacing.xs },
   label: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm, marginTop: spacing.lg },
   dropdown: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.cardElevated,
     borderWidth: 1,
     borderColor: '#2A2A2A',
     borderRadius: 12,
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   slider: { marginTop: spacing.sm, height: 40 },
   effortLabel: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('500'), textAlign: 'center', marginTop: spacing.xs },
   weightCard: {
-    backgroundColor: 'rgba(204,255,0,0.06)',
+    backgroundColor: colors.cardElevated,
     borderWidth: 1,
     borderColor: 'rgba(204,255,0,0.2)',
     borderRadius: 12,
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
   weightCardText: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginBottom: spacing.md, lineHeight: 20 },
   weightLabel: { color: colors.neon, fontSize: 14, ...fontWeight('600'), marginBottom: spacing.sm },
   input: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.cardElevated,
     borderWidth: 1,
     borderColor: '#2A2A2A',
     borderRadius: 12,
