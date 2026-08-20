@@ -141,9 +141,9 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
               onChangeText={setFeedback}
               multiline
               numberOfLines={3}
-              placeholder="Como foi o treino? Dor, cansaço, clima, etc."
+              placeholder="Como foi o treino? Dor, cansaço, clima..."
               placeholderTextColor={colors.textMuted}
-              textAlignVertical="top"
+              textAlignVertical="center"
             />
 
             {/* Botões */}
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: spacing.xl,
     width: '100%',
-    maxHeight: '85%',
+    maxHeight: '91%',
   },
   title: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), textAlign: 'center', marginBottom: spacing.lg },
   summaryCard: {
@@ -185,6 +185,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(204,255,0,0.2)',
     padding: spacing.lg,
     marginBottom: spacing.xl,
+    alignItems: 'center',
   },
   summaryTitle: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
   summaryMeta: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('400'), marginTop: spacing.xs },
