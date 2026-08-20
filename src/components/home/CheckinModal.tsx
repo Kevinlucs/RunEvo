@@ -46,7 +46,7 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
   const [effort, setEffort] = useState(initialEffort);
   const [feeling, setFeeling] = useState<Feeling>('normal');
   const [feelingOpen, setFeelingOpen] = useState(false);
-  const [pain, setPain] = useState(false);
+  const [pain, setPain] = useState<boolean | null>(null);
   const [weightKg, setWeightKg] = useState('');
   const [notes, setNotes] = useState('');
   const [notesError, setNotesError] = useState<string | null>(null);
@@ -185,16 +185,16 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
         <Text style={styles.label}>Sentiu dor/incômodo?</Text>
         <View style={styles.checkboxRow}>
           <Pressable style={styles.checkboxOption} onPress={() => setPain(false)}>
-            <View style={[styles.checkbox, !pain && styles.checkboxSelected]}>
-              {!pain && <View style={styles.checkboxDot} />}
+            <View style={[styles.checkbox, pain === true && styles.checkboxSelected]}>
+              {pain === true && <View style={styles.checkboxDot} />}
             </View>
-            <Text style={[styles.checkboxLabel, !pain && styles.checkboxLabelActive]}>Não</Text>
+            <Text style={[styles.checkboxLabel, !pain && styles.checkboxLabelActive]}>Sim</Text>
           </Pressable>
           <Pressable style={styles.checkboxOption} onPress={() => setPain(true)}>
-            <View style={[styles.checkbox, pain && styles.checkboxSelected]}>
-              {pain && <View style={styles.checkboxDot} />}
+            <View style={[styles.checkbox, pain === false && styles.checkboxSelected]}>
+              {pain === false && <View style={styles.checkboxDot} />}
             </View>
-            <Text style={[styles.checkboxLabel, pain && styles.checkboxLabelActive]}>Sim</Text>
+            <Text style={[styles.checkboxLabel, pain && styles.checkboxLabelActive]}>Não</Text>
           </Pressable>
         </View>
 
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   dropdownItemActive: { color: colors.neon, ...fontWeight('700') },
   slider: { marginTop: spacing.sm, height: 40 },
   effortLabel: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('500'), textAlign: 'center', marginTop: spacing.xs },
-  checkboxRow: { flexDirection: 'row', gap: 24, marginTop: 8 },
+  checkboxRow: { flexDirection: 'row', gap: 50, marginTop: 8, textAlign: 'center', justifyContent: 'center' },
   checkboxOption: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   checkbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#2A2A2A', alignItems: 'center', justifyContent: 'center' },
   checkboxSelected: { borderColor: colors.neon },
