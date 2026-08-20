@@ -1,6 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
 import { colors, radii, spacing, fontSizes, fontWeight, MIN_TOUCH_TARGET } from '@/theme';
 import type { WeekSummary } from '@/domain/motor-evo/adaptive-training';
 import type { CheckinAvailabilityStatus } from '@/hooks/useCheckinAvailability';
@@ -20,10 +19,12 @@ export function AdaptiveTrainingCard({
   weekNumber,
   summary,
   checkinStatus,
+  onCheckin,
 }: {
   weekNumber: number;
   summary: WeekSummary;
   checkinStatus: CheckinAvailabilityStatus;
+  onCheckin: () => void;
 }): JSX.Element {
   const isAvailable = checkinStatus === 'available';
   const badge = CHECKIN_BADGE[checkinStatus];
@@ -68,7 +69,7 @@ export function AdaptiveTrainingCard({
           accessibilityRole="button"
           accessibilityState={{ disabled: !isAvailable }}
           disabled={!isAvailable}
-          onPress={() => router.push(`/checkin/${weekNumber}`)}
+          onPress={onCheckin}
           style={[styles.cta, !isAvailable && styles.ctaDisabled]}
         >
           <Text style={[styles.ctaText, isAvailable && styles.ctaTextActive]}>
