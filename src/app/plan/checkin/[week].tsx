@@ -176,7 +176,6 @@ export default function CheckinScreen(): JSX.Element {
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerEmoji}>🧠</Text>
           <Text style={styles.headerTitle}>Check-in S{weekNumber}</Text>
           {summary ? (
             <Text style={styles.headerMeta}>

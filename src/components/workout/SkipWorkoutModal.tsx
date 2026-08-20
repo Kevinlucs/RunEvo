@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   sheet: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: spacing.xl,
     width: '100%',
