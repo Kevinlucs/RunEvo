@@ -50,6 +50,7 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
   const [weightKg, setWeightKg] = useState('');
   const [notes, setNotes] = useState('');
   const [notesError, setNotesError] = useState<string | null>(null);
+  const [painError, setPainError] = useState<string | null>(null);
   const [weightError, setWeightError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,10 +64,11 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
     setEffort(initialEffort);
     setFeeling('normal');
     setFeelingOpen(false);
-    setPain(false);
+    setPain(null);
     setWeightKg('');
     setNotes('');
     setNotesError(null);
+    setPainError(null);
     setWeightError(null);
     setError(null);
     setResult(null);
@@ -74,6 +76,11 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
 
   const handleSubmit = async (): Promise<void> => {
     if (!plan || !userId) return;
+    if (pain === null) {
+      setPainError('Informe se sentiu dor ou incômodo.');
+      return;
+    }
+    setPainError(null);
     if (!notes.trim()) {
       setNotesError('Preencha suas observações da semana.');
       return;
@@ -92,7 +99,7 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
       planId: plan.id,
       userId,
       weekNumber,
-      feedback: { effort, feeling, pain, notes: notes.trim(), currentWeightKg: parsedWeight },
+      feedback: { effort, feeling, pain: pain as boolean, notes: notes.trim(), currentWeightKg: parsedWeight },
     });
 
     setSubmitting(false);
@@ -184,19 +191,20 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
 
         <Text style={styles.label}>Sentiu dor/incômodo?</Text>
         <View style={styles.checkboxRow}>
-          <Pressable style={styles.checkboxOption} onPress={() => setPain(false)}>
+          <Pressable style={styles.checkboxOption} onPress={() => { setPain(true); setPainError(null); }}>
             <View style={[styles.checkbox, pain === true && styles.checkboxSelected]}>
               {pain === true && <View style={styles.checkboxDot} />}
             </View>
-            <Text style={[styles.checkboxLabel, !pain && styles.checkboxLabelActive]}>Sim</Text>
+            <Text style={[styles.checkboxLabel, pain === true && styles.checkboxLabelActive]}>Sim</Text>
           </Pressable>
-          <Pressable style={styles.checkboxOption} onPress={() => setPain(true)}>
+          <Pressable style={styles.checkboxOption} onPress={() => { setPain(false); setPainError(null); }}>
             <View style={[styles.checkbox, pain === false && styles.checkboxSelected]}>
               {pain === false && <View style={styles.checkboxDot} />}
             </View>
-            <Text style={[styles.checkboxLabel, pain && styles.checkboxLabelActive]}>Não</Text>
+            <Text style={[styles.checkboxLabel, pain === false && styles.checkboxLabelActive]}>Não</Text>
           </Pressable>
         </View>
+        {painError ? <Text style={styles.errorText}>{painError}</Text> : null}
 
         {weightRequired ? (
           <View style={styles.weightCard}>
@@ -250,12 +258,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: spacing.xl,
     width: '100%',
+    maxHeight: '85%',
   },
   muted: { color: colors.textMuted, fontSize: fontSizes.body, ...fontWeight('400'), textAlign: 'center', paddingVertical: spacing.xl },
   backWrap: { marginTop: spacing.md, alignSelf: 'center', minWidth: 160 },
   header: { alignItems: 'center', marginBottom: spacing.md },
-  headerTitle: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800') },
-  headerMeta: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginTop: -spacing.xs },
+  headerTitle: { color: colors.textPrimary, fontSize: 24, ...fontWeight('800') },
+  headerMeta: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginTop: spacing.xs },
   label: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm, marginTop: spacing.lg },
   dropdown: {
     backgroundColor: colors.cardElevated, borderWidth: 1, borderColor: '#2A2A2A', borderRadius: 12,
@@ -269,7 +278,7 @@ const styles = StyleSheet.create({
   dropdownItemActive: { color: colors.neon, ...fontWeight('700') },
   slider: { marginTop: spacing.sm, height: 40 },
   effortLabel: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('500'), textAlign: 'center', marginTop: spacing.xs },
-  checkboxRow: { flexDirection: 'row', gap: 50, marginTop: 8, textAlign: 'center', justifyContent: 'center' },
+  checkboxRow: { flexDirection: 'row', gap: 24, marginTop: 8 },
   checkboxOption: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   checkbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#2A2A2A', alignItems: 'center', justifyContent: 'center' },
   checkboxSelected: { borderColor: colors.neon },
