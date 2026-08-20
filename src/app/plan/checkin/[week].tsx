@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { useLocalSearchParams, router, Stack } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen } from '@/components/ui/Screen';
-import { AppHeader } from '@/components/ui/AppHeader';
 import { Card } from '@/components/ui/Card';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { useActivePlan } from '@/hooks/useActivePlan';
@@ -34,8 +32,8 @@ const ACTION_TITLE: Record<string, string> = {
 };
 
 /**
- * Check-in semanal — pixel-perfect com mockup CHECK IN SEMANAL.jpg.
- * Observação obrigatória, slider neon para esforço, dropdowns para feeling/dor.
+ * Check-in semanal como popup/modal transparente.
+ * presentation: 'transparentModal' no _layout.tsx.
  */
 export default function CheckinScreen(): JSX.Element {
   const { week } = useLocalSearchParams<{ week: string }>();
@@ -62,29 +60,39 @@ export default function CheckinScreen(): JSX.Element {
 
   const weightRequired = isWeightRequiredForWeek(weekNumber);
 
+  const close = (): void => router.back();
+
   if (availability.isLoading) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.muted}>Carregando...</Text>
+      <View style={styles.overlay}>
+        <View style={styles.sheet}>
+          <Text style={styles.muted}>Carregando...</Text>
+        </View>
       </View>
     );
   }
 
   if (!plan || !userId || !Number.isFinite(weekNumber)) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.muted}>Não foi possível abrir o check-in.</Text>
+      <View style={styles.overlay}>
+        <View style={styles.sheet}>
+          <Text style={styles.muted}>Não foi possível abrir o check-in.</Text>
+          <View style={styles.backButtonWrap}>
+            <NeonButton label="Voltar" variant="secondary" onPress={close} />
+          </View>
+        </View>
       </View>
     );
   }
 
   if (!result && availability.status === 'done') {
     return (
-      <View style={styles.center}>
-        <Stack.Screen options={{ headerShown: false }} />
-        <Text style={styles.muted}>Você já enviou o check-in desta semana.</Text>
-        <View style={styles.backButtonWrap}>
-          <NeonButton label="Voltar" variant="secondary" onPress={() => router.back()} />
+      <View style={styles.overlay}>
+        <View style={styles.sheet}>
+          <Text style={styles.muted}>Você já enviou o check-in desta semana.</Text>
+          <View style={styles.backButtonWrap}>
+            <NeonButton label="Voltar" variant="secondary" onPress={close} />
+          </View>
         </View>
       </View>
     );
@@ -92,18 +100,18 @@ export default function CheckinScreen(): JSX.Element {
 
   if (!result && availability.status === 'waiting') {
     return (
-      <View style={styles.center}>
-        <Stack.Screen options={{ headerShown: false }} />
-        <Text style={styles.muted}>Conclua os treinos da semana para liberar o check-in.</Text>
-        <View style={styles.backButtonWrap}>
-          <NeonButton label="Voltar" variant="secondary" onPress={() => router.back()} />
+      <View style={styles.overlay}>
+        <View style={styles.sheet}>
+          <Text style={styles.muted}>Conclua os treinos da semana para liberar o check-in.</Text>
+          <View style={styles.backButtonWrap}>
+            <NeonButton label="Voltar" variant="secondary" onPress={close} />
+          </View>
         </View>
       </View>
     );
   }
 
   const handleSubmit = async (): Promise<void> => {
-    // Validação: observações obrigatórias
     if (!notes.trim()) {
       setNotesError('Preencha suas observações da semana.');
       return;
@@ -143,157 +151,166 @@ export default function CheckinScreen(): JSX.Element {
   if (result) {
     const isAi = result.recommendation.source === 'ai';
     return (
-      <Screen>
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <Stack.Screen options={{ headerShown: false }} />
-          <AppHeader />
-          <Card title={ACTION_TITLE[result.recommendation.action] ?? 'Plano ajustado'}>
-            <View style={styles.sourceBadge}>
-              <Text style={styles.sourceBadgeText}>{isAi ? '🧠 IA Evo' : '⚙️ Ajuste local'}</Text>
-            </View>
-            <Text style={styles.resultMessage}>{result.recommendation.message}</Text>
-            {result.redistribution.applied ? (
-              <Text style={styles.resultNote}>{result.redistribution.note}</Text>
-            ) : null}
-            <Text style={styles.disclaimer}>
-              Esta recomendação é gerada automaticamente e não substitui orientação médica ou de um profissional de
-              educação física.
-            </Text>
-          </Card>
-          <NeonButton label="Concluir" onPress={() => router.back()} />
-        </ScrollView>
-      </Screen>
+      <View style={styles.overlay}>
+        <View style={styles.sheet}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Card title={ACTION_TITLE[result.recommendation.action] ?? 'Plano ajustado'}>
+              <View style={styles.sourceBadge}>
+                <Text style={styles.sourceBadgeText}>{isAi ? '🧠 IA Evo' : '⚙️ Ajuste local'}</Text>
+              </View>
+              <Text style={styles.resultMessage}>{result.recommendation.message}</Text>
+              {result.redistribution.applied ? (
+                <Text style={styles.resultNote}>{result.redistribution.note}</Text>
+              ) : null}
+              <Text style={styles.disclaimer}>
+                Esta recomendação é gerada automaticamente e não substitui orientação médica ou de um profissional de
+                educação física.
+              </Text>
+            </Card>
+            <NeonButton label="Concluir" onPress={close} />
+          </ScrollView>
+        </View>
+      </View>
     );
   }
 
   const feelingLabel = FEELING_OPTIONS.find((o) => o.value === feeling)?.label ?? 'Normal';
 
   return (
-    <Screen>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <Stack.Screen options={{ headerShown: false }} />
-        <AppHeader />
-
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerEmoji}>🧠</Text>
-          <Text style={styles.headerTitle}>Check-in S{weekNumber}</Text>
-          {summary ? (
-            <Text style={styles.headerMeta}>
-              {summary.resolved}/{summary.total} treinos registrados • {summary.completedKm}/{summary.plannedKm} km
-            </Text>
-          ) : null}
-        </View>
-
-        {/* Sensação */}
-        <Text style={styles.label}>Como a semana pareceu?</Text>
-        <Pressable style={styles.dropdown} onPress={() => setFeelingOpen(!feelingOpen)} accessibilityRole="button">
-          <Text style={styles.dropdownText}>{feelingLabel}</Text>
-          <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
-        </Pressable>
-        {feelingOpen ? (
-          <View style={styles.dropdownList}>
-            {FEELING_OPTIONS.map((o) => (
-              <Pressable key={o.value} onPress={() => { setFeeling(o.value); setFeelingOpen(false); }} style={styles.dropdownItem}>
-                <Text style={[styles.dropdownItemText, feeling === o.value && styles.dropdownItemActive]}>{o.label}</Text>
-              </Pressable>
-            ))}
+    <Pressable style={styles.overlay} onPress={close}>
+      <Pressable style={styles.sheet} onPress={() => { /* impede fechar ao clicar dentro */ }}>
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Check-in S{weekNumber}</Text>
+            {summary ? (
+              <Text style={styles.headerMeta}>
+                {summary.resolved}/{summary.total} treinos registrados • {summary.completedKm}/{summary.plannedKm} km
+              </Text>
+            ) : null}
           </View>
-        ) : null}
 
-        {/* Esforço */}
-        <Text style={styles.label}>Esforço geral da semana</Text>
-        <Slider
-          minimumValue={1}
-          maximumValue={10}
-          step={1}
-          value={effort}
-          onValueChange={(v) => setEffort(Math.round(v))}
-          minimumTrackTintColor={colors.neon}
-          maximumTrackTintColor="#2A2A2A"
-          thumbTintColor={colors.neon}
-          style={styles.slider}
-        />
-        <Text style={styles.effortLabel}>Esforço: {effort}/10</Text>
-
-        {/* Dor */}
-        <Text style={styles.label}>Sentiu dor/incômodo?</Text>
-        <Pressable style={styles.dropdown} onPress={() => setPainOpen(!painOpen)} accessibilityRole="button">
-          <Text style={styles.dropdownText}>{pain ? 'Sim' : 'Não'}</Text>
-          <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
-        </Pressable>
-        {painOpen ? (
-          <View style={styles.dropdownList}>
-            {PAIN_OPTIONS.map((o) => (
-              <Pressable key={String(o.value)} onPress={() => { setPain(o.value); setPainOpen(false); }} style={styles.dropdownItem}>
-                <Text style={[styles.dropdownItemText, pain === o.value && styles.dropdownItemActive]}>{o.label}</Text>
-              </Pressable>
-            ))}
-          </View>
-        ) : null}
-
-        {/* Card peso (condicional) */}
-        {weightRequired ? (
-          <View style={styles.weightCard}>
-            <Text style={styles.weightCardTitle}>Atualização obrigatória de peso</Text>
-            <Text style={styles.weightCardText}>
-              A cada 4 semanas, informe seu peso atual para recalcular o IMC e ajudar o IA Evo na análise.
-            </Text>
-            <Text style={styles.weightLabel}>Peso atual (kg)</Text>
-            <TextInput
-              style={[styles.input, weightError ? styles.inputError : null]}
-              value={weightKg}
-              onChangeText={setWeightKg}
-              placeholder="Ex.: 68.5"
-              placeholderTextColor={colors.textMuted}
-              keyboardType="decimal-pad"
-            />
-            {weightError ? <Text style={styles.errorText}>{weightError}</Text> : null}
-          </View>
-        ) : null}
-
-        {/* Observações (obrigatório) */}
-        <Text style={styles.label}>Observações</Text>
-        <TextInput
-          style={[styles.input, styles.textArea, notesError ? styles.inputError : null]}
-          value={notes}
-          onChangeText={(v) => { setNotes(v); if (v.trim()) setNotesError(null); }}
-          multiline
-          numberOfLines={5}
-          placeholder="Sono, cansaço, dores, rotina, dificuldade dos treinos..."
-          placeholderTextColor={colors.textMuted}
-          textAlignVertical="top"
-        />
-        {notesError ? <Text style={styles.errorText}>{notesError}</Text> : null}
-
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-        {/* Botões */}
-        <View style={styles.actions}>
-          <Pressable style={styles.cancelBtn} onPress={() => router.back()} disabled={submitting} accessibilityRole="button">
-            <Text style={styles.cancelBtnText}>Cancelar</Text>
+          {/* Sensação */}
+          <Text style={styles.label}>Como a semana pareceu?</Text>
+          <Pressable style={styles.dropdown} onPress={() => setFeelingOpen(!feelingOpen)} accessibilityRole="button">
+            <Text style={styles.dropdownText}>{feelingLabel}</Text>
+            <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
           </Pressable>
-          <View style={styles.confirmBtnWrap}>
-            <NeonButton label="Confirmar" onPress={() => void handleSubmit()} loading={submitting} />
+          {feelingOpen ? (
+            <View style={styles.dropdownList}>
+              {FEELING_OPTIONS.map((o) => (
+                <Pressable key={o.value} onPress={() => { setFeeling(o.value); setFeelingOpen(false); }} style={styles.dropdownItem}>
+                  <Text style={[styles.dropdownItemText, feeling === o.value && styles.dropdownItemActive]}>{o.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
+
+          {/* Esforço */}
+          <Text style={styles.label}>Esforço geral da semana</Text>
+          <Slider
+            minimumValue={1}
+            maximumValue={10}
+            step={1}
+            value={effort}
+            onValueChange={(v) => setEffort(Math.round(v))}
+            minimumTrackTintColor={colors.neon}
+            maximumTrackTintColor="#2A2A2A"
+            thumbTintColor={colors.neon}
+            style={styles.slider}
+          />
+          <Text style={styles.effortLabel}>Esforço: {effort}/10</Text>
+
+          {/* Dor */}
+          <Text style={styles.label}>Sentiu dor/incômodo?</Text>
+          <Pressable style={styles.dropdown} onPress={() => setPainOpen(!painOpen)} accessibilityRole="button">
+            <Text style={styles.dropdownText}>{pain ? 'Sim' : 'Não'}</Text>
+            <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
+          </Pressable>
+          {painOpen ? (
+            <View style={styles.dropdownList}>
+              {PAIN_OPTIONS.map((o) => (
+                <Pressable key={String(o.value)} onPress={() => { setPain(o.value); setPainOpen(false); }} style={styles.dropdownItem}>
+                  <Text style={[styles.dropdownItemText, pain === o.value && styles.dropdownItemActive]}>{o.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
+
+          {/* Card peso (condicional) */}
+          {weightRequired ? (
+            <View style={styles.weightCard}>
+              <Text style={styles.weightCardTitle}>Atualização obrigatória de peso</Text>
+              <Text style={styles.weightCardText}>
+                A cada 4 semanas, informe seu peso atual para recalcular o IMC e ajudar o IA Evo na análise.
+              </Text>
+              <Text style={styles.weightLabel}>Peso atual (kg)</Text>
+              <TextInput
+                style={[styles.input, weightError ? styles.inputError : null]}
+                value={weightKg}
+                onChangeText={setWeightKg}
+                placeholder="Ex.: 68.5"
+                placeholderTextColor={colors.textMuted}
+                keyboardType="decimal-pad"
+              />
+              {weightError ? <Text style={styles.errorText}>{weightError}</Text> : null}
+            </View>
+          ) : null}
+
+          {/* Observações (obrigatório) */}
+          <Text style={styles.label}>Observações</Text>
+          <TextInput
+            style={[styles.input, styles.textArea, notesError ? styles.inputError : null]}
+            value={notes}
+            onChangeText={(v) => { setNotes(v); if (v.trim()) setNotesError(null); }}
+            multiline
+            numberOfLines={5}
+            placeholder="Sono, cansaço, dores, rotina, dificuldade dos treinos..."
+            placeholderTextColor={colors.textMuted}
+            textAlignVertical="top"
+          />
+          {notesError ? <Text style={styles.errorText}>{notesError}</Text> : null}
+
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+          {/* Botões */}
+          <View style={styles.actions}>
+            <Pressable style={styles.cancelBtn} onPress={close} disabled={submitting} accessibilityRole="button">
+              <Text style={styles.cancelBtnText}>Cancelar</Text>
+            </Pressable>
+            <View style={styles.confirmBtnWrap}>
+              <NeonButton label="Confirmar" onPress={() => void handleSubmit()} loading={submitting} />
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </Screen>
+        </ScrollView>
+      </Pressable>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { paddingBottom: spacing.xxxl },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg, padding: spacing.xl },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 20,
+  },
+  sheet: {
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    padding: spacing.xl,
+    width: '100%',
+    maxHeight: '90%',
+  },
   muted: { color: colors.textMuted, fontSize: fontSizes.body, ...fontWeight('400'), textAlign: 'center' },
-  backButtonWrap: { marginTop: spacing.lg, minWidth: 160 },
-  header: { alignItems: 'center', marginBottom: spacing.xl },
-  headerEmoji: { fontSize: 48, marginBottom: spacing.sm },
+  backButtonWrap: { marginTop: spacing.lg, minWidth: 160, alignSelf: 'center' },
+  header: { alignItems: 'center', marginBottom: spacing.lg },
   headerTitle: { color: colors.textPrimary, fontSize: 24, ...fontWeight('800') },
   headerMeta: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginTop: spacing.xs },
   label: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm, marginTop: spacing.lg },
   dropdown: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.bg,
     borderWidth: 1,
     borderColor: '#2A2A2A',
     borderRadius: 12,
@@ -329,7 +346,7 @@ const styles = StyleSheet.create({
   weightCardText: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginBottom: spacing.md, lineHeight: 20 },
   weightLabel: { color: colors.neon, fontSize: 14, ...fontWeight('600'), marginBottom: spacing.sm },
   input: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.bg,
     borderWidth: 1,
     borderColor: '#2A2A2A',
     borderRadius: 12,
@@ -339,7 +356,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   inputError: { borderColor: colors.error },
-  textArea: { minHeight: 120, marginTop: 0 },
+  textArea: { minHeight: 120 },
   errorText: { color: colors.error, fontSize: fontSizes.caption, ...fontWeight('500'), marginTop: spacing.xs },
   actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xl },
   cancelBtn: {
