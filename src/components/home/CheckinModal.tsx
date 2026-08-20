@@ -221,7 +221,7 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
           style={[styles.input, styles.textArea, notesError ? styles.inputError : null]}
           value={notes} onChangeText={(v) => { setNotes(v); if (v.trim()) setNotesError(null); }}
           multiline numberOfLines={4} placeholder="Sono, cansaço, dores, rotina..."
-          placeholderTextColor={colors.textMuted} textAlignVertical="top"
+          placeholderTextColor={colors.textMuted} textAlignVertical="center"
         />
         {notesError ? <Text style={styles.errorText}>{notesError}</Text> : null}
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   dropdownItemActive: { color: colors.neon, ...fontWeight('700') },
   slider: { marginTop: spacing.sm, height: 40 },
   effortLabel: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('500'), textAlign: 'center', marginTop: spacing.xs },
-  checkboxRow: { flexDirection: 'row', gap: 24, marginTop: 8 },
+  checkboxRow: { flexDirection: 'row', gap: 50, marginTop: 8, justifyContent: 'center' },
   checkboxOption: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   checkbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#2A2A2A', alignItems: 'center', justifyContent: 'center' },
   checkboxSelected: { borderColor: colors.neon },
