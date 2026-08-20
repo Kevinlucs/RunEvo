@@ -68,7 +68,7 @@ export function AdaptiveTrainingCard({
           accessibilityRole="button"
           accessibilityState={{ disabled: !isAvailable }}
           disabled={!isAvailable}
-          onPress={() => router.push(`/plan/checkin/${weekNumber}`)}
+          onPress={() => router.push(`/checkin/${weekNumber}`)}
           style={[styles.cta, !isAvailable && styles.ctaDisabled]}
         >
           <Text style={[styles.ctaText, isAvailable && styles.ctaTextActive]}>
