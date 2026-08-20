@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Modal, View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
 import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { NeonButton } from '@/components/ui/NeonButton';
@@ -64,10 +65,14 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
-      <Pressable style={styles.overlay} onPress={onCancel}>
-        <Pressable style={styles.sheet} onPress={() => { /* impede fechar ao clicar dentro */ }}>
-          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-           
+      <View style={styles.overlayContainer}>
+        <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+        <Pressable style={styles.overlay} onPress={onCancel}>
+          <Pressable style={styles.sheet} onPress={() => {}}>
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              {/* Drag handle */}
+              <View style={styles.dragHandle} />
+
             <Text style={styles.title}>Concluir treino</Text>
 
             {/* Card resumo */}
@@ -160,29 +165,31 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
               </Pressable>
               <View style={styles.confirmBtnWrap}>
-                <NeonButton label="Concluir" onPress={handleConfirm} loading={submitting} />
+                <NeonButton label="Concluir treino" onPress={handleConfirm} loading={submitting} />
               </View>
             </View>
           </ScrollView>
         </Pressable>
       </Pressable>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  overlayContainer: { flex: 1 },
   overlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.6)',
     padding: 20,
   },
   sheet: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.bg,
     borderRadius: 20,
     padding: spacing.xl,
     width: '100%',
+    maxHeight: '85%',
   },
   dragHandle: {
     width: 40,
@@ -201,8 +208,8 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.xl,
   },
-  summaryTitle: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700'), textAlign: 'center' },
-  summaryMeta: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('400'), marginTop: spacing.xs, textAlign: 'center' },
+  summaryTitle: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
+  summaryMeta: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('400'), marginTop: spacing.xs },
   label: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm },
   labelHint: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400') },
   input: {
