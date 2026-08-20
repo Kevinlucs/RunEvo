@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Modal, View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { BlurView } from 'expo-blur';
 import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { NeonButton } from '@/components/ui/NeonButton';
@@ -30,8 +29,7 @@ function shoeLabel(shoe: Shoe): string {
 }
 
 /**
- * Modal popup "Concluir treino" — centralizado, fade, com Slider neon.
- * Layout pixel-perfect com mockup CONCLUIR TREINO.jpg.
+ * Modal popup "Concluir treino" — centralizado, fade, Slider neon.
  */
 export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCancel, onConfirm }: Props): JSX.Element {
   const [completedKm, setCompletedKm] = useState(String(workout.planned_km ?? 0));
@@ -65,14 +63,9 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
-      <View style={styles.overlayContainer}>
-        <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
-        <Pressable style={styles.overlay} onPress={onCancel}>
-          <Pressable style={styles.sheet} onPress={() => {}}>
-            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-              {/* Drag handle */}
-              <View style={styles.dragHandle} />
-
+      <View style={styles.overlay}>
+        <View style={styles.sheet}>
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             <Text style={styles.title}>Concluir treino</Text>
 
             {/* Card resumo */}
@@ -97,14 +90,8 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
             <Text style={styles.label}>Tênis usado</Text>
             {hasShoes ? (
               <>
-                <Pressable
-                  style={styles.dropdown}
-                  onPress={() => setShoeDropdownOpen(!shoeDropdownOpen)}
-                  accessibilityRole="button"
-                >
-                  <Text style={[styles.dropdownText, !selectedShoe && styles.dropdownPlaceholder]}>
-                    {shoeText}
-                  </Text>
+                <Pressable style={styles.dropdown} onPress={() => setShoeDropdownOpen(!shoeDropdownOpen)} accessibilityRole="button">
+                  <Text style={[styles.dropdownText, !selectedShoe && styles.dropdownPlaceholder]}>{shoeText}</Text>
                   <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
                 </Pressable>
                 {shoeDropdownOpen ? (
@@ -165,39 +152,30 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
               </Pressable>
               <View style={styles.confirmBtnWrap}>
-                <NeonButton label="Concluir treino" onPress={handleConfirm} loading={submitting} />
+                <NeonButton label="Concluir" onPress={handleConfirm} loading={submitting} />
               </View>
             </View>
           </ScrollView>
-        </Pressable>
-      </Pressable>
+        </View>
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlayContainer: { flex: 1 },
   overlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     padding: 20,
   },
   sheet: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: spacing.xl,
     width: '100%',
     maxHeight: '85%',
-  },
-  dragHandle: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.textMuted,
-    alignSelf: 'center',
-    marginBottom: spacing.lg,
   },
   title: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), textAlign: 'center', marginBottom: spacing.lg },
   summaryCard: {
@@ -213,7 +191,7 @@ const styles = StyleSheet.create({
   label: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm },
   labelHint: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400') },
   input: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.cardElevated,
     borderWidth: 1,
     borderColor: '#2A2A2A',
     borderRadius: 12,
@@ -225,7 +203,7 @@ const styles = StyleSheet.create({
   },
   textArea: { minHeight: 80 },
   dropdown: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.cardElevated,
     borderWidth: 1,
     borderColor: '#2A2A2A',
     borderRadius: 12,

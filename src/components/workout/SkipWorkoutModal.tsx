@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Modal, View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import { BlurView } from 'expo-blur';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
@@ -15,7 +14,6 @@ interface Props {
 
 /**
  * Modal popup "Pular treino" — centralizado, fade, visual limpo.
- * Sem ícone, sem esforço. Card informativo + observação + botões.
  */
 export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onConfirm }: Props): JSX.Element {
   const [reason, setReason] = useState('');
@@ -26,14 +24,11 @@ export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onCon
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
-      <View style={styles.overlayContainer}>
-        <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
-        <Pressable style={styles.overlay} onPress={onCancel}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <Pressable style={styles.sheet} onPress={() => { /* impede fechar ao clicar dentro */ }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.overlay}>
+        <Pressable style={styles.overlayPress} onPress={onCancel}>
+          <Pressable style={styles.sheet} onPress={() => {}}>
             <Text style={styles.title}>Pular treino</Text>
 
-            {/* Card resumo */}
             <View style={styles.summaryCard}>
               <Text style={styles.summaryTitle}>{workout.title ?? 'Treino'}</Text>
               <Text style={styles.summaryMeta}>
@@ -41,7 +36,6 @@ export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onCon
               </Text>
             </View>
 
-            {/* Card informativo */}
             <View style={styles.infoCard}>
               <Text style={styles.infoTitle}>Oque irá acontecer ?</Text>
               <Text style={styles.infoText}>
@@ -49,7 +43,6 @@ export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onCon
               </Text>
             </View>
 
-            {/* Observação */}
             <Text style={styles.label}>
               Observação <Text style={styles.labelHint}>(opcional)</Text>
             </Text>
@@ -64,7 +57,6 @@ export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onCon
               textAlignVertical="center"
             />
 
-            {/* Botões */}
             <View style={styles.actions}>
               <Pressable style={styles.cancelBtn} onPress={onCancel} disabled={submitting} accessibilityRole="button">
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
@@ -74,19 +66,19 @@ export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onCon
               </View>
             </View>
           </Pressable>
-        </KeyboardAvoidingView>
-      </Pressable>
-      </View>
+        </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlayContainer: { flex: 1 },
-  overlay: {
+  overlay: { flex: 1 },
+  overlayPress: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     padding: 20,
   },
   sheet: {
@@ -121,7 +113,7 @@ const styles = StyleSheet.create({
   label: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm },
   labelHint: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400') },
   input: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.cardElevated,
     borderWidth: 1,
     borderColor: '#2A2A2A',
     borderRadius: 12,

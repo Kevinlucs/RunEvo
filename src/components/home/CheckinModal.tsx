@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Modal, View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { BlurView } from 'expo-blur';
 import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui/Card';
@@ -239,23 +238,19 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
-      <View style={styles.overlayContainer}>
-        <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
-        <Pressable style={styles.overlay} onPress={onClose}>
-          <Pressable style={styles.sheet} onPress={() => {}}>
-            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-              {renderContent()}
-            </ScrollView>
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <Pressable style={styles.sheet} onPress={() => {}}>
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            {renderContent()}
+          </ScrollView>
         </Pressable>
       </Pressable>
-      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlayContainer: { flex: 1 },
-  overlay: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  overlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 },
   sheet: {
     backgroundColor: colors.card,
     borderRadius: 20,
