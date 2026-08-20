@@ -1,13 +1,11 @@
 import { useMemo, useCallback, useState } from 'react';
-import { View, Text, SectionList, Pressable, Alert, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { LockedSection } from '@/components/paywall/LockedSection';
-import { PhaseSummaryPills } from '@/components/plan/PhaseSummaryPills';
-import { WeekSectionHeader } from '@/components/plan/WeekSectionHeader';
-import { WorkoutListRow } from '@/components/plan/WorkoutListRow';
 import { AddWorkoutModal, type AddWorkoutFormInput } from '@/components/plan/AddWorkoutModal';
 import { useActivePlan } from '@/hooks/useActivePlan';
 import { usePlanWorkouts } from '@/hooks/usePlanWorkouts';
@@ -16,33 +14,32 @@ import { usePlanProgress } from '@/hooks/usePlanProgress';
 import { useAthleteProfile } from '@/hooks/useAthleteProfile';
 import { useEntitlement } from '@/hooks/useEntitlement';
 import { useAuthStore } from '@/store/auth.store';
-import { buildWeekMeta, groupWeeksByPhase, type WeekMeta } from '@/services/plan/plan-cycle.service';
-import { isWeekAccessible, shouldShowTrialEndingNotice } from '@/services/plan/plan-trial.service';
-import { isRaceWorkout } from '@/services/workout/workout-detail.service';
-import { addWorkout, removeWorkout, moveWorkout } from '@/services/plan/edit-workout.service';
+import { buildWeekMeta, groupWeeksByPhase, type WeekMeta, type PhaseGroup } from '@/services/plan/plan-cycle.service';
+import { addWorkout, removeWorkout } from '@/services/plan/edit-workout.service';
 import { exportPlanAsPdf, exportPlanAsExcel } from '@/services/plan/export-plan';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
-import type { Workout } from '@/domain/entities';
 
-interface WeekSection {
-  title: WeekMeta;
-  data: Workout[];
-}
+
+const PHASE_EMOJI: Record<string, string> = { base: '🏗️', resistência: '💪', pico: '⚡', polimento: '🏁' };
+const PHASE_SUBTITLE: Record<string, string> = { base: 'Fundação aeróbica', resistência: 'Volume e constância', pico: 'Semanas mais fortes', polimento: 'Redução até a prova' };
 
 /**
- * Treinos / Ciclo (docs/fase-4-brief.md Grupo 3, §29) — só leitura nesta
- * fase. SectionList (não ScrollView+map): um plano pode ter ~300 treinos.
+ * Aba Treinos — 3 seções: Modificações, Fases, Exportação.
+ * Pixel-perfect com mockups TELA TREINOS 1-3.
  */
 export default function Plan(): JSX.Element {
   const { plan, isLoading } = useActivePlan();
   const { workouts } = usePlanWorkouts(plan?.id);
   const { weekNumber: currentWeekNumber } = useCurrentWeek();
-  const { progress } = usePlanProgress();
+  usePlanProgress();
   const userId = useAuthStore((s) => s.userId);
   const { profile } = useAthleteProfile(userId);
   const { isPlus } = useEntitlement();
 
-  const [editMode, setEditMode] = useState(false);
+  const [selectedWeek, setSelectedWeek] = useState<number>(1);
+  const [selectedWorkoutId, setSelectedWorkoutId] = useState<string | null>(null);
+  const [weekDropdownOpen, setWeekDropdownOpen] = useState(false);
+  const [workoutDropdownOpen, setWorkoutDropdownOpen] = useState(false);
   const [addModalWeek, setAddModalWeek] = useState<WeekMeta | null>(null);
   const [addSubmitting, setAddSubmitting] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -53,288 +50,243 @@ export default function Plan(): JSX.Element {
   );
   const phaseGroups = useMemo(() => groupWeeksByPhase(weeksMeta), [weeksMeta]);
 
-  // docs/fase-8-brief.md Grupo 3 — trial de 8 semanas. Gate decidido no
-  // serviço (isWeekAccessible); a tela só separa em visível/bloqueado.
-  // `currentWeekNumber` só é null antes do plano carregar (sem start_date
-  // ainda) — 1 é um fallback seguro nesse instante transitório.
-  const totalWeeks = plan?.total_weeks ?? weeksMeta.length;
-  const safeCurrentWeekNumber = currentWeekNumber ?? 1;
-  const accessibleWeeks = useMemo(
-    () =>
-      weeksMeta.filter((week) =>
-        isWeekAccessible({ weekNumber: week.weekNumber, currentWeekNumber: safeCurrentWeekNumber, totalWeeks, isPlus }),
-      ),
-    [weeksMeta, safeCurrentWeekNumber, totalWeeks, isPlus],
+  const weekWorkouts = useMemo(
+    () => workouts.filter((w) => w.week_number === selectedWeek).sort((a, b) => a.week_index - b.week_index),
+    [workouts, selectedWeek],
   );
-  const lockedWeeks = useMemo(
-    () =>
-      weeksMeta.filter(
-        (week) => !isWeekAccessible({ weekNumber: week.weekNumber, currentWeekNumber: safeCurrentWeekNumber, totalWeeks, isPlus }),
-      ),
-    [weeksMeta, safeCurrentWeekNumber, totalWeeks, isPlus],
-  );
-  const showTrialNotice = shouldShowTrialEndingNotice({ currentWeekNumber: safeCurrentWeekNumber, totalWeeks, isPlus });
+  const selectedWorkout = weekWorkouts.find((w) => w.id === selectedWorkoutId) ?? weekWorkouts[0] ?? null;
+  const selectedWeekMeta = weeksMeta.find((w) => w.weekNumber === selectedWeek);
+  const weekKm = weekWorkouts.reduce((s, w) => s + (w.planned_km ?? 0), 0);
+  const weekRegistered = weekWorkouts.filter((w) => w.status !== 'pending').length;
 
-  const sections = useMemo<WeekSection[]>(
-    () =>
-      accessibleWeeks.map((week) => ({
-        title: week,
-        data: workouts
-          .filter((w) => w.week_number === week.weekNumber)
-          .sort((a, b) => a.week_index - b.week_index),
-      })),
-    [accessibleWeeks, workouts],
-  );
-
-  const handleRemoveWorkout = useCallback((workout: Workout) => {
-    Alert.alert('Remover treino', `"${workout.title ?? 'Treino'}" será removido do plano.`, [
+  const handleRemoveWorkout = useCallback(() => {
+    if (!selectedWorkout) return;
+    Alert.alert('Remover treino', `"${selectedWorkout.title ?? 'Treino'}" será removido.`, [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Remover', style: 'destructive', onPress: () => void removeWorkout(workout.id) },
+      { text: 'Remover', style: 'destructive', onPress: () => void removeWorkout(selectedWorkout.id) },
     ]);
-  }, []);
-
-  const renderItem = useCallback(
-    ({ item }: { item: Workout }) => {
-      const canEdit = editMode && item.status === 'pending' && !isRaceWorkout(item);
-      return (
-        <WorkoutListRow
-          workout={item}
-          onPress={editMode ? undefined : () => router.push(`/workout/${item.id}` as never)}
-          edit={
-            editMode
-              ? {
-                  canEdit,
-                  onMoveUp: () => void moveWorkout(item.id, 'up'),
-                  onMoveDown: () => void moveWorkout(item.id, 'down'),
-                  onRemove: () => handleRemoveWorkout(item),
-                }
-              : undefined
-          }
-        />
-      );
-    },
-    [editMode, handleRemoveWorkout],
-  );
-  const renderSectionHeader = useCallback(
-    ({ section }: { section: WeekSection }) => <WeekSectionHeader week={section.title} />,
-    [],
-  );
-  const renderSectionFooter = useCallback(
-    ({ section }: { section: WeekSection }) =>
-      editMode ? (
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => setAddModalWeek(section.title)}
-          style={styles.addWorkoutRow}
-        >
-          <Text style={styles.addWorkoutText}>+ Adicionar treino</Text>
-        </Pressable>
-      ) : null,
-    [editMode],
-  );
-  const keyExtractor = useCallback((item: Workout) => item.id, []);
+  }, [selectedWorkout]);
 
   const handleAddWorkout = async (input: AddWorkoutFormInput): Promise<void> => {
     if (!plan || !userId || !addModalWeek) return;
     setAddSubmitting(true);
     const result = await addWorkout({
-      planId: plan.id,
-      userId,
-      weekNumber: addModalWeek.weekNumber,
-      phase: addModalWeek.phase,
-      title: input.title,
-      description: input.description,
-      dayType: input.dayType,
-      dayLabel: input.dayLabel,
-      workoutDate: input.workoutDate,
-      plannedKm: input.plannedKm,
-      plannedPace: input.plannedPace,
+      planId: plan.id, userId, weekNumber: addModalWeek.weekNumber, phase: addModalWeek.phase,
+      title: input.title, description: input.description, dayType: input.dayType,
+      dayLabel: input.dayLabel, workoutDate: input.workoutDate,
+      plannedKm: input.plannedKm, plannedPace: input.plannedPace,
     });
     setAddSubmitting(false);
-    if (result.ok) {
-      setAddModalWeek(null);
-    } else {
-      Alert.alert('Não foi possível adicionar', result.error.message);
-    }
+    if (result.ok) setAddModalWeek(null);
+    else Alert.alert('Erro', result.error.message);
   };
 
   const handleExport = useCallback(
     async (format: 'pdf' | 'excel'): Promise<void> => {
       if (!plan || exporting) return;
+      if (format === 'excel' && !isPlus) {
+        router.push({ pathname: '/runevo-plus', params: { reason: 'history' } });
+        return;
+      }
       setExporting(true);
       try {
         const input = { plan, workouts, athlete: profile, advanced: isPlus };
         const result = format === 'pdf' ? await exportPlanAsPdf(input) : await exportPlanAsExcel(input);
-        if (!result.ok) {
-          Alert.alert('Não foi possível exportar', result.error.message);
-        }
-      } finally {
-        setExporting(false);
-      }
+        if (!result.ok) Alert.alert('Erro', result.error.message);
+      } finally { setExporting(false); }
     },
     [plan, workouts, profile, isPlus, exporting],
   );
 
-  const handleExportPress = useCallback(() => {
-    if (!plan || exporting) return;
-    Alert.alert('Exportar planilha', 'Escolha o formato', [
-      { text: 'PDF', onPress: () => void handleExport('pdf') },
-      {
-        text: isPlus ? 'Excel' : 'Excel (RunEvo+)',
-        onPress: () => {
-          if (isPlus) {
-            void handleExport('excel');
-          } else {
-            router.push({ pathname: '/runevo-plus', params: { reason: 'history' } });
-          }
-        },
-      },
-      { text: 'Cancelar', style: 'cancel' },
-    ]);
-  }, [plan, exporting, isPlus, handleExport]);
+  const gateAction = (action: () => void): void => {
+    if (isPlus) { action(); return; }
+    router.push({ pathname: '/runevo-plus', params: { reason: 'history' } });
+  };
 
   if (!isLoading && !plan) {
     return (
       <Screen>
         <AppHeader />
-        <EmptyState
-          title="Nenhuma planilha ativa"
-          message="Gere sua planilha com a IA Evo para ver seus treinos aqui."
-          ctaLabel="Criar minha planilha"
-          onPressCta={() => router.push('/(tabs)/ai-evo')}
-        />
+        <EmptyState title="Nenhuma planilha ativa" message="Gere sua planilha com a IA Evo para ver seus treinos aqui." ctaLabel="Criar minha planilha" onPressCta={() => router.push('/(tabs)/ai-evo')} />
       </Screen>
     );
   }
 
   return (
-    <Screen style={styles.screen}>
-      <SectionList
-        sections={sections}
-        renderItem={renderItem}
-        renderSectionHeader={renderSectionHeader}
-        renderSectionFooter={renderSectionFooter}
-        keyExtractor={keyExtractor}
-        stickySectionHeadersEnabled
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ListFooterComponent={
-          lockedWeeks.length > 0 ? (
-            <View style={styles.header}>
-              <LockedSection
-                title={`Semanas ${lockedWeeks[0]!.weekNumber} a ${lockedWeeks[lockedWeeks.length - 1]!.weekNumber} — continue com RunEvo+`}
-                ctaLabel="Desbloquear com RunEvo+"
-                onPressCta={() => router.push({ pathname: '/runevo-plus', params: { reason: 'trial-ended' } })}
-              >
-                {lockedWeeks.map((week) => (
-                  <View key={week.weekNumber} style={styles.lockedWeekRow}>
-                    <Text style={styles.lockedWeekLabel}>{week.label}</Text>
-                  </View>
-                ))}
-              </LockedSection>
+    <Screen>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        <AppHeader />
+
+        {/* SEÇÃO 1 — MODIFICAÇÕES */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>MODIFICAÇÕES DA PLANILHA</Text>
+          <Text style={styles.sectionTitle}>Editar treinos do ciclo</Text>
+          <Text style={styles.sectionText}>Escolha a semana e o treino para editar, adicionar ou remover.</Text>
+          <View style={styles.badgePill}><Text style={styles.badgePillText}>PLANILHA ATUAL</Text></View>
+
+          {/* Dropdown Semana */}
+          <Text style={styles.dropdownLabel}>SEMANA</Text>
+          <Pressable style={styles.dropdown} onPress={() => setWeekDropdownOpen(!weekDropdownOpen)} accessibilityRole="button">
+            <Text style={styles.dropdownText}>{selectedWeekMeta ? `S${selectedWeekMeta.weekNumber} • ${selectedWeekMeta.phase} • ${weekKm} km` : `S${selectedWeek}`}</Text>
+            <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
+          </Pressable>
+          {weekDropdownOpen ? (
+            <View style={styles.dropdownList}>
+              {weeksMeta.map((w) => (
+                <Pressable key={w.weekNumber} onPress={() => { setSelectedWeek(w.weekNumber); setWeekDropdownOpen(false); setSelectedWorkoutId(null); }} style={styles.dropdownItem}>
+                  <Text style={[styles.dropdownItemText, w.weekNumber === selectedWeek && styles.dropdownItemActive]}>S{w.weekNumber} • {w.phase} • {w.label}</Text>
+                </Pressable>
+              ))}
             </View>
-          ) : null
-        }
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <AppHeader />
-            <Text style={styles.title}>Treinos</Text>
-            {progress && (
-              <Text style={styles.progress}>
-                {progress.completedWorkouts}/{progress.totalWorkouts} treinos · {progress.completedKm}/
-                {progress.plannedKm} km
-              </Text>
-            )}
-            {showTrialNotice ? (
-              <Text style={styles.trialNotice}>
-                Faltam poucas semanas do seu acesso completo — assine o RunEvo+ para seguir vendo o plano inteiro
-                rumo à sua prova.
-              </Text>
-            ) : null}
-            <PhaseSummaryPills groups={phaseGroups} />
-            <View style={styles.disabledSection}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ selected: editMode }}
-                onPress={() => setEditMode((v) => !v)}
-                style={[styles.editableRow, editMode && styles.editableRowActive]}
-              >
-                <Text style={[styles.editableLabel, editMode && styles.editableLabelActive]}>Editor manual</Text>
-                <Text style={[styles.editableNote, editMode && styles.editableLabelActive]}>
-                  {editMode ? 'Ativo — toque para sair' : 'Editar, adicionar, remover'}
-                </Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ disabled: exporting }}
-                disabled={exporting}
-                onPress={handleExportPress}
-                style={styles.editableRow}
-              >
-                <Text style={styles.editableLabel}>Exportar (PDF/Excel)</Text>
-                <Text style={styles.editableNote}>{exporting ? 'Gerando…' : isPlus ? 'Versão avançada' : 'Planilha ativa'}</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => router.push('/history')}
-                style={styles.editableRow}
-              >
-                <Text style={styles.editableLabel}>Histórico completo</Text>
-                <Text style={styles.editableNote}>Ver ciclos anteriores</Text>
-              </Pressable>
+          ) : null}
+
+          {/* Dropdown Treino */}
+          <Text style={styles.dropdownLabel}>TREINO</Text>
+          <Pressable style={styles.dropdown} onPress={() => setWorkoutDropdownOpen(!workoutDropdownOpen)} accessibilityRole="button">
+            <Text style={styles.dropdownText} numberOfLines={1}>{selectedWorkout ? `${selectedWorkout.day_label ?? '-'} • ${selectedWorkout.title ?? 'Treino'} • ${selectedWorkout.planned_km ?? 0} km` : 'Selecione'}</Text>
+            <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
+          </Pressable>
+          {workoutDropdownOpen ? (
+            <View style={styles.dropdownList}>
+              {weekWorkouts.map((w) => (
+                <Pressable key={w.id} onPress={() => { setSelectedWorkoutId(w.id); setWorkoutDropdownOpen(false); }} style={styles.dropdownItem}>
+                  <Text style={[styles.dropdownItemText, w.id === selectedWorkoutId && styles.dropdownItemActive]} numberOfLines={1}>{w.day_label ?? '-'} • {w.title ?? 'Treino'} • {w.planned_km ?? 0} km</Text>
+                </Pressable>
+              ))}
             </View>
+          ) : null}
+
+          <View style={[styles.btnGroup, !isPlus && styles.btnGroupLocked]}>
+            <Pressable style={styles.btnNeon} onPress={() => gateAction(() => selectedWorkout && router.push(`/workout/${selectedWorkout.id}` as never))} accessibilityRole="button">
+              <Text style={styles.btnNeonText}>✏️ Editar treino</Text>
+            </Pressable>
+            <Pressable style={styles.btnGray} onPress={() => gateAction(() => selectedWeekMeta && setAddModalWeek(selectedWeekMeta))} accessibilityRole="button">
+              <Text style={styles.btnGrayText}>+ Adicionar na semana</Text>
+            </Pressable>
+            <Pressable style={styles.btnDanger} onPress={() => gateAction(handleRemoveWorkout)} accessibilityRole="button">
+              <Text style={styles.btnDangerText}>🗑️ Remover treino</Text>
+            </Pressable>
           </View>
-        }
-      />
+
+          <Text style={styles.resumeText}>{weekWorkouts.length} treino(s) na semana • {weekKm} km planejados • {weekRegistered}/{weekWorkouts.length} registrado(s).</Text>
+        </View>
+
+        {/* SEÇÃO 2 — FASES */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>FASES DA PLANILHA</Text>
+          <Text style={styles.sectionTitle}>Organização do ciclo</Text>
+          <Text style={styles.sectionText}>Clique em uma fase para ver os treinos</Text>
+
+          {phaseGroups.map((group) => (
+            <PhaseCard key={group.phase} group={group} />
+          ))}
+        </View>
+
+        {/* SEÇÃO 3 — EXPORTAÇÃO */}
+        <LinearGradient colors={['rgba(204,255,0,0.04)', 'transparent']} style={styles.section}>
+          <Text style={styles.sectionLabel}>EXPORTAÇÃO</Text>
+          <Text style={styles.sectionTitle}>Compartilhar planilha</Text>
+          <Text style={styles.sectionText}>Gere versões profissionais da planilha para análise, impressão ou compartilhamento.</Text>
+
+          <Pressable style={styles.exportCard} onPress={() => void handleExport('excel')} accessibilityRole="button">
+            <Text style={styles.exportEmoji}>📊</Text>
+            <View style={styles.exportInfo}>
+              <Text style={styles.exportTitle}>Excel profissional</Text>
+              <Text style={styles.exportDesc}>Planilha detalhada com todas as semanas</Text>
+            </View>
+          </Pressable>
+          <Pressable style={styles.exportCard} onPress={() => void handleExport('pdf')} accessibilityRole="button">
+            <Text style={styles.exportEmoji}>📄</Text>
+            <View style={styles.exportInfo}>
+              <Text style={styles.exportTitle}>PDF profissional</Text>
+              <Text style={styles.exportDesc}>Versão para impressão e compartilhamento</Text>
+            </View>
+          </Pressable>
+
+          {!isPlus ? (
+            <View style={styles.plusBadge}><Text style={styles.plusBadgeText}>RECURSO RUNEVO+</Text></View>
+          ) : null}
+        </LinearGradient>
+      </ScrollView>
 
       {addModalWeek ? (
-        <AddWorkoutModal
-          visible
-          weekNumber={addModalWeek.weekNumber}
-          submitting={addSubmitting}
-          onCancel={() => setAddModalWeek(null)}
-          onConfirm={handleAddWorkout}
-        />
+        <AddWorkoutModal visible weekNumber={addModalWeek.weekNumber} submitting={addSubmitting} onCancel={() => setAddModalWeek(null)} onConfirm={handleAddWorkout} />
       ) : null}
     </Screen>
   );
 }
 
+function PhaseCard({ group }: { group: PhaseGroup }): JSX.Element {
+  const emoji = PHASE_EMOJI[group.phase.toLowerCase()] ?? '📋';
+  const subtitle = PHASE_SUBTITLE[group.phase.toLowerCase()] ?? '';
+  const totalWorkouts = group.weeks.reduce((s, w) => s + w.workoutCount, 0);
+  const totalKm = group.weeks.reduce((s, w) => s + w.totalKm, 0);
+
+  return (
+    <Pressable style={styles.phaseCard} onPress={() => router.push(`/plan/phase/${group.phase}` as never)} accessibilityRole="button">
+      <View style={styles.phaseHeader}>
+        <View style={styles.phaseIconWrap}><Text style={styles.phaseIcon}>{emoji}</Text></View>
+        <View style={styles.phaseInfo}>
+          <Text style={styles.phaseName}>{group.phase}</Text>
+          <Text style={styles.phaseSubtitle}>{subtitle}</Text>
+        </View>
+      </View>
+      <View style={styles.phaseStats}>
+        <Text style={styles.phaseStatWhite}>{totalWorkouts} treinos</Text>
+        <Text style={styles.phaseStatNeon}>{totalKm} km</Text>
+      </View>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
-  screen: { paddingHorizontal: 0 },
-  listContent: { paddingBottom: spacing.xxxl },
-  header: { paddingHorizontal: spacing.xl },
-  title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.sm },
-  progress: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs, marginBottom: spacing.lg },
-  trialNotice: {
-    color: colors.textSecondary,
-    fontSize: fontSizes.caption,
-    ...fontWeight('600'),
-    marginBottom: spacing.md,
-  },
-  lockedWeekRow: { paddingVertical: spacing.xs },
-  lockedWeekLabel: { color: colors.textSecondary, fontSize: fontSizes.body },
-  disabledSection: { marginTop: spacing.lg, marginBottom: spacing.sm, gap: spacing.sm },
-  editableRow: {
-    minHeight: 44,
-    borderRadius: radii.md,
+  content: { paddingBottom: spacing.xxxl },
+  section: {
+    backgroundColor: colors.card,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: colors.neon,
-    paddingHorizontal: spacing.lg,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    borderColor: 'rgba(204,255,0,0.15)',
+    padding: spacing.xl,
+    marginBottom: spacing.lg,
   },
-  editableRowActive: { backgroundColor: colors.neon },
-  editableLabel: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600') },
-  editableLabelActive: { color: colors.bg },
-  editableNote: { color: colors.textSecondary, fontSize: fontSizes.caption },
-  addWorkoutRow: {
-    minHeight: 44,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  addWorkoutText: { color: colors.neon, fontSize: fontSizes.body, ...fontWeight('700') },
+  sectionLabel: { color: colors.neon, fontSize: 12, ...fontWeight('600'), letterSpacing: 1, marginBottom: spacing.xs },
+  sectionTitle: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginBottom: spacing.sm },
+  sectionText: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginBottom: spacing.md, lineHeight: 20 },
+  badgePill: { alignSelf: 'flex-start', backgroundColor: 'rgba(204,255,0,0.15)', borderRadius: radii.pill, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, marginBottom: spacing.lg },
+  badgePillText: { color: colors.neon, fontSize: 12, ...fontWeight('700') },
+  dropdownLabel: { color: colors.textSecondary, fontSize: 11, ...fontWeight('600'), letterSpacing: 1, marginBottom: spacing.xs, marginTop: spacing.sm },
+  dropdown: { backgroundColor: colors.cardElevated, borderWidth: 1, borderColor: 'rgba(204,255,0,0.2)', borderRadius: 12, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  dropdownText: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('400'), flex: 1, marginRight: spacing.sm },
+  dropdownList: { backgroundColor: colors.cardElevated, borderRadius: 12, borderWidth: 1, borderColor: '#2A2A2A', marginTop: spacing.xs, overflow: 'hidden', maxHeight: 200 },
+  dropdownItem: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: '#2A2A2A' },
+  dropdownItemText: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('400') },
+  dropdownItemActive: { color: colors.neon, ...fontWeight('700') },
+  btnGroup: { marginTop: spacing.lg, gap: spacing.sm },
+  btnGroupLocked: { opacity: 0.5 },
+  btnNeon: { height: 52, backgroundColor: colors.neon, borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },
+  btnNeonText: { color: colors.bg, fontSize: fontSizes.base, ...fontWeight('700') },
+  btnGray: { height: 52, backgroundColor: '#2A2A2A', borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },
+  btnGrayText: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('600') },
+  btnDanger: { height: 52, backgroundColor: 'rgba(255,68,68,0.1)', borderWidth: 1, borderColor: 'rgba(255,68,68,0.3)', borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },
+  btnDangerText: { color: colors.error, fontSize: fontSizes.base, ...fontWeight('600') },
+  resumeText: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: spacing.md, textAlign: 'center' },
+  phaseCard: { backgroundColor: colors.cardElevated, borderRadius: radii.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', padding: spacing.lg, marginBottom: spacing.md },
+  phaseHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
+  phaseIconWrap: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(204,255,0,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: spacing.md },
+  phaseIcon: { fontSize: 20 },
+  phaseInfo: { flex: 1 },
+  phaseName: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800') },
+  phaseSubtitle: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: 2 },
+  progressTrack: { height: 6, borderRadius: radii.pill, backgroundColor: '#2A2A2A', overflow: 'hidden', marginBottom: spacing.sm },
+  progressFill: { height: '100%', backgroundColor: colors.neon, borderRadius: radii.pill },
+  phaseStats: { flexDirection: 'row', justifyContent: 'space-between' },
+  phaseStatWhite: { color: colors.textPrimary, fontSize: 13, ...fontWeight('600') },
+  phaseStatNeon: { color: colors.neon, fontSize: 13, ...fontWeight('600') },
+  exportCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.cardElevated, borderRadius: radii.lg, padding: spacing.lg, marginBottom: spacing.md },
+  exportEmoji: { fontSize: 28, marginRight: spacing.md },
+  exportInfo: { flex: 1 },
+  exportTitle: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
+  exportDesc: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: 2 },
+  plusBadge: { backgroundColor: colors.neon, borderRadius: radii.pill, paddingVertical: spacing.sm, alignItems: 'center', marginTop: spacing.sm },
+  plusBadgeText: { color: colors.bg, fontSize: 12, ...fontWeight('700'), letterSpacing: 1 },
 });
