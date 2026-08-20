@@ -18,11 +18,6 @@ const FEELING_OPTIONS: { value: Feeling; label: string }[] = [
   { value: 'muito_pesado', label: 'Muito pesado' },
 ];
 
-const PAIN_OPTIONS = [
-  { value: false, label: 'Não' },
-  { value: true, label: 'Sim' },
-];
-
 const ACTION_TITLE: Record<string, string> = {
   maintain: 'Plano mantido',
   reduce: 'Plano ajustado',
@@ -52,7 +47,6 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
   const [feeling, setFeeling] = useState<Feeling>('normal');
   const [feelingOpen, setFeelingOpen] = useState(false);
   const [pain, setPain] = useState(false);
-  const [painOpen, setPainOpen] = useState(false);
   const [weightKg, setWeightKg] = useState('');
   const [notes, setNotes] = useState('');
   const [notesError, setNotesError] = useState<string | null>(null);
@@ -70,7 +64,6 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
     setFeeling('normal');
     setFeelingOpen(false);
     setPain(false);
-    setPainOpen(false);
     setWeightKg('');
     setNotes('');
     setNotesError(null);
@@ -190,19 +183,20 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
         <Text style={styles.effortLabel}>Esforço: {effort}/10</Text>
 
         <Text style={styles.label}>Sentiu dor/incômodo?</Text>
-        <Pressable style={styles.dropdown} onPress={() => setPainOpen(!painOpen)} accessibilityRole="button">
-          <Text style={styles.dropdownText}>{pain ? 'Sim' : 'Não'}</Text>
-          <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
-        </Pressable>
-        {painOpen ? (
-          <View style={styles.dropdownList}>
-            {PAIN_OPTIONS.map((o) => (
-              <Pressable key={String(o.value)} onPress={() => { setPain(o.value); setPainOpen(false); }} style={styles.dropdownItem}>
-                <Text style={[styles.dropdownItemText, pain === o.value && styles.dropdownItemActive]}>{o.label}</Text>
-              </Pressable>
-            ))}
-          </View>
-        ) : null}
+        <View style={styles.checkboxRow}>
+          <Pressable style={styles.checkboxOption} onPress={() => setPain(false)}>
+            <View style={[styles.checkbox, !pain && styles.checkboxSelected]}>
+              {!pain && <View style={styles.checkboxDot} />}
+            </View>
+            <Text style={[styles.checkboxLabel, !pain && styles.checkboxLabelActive]}>Não</Text>
+          </Pressable>
+          <Pressable style={styles.checkboxOption} onPress={() => setPain(true)}>
+            <View style={[styles.checkbox, pain && styles.checkboxSelected]}>
+              {pain && <View style={styles.checkboxDot} />}
+            </View>
+            <Text style={[styles.checkboxLabel, pain && styles.checkboxLabelActive]}>Sim</Text>
+          </Pressable>
+        </View>
 
         {weightRequired ? (
           <View style={styles.weightCard}>
@@ -275,6 +269,13 @@ const styles = StyleSheet.create({
   dropdownItemActive: { color: colors.neon, ...fontWeight('700') },
   slider: { marginTop: spacing.sm, height: 40 },
   effortLabel: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('500'), textAlign: 'center', marginTop: spacing.xs },
+  checkboxRow: { flexDirection: 'row', gap: 24, marginTop: 8 },
+  checkboxOption: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  checkbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#2A2A2A', alignItems: 'center', justifyContent: 'center' },
+  checkboxSelected: { borderColor: colors.neon },
+  checkboxDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.neon },
+  checkboxLabel: { color: colors.textSecondary, fontSize: 16, ...fontWeight('500') },
+  checkboxLabelActive: { color: colors.textPrimary },
   weightCard: { backgroundColor: 'rgba(204,255,0,0.06)', borderWidth: 1, borderColor: 'rgba(204,255,0,0.2)', borderRadius: 12, padding: spacing.lg, marginTop: spacing.lg },
   weightCardTitle: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm },
   weightCardText: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginBottom: spacing.md, lineHeight: 20 },
