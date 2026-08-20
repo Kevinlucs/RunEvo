@@ -46,10 +46,11 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
   const [effort, setEffort] = useState(initialEffort);
   const [feeling, setFeeling] = useState<Feeling>('normal');
   const [feelingOpen, setFeelingOpen] = useState(false);
-  const [pain, setPain] = useState(false);
+  const [pain, setPain] = useState<boolean | null>(null);
   const [weightKg, setWeightKg] = useState('');
   const [notes, setNotes] = useState('');
   const [notesError, setNotesError] = useState<string | null>(null);
+  const [painError, setPainError] = useState<string | null>(null);
   const [weightError, setWeightError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,10 +64,11 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
     setEffort(initialEffort);
     setFeeling('normal');
     setFeelingOpen(false);
-    setPain(false);
+    setPain(null);
     setWeightKg('');
     setNotes('');
     setNotesError(null);
+    setPainError(null);
     setWeightError(null);
     setError(null);
     setResult(null);
@@ -74,6 +76,11 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
 
   const handleSubmit = async (): Promise<void> => {
     if (!plan || !userId) return;
+    if (pain === null) {
+      setPainError('Informe se sentiu dor ou incômodo.');
+      return;
+    }
+    setPainError(null);
     if (!notes.trim()) {
       setNotesError('Preencha suas observações da semana.');
       return;
@@ -92,7 +99,7 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
       planId: plan.id,
       userId,
       weekNumber,
-      feedback: { effort, feeling, pain, notes: notes.trim(), currentWeightKg: parsedWeight },
+      feedback: { effort, feeling, pain: pain as boolean, notes: notes.trim(), currentWeightKg: parsedWeight },
     });
 
     setSubmitting(false);
@@ -184,19 +191,20 @@ export function CheckinModal({ visible, weekNumber, onClose }: Props): JSX.Eleme
 
         <Text style={styles.label}>Sentiu dor/incômodo?</Text>
         <View style={styles.checkboxRow}>
-          <Pressable style={styles.checkboxOption} onPress={() => setPain(false)}>
-            <View style={[styles.checkbox, !pain && styles.checkboxSelected]}>
-              {!pain && <View style={styles.checkboxDot} />}
+          <Pressable style={styles.checkboxOption} onPress={() => { setPain(true); setPainError(null); }}>
+            <View style={[styles.checkbox, pain === true && styles.checkboxSelected]}>
+              {pain === true && <View style={styles.checkboxDot} />}
             </View>
-            <Text style={[styles.checkboxLabel, !pain && styles.checkboxLabelActive]}>Não</Text>
+            <Text style={[styles.checkboxLabel, pain === true && styles.checkboxLabelActive]}>Sim</Text>
           </Pressable>
-          <Pressable style={styles.checkboxOption} onPress={() => setPain(true)}>
-            <View style={[styles.checkbox, pain && styles.checkboxSelected]}>
-              {pain && <View style={styles.checkboxDot} />}
+          <Pressable style={styles.checkboxOption} onPress={() => { setPain(false); setPainError(null); }}>
+            <View style={[styles.checkbox, pain === false && styles.checkboxSelected]}>
+              {pain === false && <View style={styles.checkboxDot} />}
             </View>
-            <Text style={[styles.checkboxLabel, pain && styles.checkboxLabelActive]}>Sim</Text>
+            <Text style={[styles.checkboxLabel, pain === false && styles.checkboxLabelActive]}>Não</Text>
           </Pressable>
         </View>
+        {painError ? <Text style={styles.errorText}>{painError}</Text> : null}
 
         {weightRequired ? (
           <View style={styles.weightCard}>
