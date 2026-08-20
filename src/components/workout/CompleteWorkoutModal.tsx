@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Modal, View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
 import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { NeonButton } from '@/components/ui/NeonButton';
@@ -64,11 +65,13 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
-      <Pressable style={styles.overlay} onPress={onCancel}>
-        <Pressable style={styles.sheet} onPress={() => { /* impede fechar ao clicar dentro */ }}>
-          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-            {/* Drag handle */}
-            <View style={styles.dragHandle} />
+      <View style={styles.overlayContainer}>
+        <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+        <Pressable style={styles.overlay} onPress={onCancel}>
+          <Pressable style={styles.sheet} onPress={() => {}}>
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              {/* Drag handle */}
+              <View style={styles.dragHandle} />
 
             <Text style={styles.title}>Concluir treino</Text>
 
@@ -168,16 +171,17 @@ export function CompleteWorkoutModal({ visible, workout, shoes, submitting, onCa
           </ScrollView>
         </Pressable>
       </Pressable>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  overlayContainer: { flex: 1 },
   overlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.6)',
     padding: 20,
   },
   sheet: {

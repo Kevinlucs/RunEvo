@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Modal, View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
@@ -25,7 +26,9 @@ export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onCon
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
-      <Pressable style={styles.overlay} onPress={onCancel}>
+      <View style={styles.overlayContainer}>
+        <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+        <Pressable style={styles.overlay} onPress={onCancel}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <Pressable style={styles.sheet} onPress={() => { /* impede fechar ao clicar dentro */ }}>
             <Text style={styles.title}>Pular treino</Text>
@@ -74,16 +77,17 @@ export function SkipWorkoutModal({ visible, workout, submitting, onCancel, onCon
           </Pressable>
         </KeyboardAvoidingView>
       </Pressable>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  overlayContainer: { flex: 1 },
   overlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.6)',
     padding: 20,
   },
   sheet: {
