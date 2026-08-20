@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
@@ -7,6 +8,7 @@ import { NextWorkoutCard } from '@/components/home/NextWorkoutCard';
 import { RaceObjectiveCard } from '@/components/home/RaceObjectiveCard';
 import { CurrentWeekCard } from '@/components/home/CurrentWeekCard';
 import { AdaptiveTrainingCard } from '@/components/home/AdaptiveTrainingCard';
+import { CheckinModal } from '@/components/home/CheckinModal';
 import { useActivePlan } from '@/hooks/useActivePlan';
 import { useNextWorkout } from '@/hooks/useNextWorkout';
 import { usePlanProgress } from '@/hooks/usePlanProgress';
@@ -28,6 +30,7 @@ export default function Home(): JSX.Element {
   const { weekNumber: currentWeekNumber } = useCurrentWeek();
   const { workouts } = usePlanWorkouts(plan?.id);
   const adaptive = useAdaptiveTrainingSummary();
+  const [checkinVisible, setCheckinVisible] = useState(false);
 
   if (!planLoading && !plan) {
     return (
@@ -91,9 +94,18 @@ export default function Home(): JSX.Element {
             weekNumber={adaptive.weekNumber}
             summary={adaptive.summary}
             checkinStatus={adaptive.checkinStatus}
+            onCheckin={() => setCheckinVisible(true)}
           />
         )}
       </ScrollView>
+
+      {adaptive.weekNumber !== null ? (
+        <CheckinModal
+          visible={checkinVisible}
+          weekNumber={adaptive.weekNumber}
+          onClose={() => setCheckinVisible(false)}
+        />
+      ) : null}
     </Screen>
   );
 }
