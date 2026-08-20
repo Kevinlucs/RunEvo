@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Workout } from '@/domain/entities';
@@ -33,7 +34,13 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
             : '---';
 
           return (
-            <View key={workout.id} style={styles.card}>
+            <Pressable
+              key={workout.id}
+              onPress={() => router.push(`/workout/${workout.id}` as never)}
+              style={styles.card}
+              accessibilityRole="button"
+              accessibilityLabel={`Abrir treino: ${workout.title ?? 'Treino'}`}
+            >
               <View style={styles.dateSquare}>
                 <Text style={styles.dateDay}>{day}</Text>
                 <Text style={styles.dateMonth}>{month}</Text>
@@ -49,7 +56,7 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
                 </View>
               </View>
               <Text style={styles.km}>{workout.planned_km ?? 0}km</Text>
-            </View>
+            </Pressable>
           );
         })
       )}
