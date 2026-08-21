@@ -1,8 +1,9 @@
-import { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { View, Text, ScrollView, Pressable, Alert, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Mountain, Dumbbell, Zap, Flag } from 'lucide-react-native';
 import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -20,7 +21,14 @@ import { exportPlanAsPdf, exportPlanAsExcel } from '@/services/plan/export-plan'
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
 
-const PHASE_EMOJI: Record<string, string> = { base: '🏗️', resistência: '💪', pico: '⚡', polimento: '🏁' };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const PHASE_ICONS: Record<string, React.ComponentType<any>> = {
+  base: Mountain,
+  resistência: Dumbbell,
+  resistencia: Dumbbell,
+  pico: Zap,
+  polimento: Flag,
+};
 const PHASE_SUBTITLE: Record<string, string> = { base: 'Fundação aeróbica', resistência: 'Volume e constância', pico: 'Semanas mais fortes', polimento: 'Redução até a prova' };
 
 /**
@@ -217,7 +225,7 @@ export default function Plan(): JSX.Element {
 }
 
 function PhaseCard({ group }: { group: PhaseGroup }): JSX.Element {
-  const emoji = PHASE_EMOJI[group.phase.toLowerCase()] ?? '📋';
+  const PhaseIcon = PHASE_ICONS[group.phase.toLowerCase()] ?? Mountain;
   const subtitle = PHASE_SUBTITLE[group.phase.toLowerCase()] ?? '';
   const totalWorkouts = group.weeks.reduce((s, w) => s + w.workoutCount, 0);
   const totalKm = group.weeks.reduce((s, w) => s + w.totalKm, 0);
@@ -225,7 +233,9 @@ function PhaseCard({ group }: { group: PhaseGroup }): JSX.Element {
   return (
     <Pressable style={styles.phaseCard} onPress={() => router.push(`/plan/phase/${group.phase}` as never)} accessibilityRole="button">
       <View style={styles.phaseHeader}>
-        <View style={styles.phaseIconWrap}><Text style={styles.phaseIcon}>{emoji}</Text></View>
+        <View style={styles.phaseIconWrap}>
+          <PhaseIcon size={24} color={colors.neon} />
+        </View>
         <View style={styles.phaseInfo}>
           <Text style={styles.phaseName}>{group.phase}</Text>
           <Text style={styles.phaseSubtitle}>{subtitle}</Text>
@@ -272,8 +282,7 @@ const styles = StyleSheet.create({
   resumeText: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: spacing.md, textAlign: 'center' },
   phaseCard: { backgroundColor: colors.cardElevated, borderRadius: radii.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', padding: spacing.lg, marginBottom: spacing.md },
   phaseHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
-  phaseIconWrap: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(204,255,0,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: spacing.md },
-  phaseIcon: { fontSize: 20 },
+  phaseIconWrap: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(204,255,0,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: spacing.md },
   phaseInfo: { flex: 1 },
   phaseName: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800') },
   phaseSubtitle: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: 2 },
