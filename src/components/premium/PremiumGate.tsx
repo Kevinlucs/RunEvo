@@ -48,7 +48,6 @@ export function PremiumGate({
     <View style={styles.wrapper}>
       {/* Hint inline — no fluxo, acima do conteúdo bloqueado */}
       <View style={styles.hintRow}>
-        <Lock size={14} color={colors.neon} />
         <Text style={styles.hintText}>
           Recurso disponível no plano <Text style={styles.hintNeon}>Premium</Text>
         </Text>
@@ -64,7 +63,7 @@ export function PremiumGate({
         {/* Gradiente escuro sobre o conteúdo bloqueado */}
         <Animated.View style={[StyleSheet.absoluteFill, { opacity: fadeAnim }]} pointerEvents="box-none">
           <LinearGradient
-            colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.85)']}
+            colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)']}
             locations={[0, 0.4, 1]}
             style={StyleSheet.absoluteFill}
           />

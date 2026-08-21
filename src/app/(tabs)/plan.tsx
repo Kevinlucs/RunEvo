@@ -160,21 +160,17 @@ export default function Plan(): JSX.Element {
             </View>
           ) : null}
 
-          {/* Botão Editar — FREE, sempre funcional */}
-          <View style={styles.btnGroup}>
-            <Pressable style={styles.btnNeon} onPress={() => selectedWorkout && router.push(`/workout/${selectedWorkout.id}` as never)} accessibilityRole="button">
-              <Text style={styles.btnNeonText}>✏️ Editar treino</Text>
-            </Pressable>
-          </View>
-
-          {/* Botões Plus — bloqueados pelo PremiumGate */}
+          {/* Todos os botões de ação — bloqueados pelo PremiumGate */}
           <PremiumGate
             locked={!isPlus}
             title="Recurso Premium"
-            description="Desbloqueie para adicionar e remover treinos do ciclo."
+            description="Desbloqueie para editar, adicionar e remover treinos do ciclo."
             onUnlock={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
           >
             <View style={styles.btnGroup}>
+              <Pressable style={styles.btnNeon} onPress={() => selectedWorkout && router.push(`/workout/${selectedWorkout.id}` as never)} accessibilityRole="button">
+                <Text style={styles.btnNeonText}>✏️ Editar treino</Text>
+              </Pressable>
               <Pressable style={styles.btnGray} onPress={() => selectedWeekMeta && setAddModalWeek(selectedWeekMeta)} accessibilityRole="button">
                 <Text style={styles.btnGrayText}>+ Adicionar na semana</Text>
               </Pressable>
