@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Mountain, Dumbbell, Zap, Flag } from 'lucide-react-native';
+import { PremiumGate } from '@/components/premium';
 import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -106,11 +107,6 @@ export default function Plan(): JSX.Element {
     [plan, workouts, profile, isPlus, exporting],
   );
 
-  const gateAction = (action: () => void): void => {
-    if (isPlus) { action(); return; }
-    router.push({ pathname: '/runevo-plus', params: { reason: 'history' } });
-  };
-
   if (!isLoading && !plan) {
     return (
       <Screen>
@@ -164,17 +160,24 @@ export default function Plan(): JSX.Element {
             </View>
           ) : null}
 
-          <View style={[styles.btnGroup, !isPlus && styles.btnGroupLocked]}>
-            <Pressable style={styles.btnNeon} onPress={() => gateAction(() => selectedWorkout && router.push(`/workout/${selectedWorkout.id}` as never))} accessibilityRole="button">
-              <Text style={styles.btnNeonText}>✏️ Editar treino</Text>
-            </Pressable>
-            <Pressable style={styles.btnGray} onPress={() => gateAction(() => selectedWeekMeta && setAddModalWeek(selectedWeekMeta))} accessibilityRole="button">
-              <Text style={styles.btnGrayText}>+ Adicionar na semana</Text>
-            </Pressable>
-            <Pressable style={styles.btnDanger} onPress={() => gateAction(handleRemoveWorkout)} accessibilityRole="button">
-              <Text style={styles.btnDangerText}>🗑️ Remover treino</Text>
-            </Pressable>
-          </View>
+          <PremiumGate
+            locked={!isPlus}
+            title="Recurso Premium"
+            description="Desbloqueie para editar, adicionar e remover treinos do ciclo."
+            onUnlock={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
+          >
+            <View style={styles.btnGroup}>
+              <Pressable style={styles.btnNeon} onPress={() => selectedWorkout && router.push(`/workout/${selectedWorkout.id}` as never)} accessibilityRole="button">
+                <Text style={styles.btnNeonText}>✏️ Editar treino</Text>
+              </Pressable>
+              <Pressable style={styles.btnGray} onPress={() => selectedWeekMeta && setAddModalWeek(selectedWeekMeta)} accessibilityRole="button">
+                <Text style={styles.btnGrayText}>+ Adicionar na semana</Text>
+              </Pressable>
+              <Pressable style={styles.btnDanger} onPress={handleRemoveWorkout} accessibilityRole="button">
+                <Text style={styles.btnDangerText}>🗑️ Remover treino</Text>
+              </Pressable>
+            </View>
+          </PremiumGate>
 
           <Text style={styles.resumeText}>{weekWorkouts.length} treino(s) na semana • {weekKm} km planejados • {weekRegistered}/{weekWorkouts.length} registrado(s).</Text>
         </View>
@@ -196,24 +199,27 @@ export default function Plan(): JSX.Element {
           <Text style={styles.sectionTitle}>Compartilhar planilha</Text>
           <Text style={styles.sectionText}>Gere versões profissionais da planilha para análise, impressão ou compartilhamento.</Text>
 
-          <Pressable style={styles.exportCard} onPress={() => void handleExport('excel')} accessibilityRole="button">
-            <Text style={styles.exportEmoji}>📊</Text>
-            <View style={styles.exportInfo}>
-              <Text style={styles.exportTitle}>Excel profissional</Text>
-              <Text style={styles.exportDesc}>Planilha detalhada com todas as semanas</Text>
-            </View>
-          </Pressable>
-          <Pressable style={styles.exportCard} onPress={() => void handleExport('pdf')} accessibilityRole="button">
-            <Text style={styles.exportEmoji}>📄</Text>
-            <View style={styles.exportInfo}>
-              <Text style={styles.exportTitle}>PDF profissional</Text>
-              <Text style={styles.exportDesc}>Versão para impressão e compartilhamento</Text>
-            </View>
-          </Pressable>
-
-          {!isPlus ? (
-            <View style={styles.plusBadge}><Text style={styles.plusBadgeText}>RECURSO RUNEVO+</Text></View>
-          ) : null}
+          <PremiumGate
+            locked={!isPlus}
+            title="Recurso Premium"
+            description="Exporte sua planilha em PDF ou Excel profissional."
+            onUnlock={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
+          >
+            <Pressable style={styles.exportCard} onPress={() => void handleExport('excel')} accessibilityRole="button">
+              <Text style={styles.exportEmoji}>📊</Text>
+              <View style={styles.exportInfo}>
+                <Text style={styles.exportTitle}>Excel profissional</Text>
+                <Text style={styles.exportDesc}>Planilha detalhada com todas as semanas</Text>
+              </View>
+            </Pressable>
+            <Pressable style={styles.exportCard} onPress={() => void handleExport('pdf')} accessibilityRole="button">
+              <Text style={styles.exportEmoji}>📄</Text>
+              <View style={styles.exportInfo}>
+                <Text style={styles.exportTitle}>PDF profissional</Text>
+                <Text style={styles.exportDesc}>Versão para impressão e compartilhamento</Text>
+              </View>
+            </Pressable>
+          </PremiumGate>
         </LinearGradient>
       </ScrollView>
 
@@ -272,7 +278,6 @@ const styles = StyleSheet.create({
   dropdownItemText: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('400') },
   dropdownItemActive: { color: colors.neon, ...fontWeight('700') },
   btnGroup: { marginTop: spacing.lg, gap: spacing.sm },
-  btnGroupLocked: { opacity: 0.5 },
   btnNeon: { height: 52, backgroundColor: colors.neon, borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },
   btnNeonText: { color: colors.bg, fontSize: fontSizes.base, ...fontWeight('700') },
   btnGray: { height: 52, backgroundColor: '#2A2A2A', borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },
@@ -296,6 +301,4 @@ const styles = StyleSheet.create({
   exportInfo: { flex: 1 },
   exportTitle: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
   exportDesc: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: 2 },
-  plusBadge: { backgroundColor: colors.neon, borderRadius: radii.pill, paddingVertical: spacing.sm, alignItems: 'center', marginTop: spacing.sm },
-  plusBadgeText: { color: colors.bg, fontSize: 12, ...fontWeight('700'), letterSpacing: 1 },
 });
