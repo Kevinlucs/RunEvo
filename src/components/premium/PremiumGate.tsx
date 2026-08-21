@@ -15,9 +15,12 @@ interface PremiumGateProps {
 }
 
 /**
- * Overlay premium reutilizável — mostra conteúdo parcial com gradiente
- * progressivo + CTA para paywall quando locked=true.
- * Sem expo-blur (performance ruim no Expo Go Android) — simula com gradiente.
+ * Overlay premium reutilizável. Envolve APENAS o conteúdo bloqueado (children).
+ * O conteúdo Free fica FORA deste componente — renderizado normalmente acima.
+ *
+ * locked=false: renderiza children normalmente.
+ * locked=true: mostra children com opacity baixa + gradiente + lock CTA sobre.
+ *   Um "hint" é renderizado ACIMA dos children (no fluxo, não absolute).
  */
 export function PremiumGate({
   locked,
@@ -42,106 +45,85 @@ export function PremiumGate({
   }
 
   return (
-    <View style={styles.container}>
-      {/* Conteúdo com interação bloqueada */}
-      <View pointerEvents="none">
-        {children}
+    <View style={styles.wrapper}>
+      {/* Hint inline — no fluxo, acima do conteúdo bloqueado */}
+      <View style={styles.hintRow}>
+        <Lock size={14} color={colors.neon} />
+        <Text style={styles.hintText}>
+          Recurso disponível no plano <Text style={styles.hintNeon}>Premium</Text>
+        </Text>
       </View>
 
-      {/* Gradiente progressivo sobre o conteúdo */}
-      <Animated.View style={[styles.overlay, { opacity: fadeAnim }]} pointerEvents="box-none">
-        <LinearGradient
-          colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.7)', 'rgba(0,0,0,0.95)']}
-          locations={[0, 0.2, 0.5, 1]}
-          style={styles.gradient}
-        />
+      {/* Conteúdo bloqueado com overlay */}
+      <View style={styles.lockedContainer}>
+        {/* Children com opacity baixa, sem interação */}
+        <View style={styles.lockedContent} pointerEvents="none">
+          {children}
+        </View>
 
-        {/* CTA centralizado na parte inferior */}
-        <Pressable style={styles.ctaContainer} onPress={onUnlock} accessibilityRole="button">
-          {/* Sparkles decorativos */}
-          <View style={[styles.sparkle, styles.sparkle1]} />
-          <View style={[styles.sparkle, styles.sparkle2]} />
-          <View style={[styles.sparkle, styles.sparkle3]} />
-          <View style={[styles.sparkle, styles.sparkle4]} />
+        {/* Gradiente escuro sobre o conteúdo bloqueado */}
+        <Animated.View style={[StyleSheet.absoluteFill, { opacity: fadeAnim }]} pointerEvents="box-none">
+          <LinearGradient
+            colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.85)']}
+            locations={[0, 0.4, 1]}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
 
-          {/* Ícone Lock */}
+        {/* CTA centralizado sobre o gradiente */}
+        <Pressable style={styles.ctaOverlay} onPress={onUnlock} accessibilityRole="button">
           <View style={styles.lockCircle}>
             <Lock size={32} color={colors.neon} />
           </View>
-
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.description}>{description}</Text>
-
           <View style={styles.ctaButton}>
             <NeonButton label={cta} onPress={onUnlock} />
           </View>
         </Pressable>
-      </Animated.View>
-
-      {/* Texto intermediário sobre o conteúdo visível */}
-      <Animated.View style={[styles.inlineHint, { opacity: fadeAnim }]} pointerEvents="none">
-        <Lock size={14} color={colors.neon} />
-        <Text style={styles.inlineHintText}>
-          Recurso disponível no plano <Text style={styles.inlineHintNeon}>Premium</Text>
-        </Text>
-      </Animated.View>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { position: 'relative', overflow: 'hidden' },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    top: '50%',
-    justifyContent: 'flex-end',
+  wrapper: { marginTop: spacing.md },
+  hintRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingBottom: spacing.xl,
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.sm,
   },
-  gradient: {
+  hintText: { color: colors.textSecondary, fontSize: 13, ...fontWeight('500') },
+  hintNeon: { color: colors.neon, ...fontWeight('700') },
+  lockedContainer: {
+    position: 'relative',
+    minHeight: 200,
+    overflow: 'hidden',
+    borderRadius: 16,
+  },
+  lockedContent: { opacity: 0.3 },
+  ctaOverlay: {
     ...StyleSheet.absoluteFillObject,
-  },
-  ctaContainer: {
     alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: spacing.xl,
-    zIndex: 1,
+    zIndex: 2,
   },
   lockCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     borderWidth: 1.5,
     borderColor: 'rgba(204,255,0,0.4)',
     backgroundColor: 'rgba(204,255,0,0.05)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
-  sparkle: {
-    position: 'absolute',
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.neon,
-  },
-  sparkle1: { top: 8, right: '30%' },
-  sparkle2: { top: 20, left: '25%' },
-  sparkle3: { top: 40, right: '20%' },
-  sparkle4: { top: 55, left: '35%' },
-  title: { color: colors.textPrimary, fontSize: 20, ...fontWeight('800'), marginBottom: spacing.sm, textAlign: 'center' },
-  description: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), textAlign: 'center', marginBottom: spacing.lg, lineHeight: 20, paddingHorizontal: spacing.md },
-  ctaButton: { width: '100%', maxWidth: 240 },
-  inlineHint: {
-    position: 'absolute',
-    top: '45%',
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.sm,
-  },
-  inlineHintText: { color: colors.textSecondary, fontSize: 13, ...fontWeight('500') },
-  inlineHintNeon: { color: colors.neon, ...fontWeight('700') },
+  title: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800'), marginBottom: spacing.xs, textAlign: 'center' },
+  description: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), textAlign: 'center', marginBottom: spacing.lg, lineHeight: 20 },
+  ctaButton: { width: '100%', maxWidth: 220 },
 });
