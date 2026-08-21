@@ -67,7 +67,7 @@ export function PremiumGate({
 }
 
 const styles = StyleSheet.create({
-  container: { position: 'relative', overflow: 'hidden' },
+  container: { position: 'relative', borderRadius: 20, overflow: 'hidden' },
   overlay: {
     position: 'absolute',
     top: 0,
