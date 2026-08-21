@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Pressable, Animated, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Lock } from 'lucide-react-native';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { colors, spacing, fontWeight } from '@/theme';
@@ -50,13 +49,8 @@ export function PremiumGate({
         {children}
       </View>
 
-      {/* Overlay: gradiente + CTA — posicionado na metade inferior */}
+      {/* Overlay: fundo escuro + CTA centralizado */}
       <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
-        <LinearGradient
-          colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.8)', 'rgba(0,0,0,0.95)']}
-          locations={[0, 0.5, 1]}
-          style={StyleSheet.absoluteFill}
-        />
         <Pressable style={styles.ctaArea} onPress={onUnlock} accessibilityRole="button">
           <View style={styles.lockCircle}>
             <Lock size={32} color={colors.neon} />
@@ -76,17 +70,18 @@ const styles = StyleSheet.create({
   container: { position: 'relative', overflow: 'hidden' },
   overlay: {
     position: 'absolute',
+    top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    top: '50%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    paddingHorizontal: spacing.xl,
   },
   ctaArea: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
-    zIndex: 1,
   },
   lockCircle: {
     width: 64,
