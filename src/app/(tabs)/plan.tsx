@@ -193,18 +193,18 @@ export default function Plan(): JSX.Element {
           ))}
         </View>
 
-        {/* SEÇÃO 3 — EXPORTAÇÃO */}
-        <LinearGradient colors={['rgba(204,255,0,0.04)', 'transparent']} style={styles.section}>
-          <Text style={styles.sectionLabel}>EXPORTAÇÃO</Text>
-          <Text style={styles.sectionTitle}>Compartilhar planilha</Text>
-          <Text style={styles.sectionText}>Gere versões profissionais da planilha para análise, impressão ou compartilhamento.</Text>
+        {/* SEÇÃO 3 — EXPORTAÇÃO (card inteiro é Plus) */}
+        <PremiumGate
+          locked={!isPlus}
+          title="Recurso Premium"
+          description="Exporte sua planilha em PDF ou Excel profissional."
+          onUnlock={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
+        >
+          <LinearGradient colors={['rgba(204,255,0,0.04)', 'transparent']} style={styles.section}>
+            <Text style={styles.sectionLabel}>EXPORTAÇÃO</Text>
+            <Text style={styles.sectionTitle}>Compartilhar planilha</Text>
+            <Text style={styles.sectionText}>Gere versões profissionais da planilha para análise, impressão ou compartilhamento.</Text>
 
-          <PremiumGate
-            locked={!isPlus}
-            title="Recurso Premium"
-            description="Exporte sua planilha em PDF ou Excel profissional."
-            onUnlock={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
-          >
             <Pressable style={styles.exportCard} onPress={() => void handleExport('excel')} accessibilityRole="button">
               <Text style={styles.exportEmoji}>📊</Text>
               <View style={styles.exportInfo}>
@@ -219,8 +219,8 @@ export default function Plan(): JSX.Element {
                 <Text style={styles.exportDesc}>Versão para impressão e compartilhamento</Text>
               </View>
             </Pressable>
-          </PremiumGate>
-        </LinearGradient>
+          </LinearGradient>
+        </PremiumGate>
       </ScrollView>
 
       {addModalWeek ? (
