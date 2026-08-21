@@ -158,13 +158,13 @@ export default function Plan(): JSX.Element {
 
           <View style={[styles.btnGroup, !isPlus && styles.btnGroupLocked]}>
             <Pressable style={styles.btnNeon} onPress={() => gateAction(() => selectedWorkout && router.push(`/workout/${selectedWorkout.id}` as never))} accessibilityRole="button">
-              <Text style={styles.btnNeonText}>✏️ Editar treino</Text>
+              <Text style={styles.btnNeonText}>Editar treino</Text>
             </Pressable>
             <Pressable style={styles.btnGray} onPress={() => gateAction(() => selectedWeekMeta && setAddModalWeek(selectedWeekMeta))} accessibilityRole="button">
-              <Text style={styles.btnGrayText}>+ Adicionar na semana</Text>
+              <Text style={styles.btnGrayText}>Adicionar treino</Text>
             </Pressable>
             <Pressable style={styles.btnDanger} onPress={() => gateAction(handleRemoveWorkout)} accessibilityRole="button">
-              <Text style={styles.btnDangerText}>🗑️ Remover treino</Text>
+              <Text style={styles.btnDangerText}>Remover treino</Text>
             </Pressable>
           </View>
 
@@ -249,8 +249,8 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     marginBottom: spacing.lg,
   },
-  sectionLabel: { color: colors.neon, fontSize: 12, ...fontWeight('600'), letterSpacing: 1, marginBottom: spacing.xs },
-  sectionTitle: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginBottom: spacing.sm },
+  sectionLabel: { color: colors.neon, fontSize: 12, ...fontWeight('600'), letterSpacing: 1,textAlign: 'center', marginBottom: -spacing.xs },
+  sectionTitle: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'),textAlign: 'center', marginBottom: spacing.sm },
   sectionText: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginBottom: spacing.md, lineHeight: 20 },
   badgePill: { alignSelf: 'flex-start', backgroundColor: 'rgba(204,255,0,0.15)', borderRadius: radii.pill, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, marginBottom: spacing.lg },
   badgePillText: { color: colors.neon, fontSize: 12, ...fontWeight('700') },
