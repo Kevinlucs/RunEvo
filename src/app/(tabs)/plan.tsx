@@ -121,52 +121,51 @@ export default function Plan(): JSX.Element {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <AppHeader />
 
-        {/* SEÇÃO 1 — MODIFICAÇÕES */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>MODIFICAÇÕES DA PLANILHA</Text>
-          <Text style={styles.sectionTitle}>Editar treinos do ciclo</Text>
-          <Text style={styles.sectionText}>Escolha a semana e o treino para editar, adicionar ou remover.</Text>
-          <View style={styles.badgePill}><Text style={styles.badgePillText}>PLANILHA ATUAL</Text></View>
+        {/* SEÇÃO 1 — MODIFICAÇÕES (card inteiro é Plus) */}
+        <PremiumGate
+          locked={!isPlus}
+          title="Recurso Premium"
+          description="Desbloqueie para editar, adicionar e remover treinos do ciclo."
+          onUnlock={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
+        >
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>MODIFICAÇÕES DA PLANILHA</Text>
+            <Text style={styles.sectionTitle}>Editar treinos do ciclo</Text>
+            <Text style={styles.sectionText}>Escolha a semana e o treino para editar, adicionar ou remover.</Text>
+            <View style={styles.badgePill}><Text style={styles.badgePillText}>PLANILHA ATUAL</Text></View>
 
-          {/* Dropdown Semana */}
-          <Text style={styles.dropdownLabel}>SEMANA</Text>
-          <Pressable style={styles.dropdown} onPress={() => setWeekDropdownOpen(!weekDropdownOpen)} accessibilityRole="button">
-            <Text style={styles.dropdownText}>{selectedWeekMeta ? `S${selectedWeekMeta.weekNumber} • ${selectedWeekMeta.phase} • ${weekKm} km` : `S${selectedWeek}`}</Text>
-            <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
-          </Pressable>
-          {weekDropdownOpen ? (
-            <View style={styles.dropdownList}>
-              {weeksMeta.map((w) => (
-                <Pressable key={w.weekNumber} onPress={() => { setSelectedWeek(w.weekNumber); setWeekDropdownOpen(false); setSelectedWorkoutId(null); }} style={styles.dropdownItem}>
-                  <Text style={[styles.dropdownItemText, w.weekNumber === selectedWeek && styles.dropdownItemActive]}>S{w.weekNumber} • {w.phase} • {w.label}</Text>
-                </Pressable>
-              ))}
-            </View>
-          ) : null}
+            {/* Dropdown Semana */}
+            <Text style={styles.dropdownLabel}>SEMANA</Text>
+            <Pressable style={styles.dropdown} onPress={() => setWeekDropdownOpen(!weekDropdownOpen)} accessibilityRole="button">
+              <Text style={styles.dropdownText}>{selectedWeekMeta ? `S${selectedWeekMeta.weekNumber} • ${selectedWeekMeta.phase} • ${weekKm} km` : `S${selectedWeek}`}</Text>
+              <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
+            </Pressable>
+            {weekDropdownOpen ? (
+              <View style={styles.dropdownList}>
+                {weeksMeta.map((w) => (
+                  <Pressable key={w.weekNumber} onPress={() => { setSelectedWeek(w.weekNumber); setWeekDropdownOpen(false); setSelectedWorkoutId(null); }} style={styles.dropdownItem}>
+                    <Text style={[styles.dropdownItemText, w.weekNumber === selectedWeek && styles.dropdownItemActive]}>S{w.weekNumber} • {w.phase} • {w.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
 
-          {/* Dropdown Treino */}
-          <Text style={styles.dropdownLabel}>TREINO</Text>
-          <Pressable style={styles.dropdown} onPress={() => setWorkoutDropdownOpen(!workoutDropdownOpen)} accessibilityRole="button">
-            <Text style={styles.dropdownText} numberOfLines={1}>{selectedWorkout ? `${selectedWorkout.day_label ?? '-'} • ${selectedWorkout.title ?? 'Treino'} • ${selectedWorkout.planned_km ?? 0} km` : 'Selecione'}</Text>
-            <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
-          </Pressable>
-          {workoutDropdownOpen ? (
-            <View style={styles.dropdownList}>
-              {weekWorkouts.map((w) => (
-                <Pressable key={w.id} onPress={() => { setSelectedWorkoutId(w.id); setWorkoutDropdownOpen(false); }} style={styles.dropdownItem}>
-                  <Text style={[styles.dropdownItemText, w.id === selectedWorkoutId && styles.dropdownItemActive]} numberOfLines={1}>{w.day_label ?? '-'} • {w.title ?? 'Treino'} • {w.planned_km ?? 0} km</Text>
-                </Pressable>
-              ))}
-            </View>
-          ) : null}
+            {/* Dropdown Treino */}
+            <Text style={styles.dropdownLabel}>TREINO</Text>
+            <Pressable style={styles.dropdown} onPress={() => setWorkoutDropdownOpen(!workoutDropdownOpen)} accessibilityRole="button">
+              <Text style={styles.dropdownText} numberOfLines={1}>{selectedWorkout ? `${selectedWorkout.day_label ?? '-'} • ${selectedWorkout.title ?? 'Treino'} • ${selectedWorkout.planned_km ?? 0} km` : 'Selecione'}</Text>
+              <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
+            </Pressable>
+            {workoutDropdownOpen ? (
+              <View style={styles.dropdownList}>
+                {weekWorkouts.map((w) => (
+                  <Pressable key={w.id} onPress={() => { setSelectedWorkoutId(w.id); setWorkoutDropdownOpen(false); }} style={styles.dropdownItem}>
+                    <Text style={[styles.dropdownItemText, w.id === selectedWorkoutId && styles.dropdownItemActive]} numberOfLines={1}>{w.day_label ?? '-'} • {w.title ?? 'Treino'} • {w.planned_km ?? 0} km</Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
 
-          {/* Todos os botões de ação — bloqueados pelo PremiumGate */}
-          <PremiumGate
-            locked={!isPlus}
-            title="Recurso Premium"
-            description="Desbloqueie para editar, adicionar e remover treinos do ciclo."
-            onUnlock={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
-          >
             <View style={styles.btnGroup}>
               <Pressable style={styles.btnNeon} onPress={() => selectedWorkout && router.push(`/workout/${selectedWorkout.id}` as never)} accessibilityRole="button">
                 <Text style={styles.btnNeonText}>✏️ Editar treino</Text>
@@ -178,10 +177,10 @@ export default function Plan(): JSX.Element {
                 <Text style={styles.btnDangerText}>🗑️ Remover treino</Text>
               </Pressable>
             </View>
-          </PremiumGate>
 
-          <Text style={styles.resumeText}>{weekWorkouts.length} treino(s) na semana • {weekKm} km planejados • {weekRegistered}/{weekWorkouts.length} registrado(s).</Text>
-        </View>
+            <Text style={styles.resumeText}>{weekWorkouts.length} treino(s) na semana • {weekKm} km planejados • {weekRegistered}/{weekWorkouts.length} registrado(s).</Text>
+          </View>
+        </PremiumGate>
 
         {/* SEÇÃO 2 — FASES */}
         <View style={styles.section}>

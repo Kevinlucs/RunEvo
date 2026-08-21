@@ -15,12 +15,11 @@ interface PremiumGateProps {
 }
 
 /**
- * Overlay premium reutilizável. Envolve APENAS o conteúdo bloqueado (children).
- * O conteúdo Free fica FORA deste componente — renderizado normalmente acima.
- *
+ * Overlay premium reutilizável. Envolve o conteúdo inteiro (children).
  * locked=false: renderiza children normalmente.
- * locked=true: mostra children com opacity baixa + gradiente + lock CTA sobre.
- *   Um "hint" é renderizado ACIMA dos children (no fluxo, não absolute).
+ * locked=true: renderiza children com pointerEvents none + gradiente preto
+ *   progressivo cobrindo da metade inferior + Lock CTA centralizado.
+ *   O topo do conteúdo fica visível, a parte de baixo escurece.
  */
 export function PremiumGate({
   locked,
@@ -45,32 +44,20 @@ export function PremiumGate({
   }
 
   return (
-    <View style={styles.wrapper}>
-      {/* Hint inline — no fluxo, acima do conteúdo bloqueado */}
-      <View style={styles.hintRow}>
-        <Text style={styles.hintText}>
-          Recurso disponível no plano <Text style={styles.hintNeon}>Premium</Text>
-        </Text>
+    <View style={styles.container}>
+      {/* Conteúdo completo — visível mas não interativo */}
+      <View pointerEvents="none">
+        {children}
       </View>
 
-      {/* Conteúdo bloqueado com overlay */}
-      <View style={styles.lockedContainer}>
-        {/* Children com opacity baixa, sem interação */}
-        <View style={styles.lockedContent} pointerEvents="none">
-          {children}
-        </View>
-
-        {/* Gradiente escuro sobre o conteúdo bloqueado */}
-        <Animated.View style={[StyleSheet.absoluteFill, { opacity: fadeAnim }]} pointerEvents="box-none">
-          <LinearGradient
-            colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)']}
-            locations={[0, 0.4, 1]}
-            style={StyleSheet.absoluteFill}
-          />
-        </Animated.View>
-
-        {/* CTA centralizado sobre o gradiente */}
-        <Pressable style={styles.ctaOverlay} onPress={onUnlock} accessibilityRole="button">
+      {/* Overlay: gradiente + CTA — posicionado na metade inferior */}
+      <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
+        <LinearGradient
+          colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.8)', 'rgba(0,0,0,0.95)']}
+          locations={[0, 0.5, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+        <Pressable style={styles.ctaArea} onPress={onUnlock} accessibilityRole="button">
           <View style={styles.lockCircle}>
             <Lock size={32} color={colors.neon} />
           </View>
@@ -80,36 +67,26 @@ export function PremiumGate({
             <NeonButton label={cta} onPress={onUnlock} />
           </View>
         </Pressable>
-      </View>
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: { marginTop: spacing.md },
-  hintRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.md,
-    marginBottom: spacing.sm,
+  container: { position: 'relative', overflow: 'hidden' },
+  overlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: '50%',
   },
-  hintText: { color: colors.textSecondary, fontSize: 13, ...fontWeight('500') },
-  hintNeon: { color: colors.neon, ...fontWeight('700') },
-  lockedContainer: {
-    position: 'relative',
-    minHeight: 200,
-    overflow: 'hidden',
-    borderRadius: 16,
-  },
-  lockedContent: { opacity: 0.3 },
-  ctaOverlay: {
-    ...StyleSheet.absoluteFillObject,
+  ctaArea: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
-    zIndex: 2,
+    zIndex: 1,
   },
   lockCircle: {
     width: 64,
