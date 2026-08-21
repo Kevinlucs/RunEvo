@@ -22,9 +22,9 @@ interface PremiumGateProps {
  */
 export function PremiumGate({
   locked,
-  title = 'Recurso Premium',
+  title = 'Recurso RunEvo+',
   description = 'Desbloqueie este recurso no plano Premium.',
-  cta = 'Conhecer Premium',
+  cta = 'Conhecer RunEvo+',
   onUnlock,
   children,
 }: PremiumGateProps): JSX.Element {

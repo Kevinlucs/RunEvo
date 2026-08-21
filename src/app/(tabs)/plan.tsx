@@ -124,7 +124,7 @@ export default function Plan(): JSX.Element {
         {/* SEÇÃO 1 — MODIFICAÇÕES (card inteiro é Plus) */}
         <PremiumGate
           locked={!isPlus}
-          title="Recurso Premium"
+          title="Recurso RunEvo+"
           description="Desbloqueie para editar, adicionar e remover treinos do ciclo."
           onUnlock={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
         >
@@ -196,7 +196,7 @@ export default function Plan(): JSX.Element {
         {/* SEÇÃO 3 — EXPORTAÇÃO (card inteiro é Plus) */}
         <PremiumGate
           locked={!isPlus}
-          title="Recurso Premium"
+          title="Recurso RunEvo+"
           description="Exporte sua planilha em PDF ou Excel profissional."
           onUnlock={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
         >
