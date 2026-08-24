@@ -42,6 +42,10 @@ export interface UpdateWorkoutInput {
   workoutDate?: string | null;
   plannedKm?: number;
   plannedPace?: string;
+  completedKm?: number;
+  shoeId?: string | null;
+  perceivedEffort?: number;
+  feedback?: string | null;
 }
 
 /** Edita um treino pendente. Nunca o treino da prova (§22). Invalida o check-in da semana, se houver. */
@@ -62,6 +66,10 @@ export async function updateWorkout(input: UpdateWorkoutInput): Promise<Result<W
       ...(input.workoutDate !== undefined && { workout_date: input.workoutDate }),
       ...(input.plannedKm !== undefined && { planned_km: input.plannedKm }),
       ...(input.plannedPace !== undefined && { planned_pace: input.plannedPace }),
+      ...(input.completedKm !== undefined && { completed_km: input.completedKm }),
+      ...(input.shoeId !== undefined && { shoe_id: input.shoeId }),
+      ...(input.perceivedEffort !== undefined && { perceived_effort: input.perceivedEffort }),
+      ...(input.feedback !== undefined && { feedback: input.feedback }),
     });
     if (!updateRes.ok) return err(updateRes.error);
 
@@ -72,7 +80,8 @@ export async function updateWorkout(input: UpdateWorkoutInput): Promise<Result<W
     );
     if (!invalidateRes.ok) return err(invalidateRes.error);
 
-    await queryClient.invalidateQueries();
+    await queryClient.invalidateQueries({ queryKey: ['workout', input.workoutId] });
+    await queryClient.invalidateQueries({ queryKey: ['plan-workouts', current.plan_id] });
     return updateRes;
   } catch (e) {
     return err(toAppError(e, 'storage'));

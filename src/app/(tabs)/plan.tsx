@@ -98,7 +98,13 @@ export default function Plan(): JSX.Element {
     else Alert.alert('Erro', result.error.message);
   };
 
-  const handleEditWorkout = async (input: { plannedKm?: number; plannedPace?: string }): Promise<void> => {
+  const handleEditWorkout = async (input: {
+    plannedKm?: number;
+    completedKm?: number;
+    shoeId?: string | null;
+    perceivedEffort?: number;
+    feedback?: string | null;
+  }): Promise<void> => {
     if (!selectedWorkout) return;
     setEditSubmitting(true);
     const result = await updateWorkout({ workoutId: selectedWorkout.id, ...input });

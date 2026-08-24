@@ -121,17 +121,19 @@ export default function WorkoutDetail(): JSX.Element {
             </View>
           ) : (
             <Card title={workout.status === 'completed' ? 'Concluído' : 'Pulado'}>
-              {workout.status === 'completed' ? (
-                <>
-                  <Text style={styles.statusLine}>{workout.completed_km ?? workout.planned_km ?? 0} km realizados</Text>
-                  {workout.perceived_effort ? (
-                    <Text style={styles.statusLine}>Esforço: {workout.perceived_effort}/10</Text>
-                  ) : null}
-                </>
-              ) : (
-                <Text style={styles.statusLine}>Este treino foi marcado como pulado.</Text>
-              )}
-              {workout.feedback ? <Text style={styles.statusLine}>{workout.feedback}</Text> : null}
+              <View style={{ alignItems: 'center' }}>
+                {workout.status === 'completed' ? (
+                  <>
+                    <Text style={[styles.statusLine, { textAlign: 'center' }]}>{workout.completed_km ?? workout.planned_km ?? 0} km realizados</Text>
+                    {workout.perceived_effort ? (
+                      <Text style={[styles.statusLine, { textAlign: 'center' }]}>Esforço: {workout.perceived_effort}/10</Text>
+                    ) : null}
+                  </>
+                ) : (
+                  <Text style={[styles.statusLine, { textAlign: 'center' }]}>Este treino foi marcado como pulado.</Text>
+                )}
+                {workout.feedback ? <Text style={[styles.statusLine, { textAlign: 'center', marginTop: spacing.sm }]}>{workout.feedback}</Text> : null}
+              </View>
             </Card>
           )}
         </ScrollView>
