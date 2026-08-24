@@ -205,7 +205,9 @@ export default function Plan(): JSX.Element {
             <Text style={styles.sectionText}>Gere versões profissionais da planilha para análise, impressão ou compartilhamento.</Text>
 
             <Pressable style={styles.exportCard} onPress={() => void handleExport('pdf')} accessibilityRole="button">
-              <FileSpreadsheet size={28} color={colors.neon} strokeWidth={2} />
+              <View style={styles.exportIconWrap}>
+                <FileSpreadsheet size={24} color={colors.neon} strokeWidth={2} />
+              </View>
               <View style={styles.exportInfo}>
                 <Text style={styles.exportTitle}>PDF profissional</Text>
                 <Text style={styles.exportDesc}>Versão para impressão e compartilhamento</Text>
@@ -293,7 +295,8 @@ const styles = StyleSheet.create({
   phaseRight: { alignItems: 'center', justifyContent: 'center', marginLeft: spacing.md },
   phaseKm: { color: colors.neon, fontSize: 14, ...fontWeight('700') },
   exportCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.cardElevated, borderRadius: radii.lg, padding: spacing.lg, marginBottom: spacing.md },
+  exportIconWrap: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(204,255,0,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: spacing.lg },
   exportInfo: { flex: 1 },
-  exportTitle: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
-  exportDesc: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: 2 },
+  exportTitle: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800'), marginBottom: -4 },
+  exportDesc: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400') },
 });
