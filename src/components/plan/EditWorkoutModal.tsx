@@ -88,7 +88,7 @@ export function EditWorkoutModal({
           <ScrollView
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingBottom: spacing.xl }}
+            contentContainerStyle={{ paddingBottom: spacing.xxxl }}
           >
             <Text style={styles.title}>Editar treino</Text>
 
