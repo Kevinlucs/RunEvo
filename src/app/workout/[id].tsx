@@ -3,7 +3,6 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
-import { Card } from '@/components/ui/Card';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { TrainingZonesCard } from '@/components/workout/TrainingZonesCard';
 import { WorkoutDescriptionCard } from '@/components/workout/WorkoutDescriptionCard';
@@ -120,21 +119,24 @@ export default function WorkoutDetail(): JSX.Element {
               <NeonButton label="Pular treino" variant="secondary" onPress={() => setSkipVisible(true)} />
             </View>
           ) : (
-            <Card title={workout.status === 'completed' ? 'Concluído' : 'Pulado'}>
+            <View style={styles.statusCardWrap}>
+              <Text style={styles.statusCardTitle}>
+                {workout.status === 'completed' ? 'Concluído' : 'Pulado'}
+              </Text>
               <View style={{ alignItems: 'center' }}>
                 {workout.status === 'completed' ? (
                   <>
-                    <Text style={[styles.statusLine, { textAlign: 'center' }]}>{workout.completed_km ?? workout.planned_km ?? 0} km realizados</Text>
+                    <Text style={styles.statusLine}>{workout.completed_km ?? workout.planned_km ?? 0} km realizados</Text>
                     {workout.perceived_effort ? (
-                      <Text style={[styles.statusLine, { textAlign: 'center' }]}>Esforço: {workout.perceived_effort}/10</Text>
+                      <Text style={styles.statusLine}>Esforço: {workout.perceived_effort}/10</Text>
                     ) : null}
                   </>
                 ) : (
-                  <Text style={[styles.statusLine, { textAlign: 'center' }]}>Este treino foi marcado como pulado.</Text>
+                  <Text style={styles.statusLine}>Este treino foi marcado como pulado.</Text>
                 )}
-                {workout.feedback ? <Text style={[styles.statusLine, { textAlign: 'center', marginTop: spacing.sm }]}>{workout.feedback}</Text> : null}
+                {workout.feedback ? <Text style={[styles.statusLine, { marginTop: spacing.sm }]}>{workout.feedback}</Text> : null}
               </View>
-            </Card>
+            </View>
           )}
         </ScrollView>
       </Screen>
@@ -183,5 +185,21 @@ const styles = StyleSheet.create({
   error: { color: colors.error, fontSize: fontSizes.body, marginBottom: spacing.md, textAlign: 'center' },
   actions: { marginTop: spacing.lg },
   actionGap: { height: spacing.md },
-  statusLine: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('400'), marginBottom: spacing.xs },
+  statusCardWrap: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+    alignItems: 'center',
+  },
+  statusCardTitle: {
+    color: colors.neon,
+    fontSize: fontSizes.lg,
+    ...fontWeight('800'),
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
+  statusLine: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('600'), marginBottom: spacing.xs, textAlign: 'center' },
 });
