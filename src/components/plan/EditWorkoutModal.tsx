@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Modal, View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform, Pressable, StyleSheet } from 'react-native';
+import { Modal, View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { NeonButton } from '@/components/ui/NeonButton';
@@ -83,7 +83,7 @@ export function EditWorkoutModal({
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.overlay}>
+      <View style={styles.overlay}>
         <View style={styles.sheet}>
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -204,14 +204,20 @@ export function EditWorkoutModal({
           </View>
           </ScrollView>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 },
-  sheet: { width: '100%', maxHeight: '91%', backgroundColor: colors.card, borderRadius: 20, padding: spacing.xl },
+  sheet: {
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    padding: spacing.xl,
+    width: '100%',
+    maxHeight: '91%',
+  },
   title: { color: colors.textPrimary, fontSize: 20, ...fontWeight('800'), textAlign: 'center', marginBottom: spacing.xl },
   label: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm },
   labelHint: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400') },
