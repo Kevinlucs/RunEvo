@@ -12,13 +12,14 @@ import { EditWorkoutModal } from '@/components/plan/EditWorkoutModal';
 import { useActivePlan } from '@/hooks/useActivePlan';
 import { usePlanWorkouts } from '@/hooks/usePlanWorkouts';
 import { useWorkout } from '@/hooks/useWorkout';
+import { useCheckinAvailability } from '@/hooks/useCheckinAvailability';
 import { useCurrentWeek } from '@/hooks/useCurrentWeek';
 import { usePlanProgress } from '@/hooks/usePlanProgress';
 import { useAthleteProfile } from '@/hooks/useAthleteProfile';
 import { useEntitlement } from '@/hooks/useEntitlement';
 import { useAuthStore } from '@/store/auth.store';
 import { buildWeekMeta, groupWeeksByPhase, type WeekMeta, type PhaseGroup } from '@/services/plan/plan-cycle.service';
-import { addWorkout, removeWorkout, updateWorkout } from '@/services/plan/edit-workout.service';
+import { addWorkout, removeWorkout, updateWorkout, revertWorkoutStatus } from '@/services/plan/edit-workout.service';
 import { exportPlanAsPdf, exportPlanAsExcel } from '@/services/plan/export-plan';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
@@ -54,6 +55,7 @@ export default function Plan(): JSX.Element {
   const [addSubmitting, setAddSubmitting] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editSubmitting, setEditSubmitting] = useState(false);
+  const [revertSubmitting, setRevertSubmitting] = useState(false);
   const [exporting, setExporting] = useState(false);
 
   const weeksMeta = useMemo(
@@ -68,6 +70,8 @@ export default function Plan(): JSX.Element {
   );
   const { workout: queriedWorkout } = useWorkout(selectedWorkoutId ?? undefined);
   const selectedWorkout = queriedWorkout ?? weekWorkouts.find((w) => w.id === selectedWorkoutId) ?? weekWorkouts[0] ?? null;
+  const { status: checkinStatus } = useCheckinAvailability(selectedWorkout?.week_number ?? null);
+  const checkinDoneForWeek = checkinStatus === 'done';
   const selectedWeekMeta = weeksMeta.find((w) => w.weekNumber === selectedWeek);
   const weekKm = weekWorkouts.reduce((s, w) => s + (w.planned_km ?? 0), 0);
   const weekRegistered = weekWorkouts.filter((w) => w.status !== 'pending').length;
@@ -99,6 +103,15 @@ export default function Plan(): JSX.Element {
     setEditSubmitting(true);
     const result = await updateWorkout({ workoutId: selectedWorkout.id, ...input });
     setEditSubmitting(false);
+    if (result.ok) setEditModalVisible(false);
+    else Alert.alert('Erro', result.error.message);
+  };
+
+  const handleRevertStatus = async (): Promise<void> => {
+    if (!selectedWorkout) return;
+    setRevertSubmitting(true);
+    const result = await revertWorkoutStatus(selectedWorkout.id);
+    setRevertSubmitting(false);
     if (result.ok) setEditModalVisible(false);
     else Alert.alert('Erro', result.error.message);
   };
@@ -235,9 +248,11 @@ export default function Plan(): JSX.Element {
         <EditWorkoutModal
           visible
           workout={selectedWorkout}
-          submitting={editSubmitting}
+          submitting={editSubmitting || revertSubmitting}
+          checkinDoneForWeek={checkinDoneForWeek}
           onCancel={() => setEditModalVisible(false)}
-          onConfirm={handleEditWorkout}
+          onConfirm={(input) => void handleEditWorkout(input)}
+          onRevertStatus={() => void handleRevertStatus()}
         />
       ) : null}
 

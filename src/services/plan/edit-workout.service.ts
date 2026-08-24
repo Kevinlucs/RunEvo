@@ -79,6 +79,34 @@ export async function updateWorkout(input: UpdateWorkoutInput): Promise<Result<W
   }
 }
 
+/** Reverte um treino concluído ou pulado para pendente, limpando os dados de execução. */
+export async function revertWorkoutStatus(workoutId: string): Promise<Result<Workout>> {
+  try {
+    const currentRes = await workoutRepository.findById(workoutId);
+    if (!currentRes.ok) return err(currentRes.error);
+    if (!currentRes.value) return err(toAppError(new Error('Treino não encontrado.'), 'not_found'));
+    const current = currentRes.value;
+    if (isRaceWorkout(current)) return err(toAppError(new Error(RACE_LOCKED_MESSAGE), 'validation'));
+    if (current.status === 'pending') return err(toAppError(new Error('Este treino já está pendente.'), 'validation'));
+
+    const res = await workoutRepository.upsert({
+      id: workoutId,
+      status: 'pending',
+      completed_km: null,
+      perceived_effort: null,
+      feedback: null,
+      shoe_id: null,
+      completed_at: null,
+    });
+    if (!res.ok) return err(res.error);
+
+    await queryClient.invalidateQueries();
+    return res;
+  } catch (e) {
+    return err(toAppError(e, 'storage'));
+  }
+}
+
 /** Remove (soft-delete) um treino pendente. Nunca o treino da prova (§22). */
 export async function removeWorkout(workoutId: string): Promise<Result<void>> {
   try {
