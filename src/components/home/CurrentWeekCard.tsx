@@ -55,7 +55,12 @@ export function CurrentWeekCard({ weekNumber, workouts }: { weekNumber: number; 
                   <Text style={[styles.badgeText, { color: badge.color }]}>{badge.label}</Text>
                 </View>
               </View>
-              <Text style={styles.km}>{workout.planned_km ?? 0}km</Text>
+              <Text style={styles.km}>
+                {workout.status === 'completed' && workout.completed_km != null
+                  ? workout.completed_km
+                  : workout.planned_km ?? 0}
+                km
+              </Text>
             </Pressable>
           );
         })
