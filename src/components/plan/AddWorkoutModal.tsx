@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Modal, View, Text, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { TextField } from '@/components/ui/TextField';
-import { DateField } from '@/components/forms/DateField';
+import { Modal, View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { NeonButton } from '@/components/ui/NeonButton';
-import { colors, spacing, fontSizes, fontWeight } from '@/theme';
+import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
 export interface AddWorkoutFormInput {
   title: string;
@@ -75,50 +72,125 @@ export function AddWorkoutModal({ visible, weekNumber, submitting, onCancel, onC
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.overlay}>
+      <View style={styles.overlay}>
         <View style={styles.sheet}>
-          <Ionicons name="add-circle-outline" size={32} color={colors.neon} style={styles.icon} />
-          <Text style={styles.title}>Adicionar treino — Semana {weekNumber}</Text>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: spacing.xxxl }}
+          >
+            <Text style={styles.title}>Adicionar treino — Semana {weekNumber}</Text>
 
-          <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-            <TextField label="Título" value={title} onChangeText={setTitle} placeholder="Ex.: Rodagem extra" />
-            <TextField label="Dia da semana" value={dayLabel} onChangeText={setDayLabel} placeholder="Ex.: Quarta" />
-            <TextField label="Tipo" value={dayType} onChangeText={setDayType} placeholder="Ex.: Base, Longão, Qualidade" />
-            <TextField label="Km planejado" value={km} onChangeText={setKm} keyboardType="decimal-pad" />
-            <TextField label="Pace planejado" value={pace} onChangeText={setPace} placeholder="Ex.: 6:00/km" />
-            <DateField label="Data (opcional)" value={date} onChange={setDate} />
-            <TextField label="Descrição (opcional)" value={description} onChangeText={setDescription} multiline />
+            <Text style={styles.label}>Título</Text>
+            <TextInput
+              style={[styles.input, error && !title.trim() ? styles.inputError : null]}
+              value={title}
+              onChangeText={setTitle}
+              placeholder="Ex.: Rodagem extra"
+              placeholderTextColor={colors.textMuted}
+            />
+
+            <Text style={styles.label}>Dia da semana</Text>
+            <TextInput
+              style={[styles.input, error && !dayLabel.trim() ? styles.inputError : null]}
+              value={dayLabel}
+              onChangeText={setDayLabel}
+              placeholder="Ex.: Quarta"
+              placeholderTextColor={colors.textMuted}
+            />
+
+            <Text style={styles.label}>Tipo</Text>
+            <TextInput
+              style={styles.input}
+              value={dayType}
+              onChangeText={setDayType}
+              placeholder="Ex.: Base, Longão, Qualidade"
+              placeholderTextColor={colors.textMuted}
+            />
+
+            <Text style={styles.label}>Km planejado</Text>
+            <TextInput
+              style={[styles.input, error && !(Number(km.replace(',', '.')) > 0) ? styles.inputError : null]}
+              value={km}
+              onChangeText={setKm}
+              keyboardType="decimal-pad"
+              placeholder="Ex.: 10"
+              placeholderTextColor={colors.textMuted}
+            />
+
+            <Text style={styles.label}>Pace planejado</Text>
+            <TextInput
+              style={styles.input}
+              value={pace}
+              onChangeText={setPace}
+              placeholder="Ex.: 6:00/km"
+              placeholderTextColor={colors.textMuted}
+            />
+
+            <Text style={styles.label}>Data (opcional)</Text>
+            <TextInput
+              style={styles.input}
+              value={date}
+              onChangeText={setDate}
+              placeholder="DD/MM/AAAA"
+              placeholderTextColor={colors.textMuted}
+            />
+
+            <Text style={styles.label}>Descrição (opcional)</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              numberOfLines={3}
+              placeholder="Detalhes do treino..."
+              placeholderTextColor={colors.textMuted}
+              textAlignVertical="top"
+            />
+
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+
+            <View style={styles.actions}>
+              <Pressable style={styles.cancelBtn} onPress={onCancel} disabled={submitting} accessibilityRole="button">
+                <Text style={styles.cancelBtnText}>Cancelar</Text>
+              </Pressable>
+              <View style={{ flex: 1 }}>
+                <NeonButton label="Adicionar" onPress={handleConfirm} loading={submitting} />
+              </View>
+            </View>
           </ScrollView>
-
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-
-          <View style={styles.actions}>
-            <View style={styles.actionButton}>
-              <NeonButton label="Cancelar" variant="secondary" onPress={onCancel} disabled={submitting} />
-            </View>
-            <View style={styles.actionButton}>
-              <NeonButton label="Adicionar" onPress={handleConfirm} loading={submitting} />
-            </View>
-          </View>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)', padding: spacing.xl },
+  overlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 },
   sheet: {
-    width: '100%',
-    maxHeight: '90%',
     backgroundColor: colors.card,
-    borderRadius: 24,
+    borderRadius: 20,
     padding: spacing.xl,
+    width: '100%',
+    maxHeight: '91%',
   },
-  icon: { alignSelf: 'center', marginBottom: spacing.md },
   title: { color: colors.textPrimary, fontSize: 20, ...fontWeight('800'), textAlign: 'center', marginBottom: spacing.xl },
-  scroll: { flexGrow: 0 },
-  error: { color: colors.error, fontSize: fontSizes.body, marginBottom: spacing.md },
+  label: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm },
+  input: {
+    height: 52,
+    backgroundColor: colors.cardElevated,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#2A2A2A',
+    color: colors.textPrimary,
+    paddingHorizontal: spacing.lg,
+    fontSize: fontSizes.base,
+    marginBottom: spacing.lg
+  },
+  inputError: { borderColor: colors.error },
+  textArea: { minHeight: 80, textAlignVertical: 'top' },
+  error: { color: colors.error, fontSize: fontSizes.body, marginBottom: spacing.md, textAlign: 'center' },
   actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
-  actionButton: { flex: 1 },
+  cancelBtn: { flex: 1, height: 52, backgroundColor: '#2A2A2A', borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },
+  cancelBtnText: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('600') },
 });

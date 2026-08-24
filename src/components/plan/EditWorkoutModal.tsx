@@ -169,7 +169,7 @@ export function EditWorkoutModal({
                 numberOfLines={3}
                 placeholder="Como foi o treino?"
                 placeholderTextColor={colors.textMuted}
-                textAlignVertical="top"
+                textAlignVertical="center"
               />
 
               <View style={styles.statusSection}>
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     paddingHorizontal: spacing.lg,
     fontSize: fontSizes.base,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.lg
   },
   inputError: { borderColor: colors.error },
   textArea: { minHeight: 80, textAlignVertical: 'top' },
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   slider: { marginBottom: spacing.sm, height: 40 },
   effortLabel: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('500'), textAlign: 'center', marginBottom: spacing.lg },
   statusSection: { marginTop: spacing.sm, marginBottom: spacing.lg },
-  statusLabel: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginBottom: spacing.sm },
+  statusLabel: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginBottom: spacing.sm, textAlign: 'center' },
   statusBlocked: { color: colors.error, fontSize: 13, ...fontWeight('400'), lineHeight: 18 },
   revertBtn: { height: 44, backgroundColor: 'rgba(255,68,68,0.1)', borderWidth: 1, borderColor: 'rgba(255,68,68,0.3)', borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },
   revertBtnText: { color: colors.error, fontSize: fontSizes.body, ...fontWeight('600') },
