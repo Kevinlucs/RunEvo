@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TextField } from '@/components/ui/TextField';
 import { DateField } from '@/components/forms/DateField';
 import { NeonButton } from '@/components/ui/NeonButton';
-import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
+import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 
 export interface AddWorkoutFormInput {
   title: string;
@@ -77,9 +77,7 @@ export function AddWorkoutModal({ visible, weekNumber, submitting, onCancel, onC
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.overlay}>
         <View style={styles.sheet}>
-          <View style={styles.badge}>
-            <Ionicons name="add" size={26} color={colors.bg} />
-          </View>
+          <Ionicons name="add-circle-outline" size={32} color={colors.neon} style={styles.icon} />
           <Text style={styles.title}>Adicionar treino — Semana {weekNumber}</Text>
 
           <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -109,27 +107,16 @@ export function AddWorkoutModal({ visible, weekNumber, submitting, onCancel, onC
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.6)', padding: spacing.xl },
+  overlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)', padding: spacing.xl },
   sheet: {
     width: '100%',
-    maxHeight: '85%',
-    backgroundColor: colors.bg,
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
+    maxHeight: '90%',
+    backgroundColor: colors.card,
+    borderRadius: 24,
     padding: spacing.xl,
   },
-  badge: {
-    alignSelf: 'center',
-    width: 56,
-    height: 56,
-    borderRadius: radii.lg,
-    backgroundColor: colors.neon,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.md,
-  },
-  title: { color: colors.textPrimary, fontSize: fontSizes.lg, ...fontWeight('800'), textAlign: 'center', marginBottom: spacing.lg },
+  icon: { alignSelf: 'center', marginBottom: spacing.md },
+  title: { color: colors.textPrimary, fontSize: 20, ...fontWeight('800'), textAlign: 'center', marginBottom: spacing.xl },
   scroll: { flexGrow: 0 },
   error: { color: colors.error, fontSize: fontSizes.body, marginBottom: spacing.md },
   actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },

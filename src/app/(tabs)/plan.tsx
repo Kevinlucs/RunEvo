@@ -8,15 +8,17 @@ import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { AddWorkoutModal, type AddWorkoutFormInput } from '@/components/plan/AddWorkoutModal';
+import { EditWorkoutModal } from '@/components/plan/EditWorkoutModal';
 import { useActivePlan } from '@/hooks/useActivePlan';
 import { usePlanWorkouts } from '@/hooks/usePlanWorkouts';
+import { useWorkout } from '@/hooks/useWorkout';
 import { useCurrentWeek } from '@/hooks/useCurrentWeek';
 import { usePlanProgress } from '@/hooks/usePlanProgress';
 import { useAthleteProfile } from '@/hooks/useAthleteProfile';
 import { useEntitlement } from '@/hooks/useEntitlement';
 import { useAuthStore } from '@/store/auth.store';
 import { buildWeekMeta, groupWeeksByPhase, type WeekMeta, type PhaseGroup } from '@/services/plan/plan-cycle.service';
-import { addWorkout, removeWorkout } from '@/services/plan/edit-workout.service';
+import { addWorkout, removeWorkout, updateWorkout } from '@/services/plan/edit-workout.service';
 import { exportPlanAsPdf, exportPlanAsExcel } from '@/services/plan/export-plan';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
@@ -50,6 +52,8 @@ export default function Plan(): JSX.Element {
   const [workoutDropdownOpen, setWorkoutDropdownOpen] = useState(false);
   const [addModalWeek, setAddModalWeek] = useState<WeekMeta | null>(null);
   const [addSubmitting, setAddSubmitting] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editSubmitting, setEditSubmitting] = useState(false);
   const [exporting, setExporting] = useState(false);
 
   const weeksMeta = useMemo(
@@ -62,7 +66,8 @@ export default function Plan(): JSX.Element {
     () => workouts.filter((w) => w.week_number === selectedWeek).sort((a, b) => a.week_index - b.week_index),
     [workouts, selectedWeek],
   );
-  const selectedWorkout = weekWorkouts.find((w) => w.id === selectedWorkoutId) ?? weekWorkouts[0] ?? null;
+  const { workout: queriedWorkout } = useWorkout(selectedWorkoutId ?? undefined);
+  const selectedWorkout = queriedWorkout ?? weekWorkouts.find((w) => w.id === selectedWorkoutId) ?? weekWorkouts[0] ?? null;
   const selectedWeekMeta = weeksMeta.find((w) => w.weekNumber === selectedWeek);
   const weekKm = weekWorkouts.reduce((s, w) => s + (w.planned_km ?? 0), 0);
   const weekRegistered = weekWorkouts.filter((w) => w.status !== 'pending').length;
@@ -86,6 +91,15 @@ export default function Plan(): JSX.Element {
     });
     setAddSubmitting(false);
     if (result.ok) setAddModalWeek(null);
+    else Alert.alert('Erro', result.error.message);
+  };
+
+  const handleEditWorkout = async (input: { plannedKm?: number; plannedPace?: string }): Promise<void> => {
+    if (!selectedWorkout) return;
+    setEditSubmitting(true);
+    const result = await updateWorkout({ workoutId: selectedWorkout.id, ...input });
+    setEditSubmitting(false);
+    if (result.ok) setEditModalVisible(false);
     else Alert.alert('Erro', result.error.message);
   };
 
@@ -166,7 +180,7 @@ export default function Plan(): JSX.Element {
             ) : null}
 
             <View style={styles.btnGroup}>
-              <Pressable style={styles.btnNeon} onPress={() => selectedWorkout && router.push(`/workout/${selectedWorkout.id}` as never)} accessibilityRole="button">
+              <Pressable style={styles.btnNeon} onPress={() => selectedWorkout && setEditModalVisible(true)} accessibilityRole="button">
                 <Text style={styles.btnNeonText}>Editar treino</Text>
               </Pressable>
               <Pressable style={styles.btnGray} onPress={() => selectedWeekMeta && setAddModalWeek(selectedWeekMeta)} accessibilityRole="button">
@@ -202,7 +216,7 @@ export default function Plan(): JSX.Element {
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>EXPORTAÇÃO</Text>
             <Text style={styles.sectionTitle}>Compartilhar planilha</Text>
-            <Text style={styles.sectionText}>Gere versões profissionais da planilha para análise, impressão ou compartilhamento.</Text>
+            <Text style={styles.sectionText}>Visualize para análise, impressão ou compartilhamento.</Text>
 
             <Pressable style={styles.exportCard} onPress={() => void handleExport('pdf')} accessibilityRole="button">
               <View style={styles.exportIconWrap}>
@@ -216,6 +230,16 @@ export default function Plan(): JSX.Element {
           </View>
         </PremiumGate>
       </ScrollView>
+
+      {editModalVisible && selectedWorkout ? (
+        <EditWorkoutModal
+          visible
+          workout={selectedWorkout}
+          submitting={editSubmitting}
+          onCancel={() => setEditModalVisible(false)}
+          onConfirm={handleEditWorkout}
+        />
+      ) : null}
 
       {addModalWeek ? (
         <AddWorkoutModal visible weekNumber={addModalWeek.weekNumber} submitting={addSubmitting} onCancel={() => setAddModalWeek(null)} onConfirm={handleAddWorkout} />
