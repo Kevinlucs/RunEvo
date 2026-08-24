@@ -1,9 +1,8 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { View, Text, ScrollView, Pressable, Alert, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Mountain, Dumbbell, Zap, Flag } from 'lucide-react-native';
+import { FileSpreadsheet, Mountain, Dumbbell, Zap, Flag } from 'lucide-react-native';
 import { PremiumGate } from '@/components/premium';
 import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
@@ -168,13 +167,13 @@ export default function Plan(): JSX.Element {
 
             <View style={styles.btnGroup}>
               <Pressable style={styles.btnNeon} onPress={() => selectedWorkout && router.push(`/workout/${selectedWorkout.id}` as never)} accessibilityRole="button">
-                <Text style={styles.btnNeonText}>✏️ Editar treino</Text>
+                <Text style={styles.btnNeonText}>Editar treino</Text>
               </Pressable>
               <Pressable style={styles.btnGray} onPress={() => selectedWeekMeta && setAddModalWeek(selectedWeekMeta)} accessibilityRole="button">
-                <Text style={styles.btnGrayText}>+ Adicionar na semana</Text>
+                <Text style={styles.btnGrayText}>Adicionar treino</Text>
               </Pressable>
               <Pressable style={styles.btnDanger} onPress={handleRemoveWorkout} accessibilityRole="button">
-                <Text style={styles.btnDangerText}>🗑️ Remover treino</Text>
+                <Text style={styles.btnDangerText}>Remover treino</Text>
               </Pressable>
             </View>
 
@@ -197,29 +196,22 @@ export default function Plan(): JSX.Element {
         <PremiumGate
           locked={!isPlus}
           title="Recurso RunEvo+"
-          description="Exporte sua planilha em PDF ou Excel profissional."
+          description="Exporte sua planilha em PDF profissional."
           onUnlock={() => router.push({ pathname: '/runevo-plus', params: { reason: 'history' } })}
         >
-          <LinearGradient colors={['rgba(204,255,0,0.04)', 'transparent']} style={styles.section}>
+          <View style={styles.section}>
             <Text style={styles.sectionLabel}>EXPORTAÇÃO</Text>
             <Text style={styles.sectionTitle}>Compartilhar planilha</Text>
             <Text style={styles.sectionText}>Gere versões profissionais da planilha para análise, impressão ou compartilhamento.</Text>
 
-            <Pressable style={styles.exportCard} onPress={() => void handleExport('excel')} accessibilityRole="button">
-              <Text style={styles.exportEmoji}>📊</Text>
-              <View style={styles.exportInfo}>
-                <Text style={styles.exportTitle}>Excel profissional</Text>
-                <Text style={styles.exportDesc}>Planilha detalhada com todas as semanas</Text>
-              </View>
-            </Pressable>
             <Pressable style={styles.exportCard} onPress={() => void handleExport('pdf')} accessibilityRole="button">
-              <Text style={styles.exportEmoji}>📄</Text>
+              <FileSpreadsheet size={28} color={colors.neon} strokeWidth={2} />
               <View style={styles.exportInfo}>
                 <Text style={styles.exportTitle}>PDF profissional</Text>
                 <Text style={styles.exportDesc}>Versão para impressão e compartilhamento</Text>
               </View>
             </Pressable>
-          </LinearGradient>
+          </View>
         </PremiumGate>
       </ScrollView>
 
@@ -237,19 +229,26 @@ function PhaseCard({ group }: { group: PhaseGroup }): JSX.Element {
   const totalKm = group.weeks.reduce((s, w) => s + w.totalKm, 0);
 
   return (
-    <Pressable style={styles.phaseCard} onPress={() => router.push(`/plan/phase/${group.phase}` as never)} accessibilityRole="button">
-      <View style={styles.phaseHeader}>
-        <View style={styles.phaseIconWrap}>
-          <PhaseIcon size={24} color={colors.neon} />
-        </View>
-        <View style={styles.phaseInfo}>
-          <Text style={styles.phaseName}>{group.phase}</Text>
-          <Text style={styles.phaseSubtitle}>{subtitle}</Text>
-        </View>
+    <Pressable
+      style={styles.phaseCard}
+      onPress={() => router.push(`/plan/phase/${encodeURIComponent(group.phase)}` as never)}
+      accessibilityRole="button"
+    >
+      {/* Esquerda: ícone centralizado */}
+      <View style={styles.phaseIconWrap}>
+        <PhaseIcon size={24} color={colors.neon} />
       </View>
-      <View style={styles.phaseStats}>
-        <Text style={styles.phaseStatWhite}>{totalWorkouts} treinos</Text>
-        <Text style={styles.phaseStatNeon}>{totalKm} km</Text>
+
+      {/* Centro: nome + subtítulo + treinos */}
+      <View style={styles.phaseCenter}>
+        <Text style={styles.phaseName}>{group.phase}</Text>
+        <Text style={styles.phaseSubtitle}>{subtitle}</Text>
+        <Text style={styles.phaseWorkouts}>{totalWorkouts} treinos</Text>
+      </View>
+
+      {/* Direita: km */}
+      <View style={styles.phaseRight}>
+        <Text style={styles.phaseKm}>{totalKm} km</Text>
       </View>
     </Pressable>
   );
@@ -265,10 +264,10 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     marginBottom: spacing.lg,
   },
-  sectionLabel: { color: colors.neon, fontSize: 12, ...fontWeight('600'), letterSpacing: 1, marginBottom: spacing.xs },
-  sectionTitle: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginBottom: spacing.sm },
-  sectionText: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginBottom: spacing.md, lineHeight: 20 },
-  badgePill: { alignSelf: 'flex-start', backgroundColor: 'rgba(204,255,0,0.15)', borderRadius: radii.pill, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, marginBottom: spacing.lg },
+  sectionLabel: { color: colors.neon, fontSize: 12, ...fontWeight('600'), letterSpacing: 1, marginBottom: -spacing.xs, textAlign: 'center' },
+  sectionTitle: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), marginBottom: -spacing.sm, textAlign: 'center' },
+  sectionText: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), marginBottom: spacing.md, lineHeight: 20, textAlign: 'center' },
+  badgePill: { alignSelf: 'flex-start', backgroundColor: 'rgba(204,255,0,0.15)', borderRadius: radii.pill, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, marginBottom: spacing.lg, width: '100%', alignItems: 'center', justifyContent: 'center' },
   badgePillText: { color: colors.neon, fontSize: 12, ...fontWeight('700') },
   dropdownLabel: { color: colors.textSecondary, fontSize: 11, ...fontWeight('600'), letterSpacing: 1, marginBottom: spacing.xs, marginTop: spacing.sm },
   dropdown: { backgroundColor: colors.cardElevated, borderWidth: 1, borderColor: 'rgba(204,255,0,0.2)', borderRadius: 12, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
@@ -285,19 +284,15 @@ const styles = StyleSheet.create({
   btnDanger: { height: 52, backgroundColor: 'rgba(255,68,68,0.1)', borderWidth: 1, borderColor: 'rgba(255,68,68,0.3)', borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },
   btnDangerText: { color: colors.error, fontSize: fontSizes.base, ...fontWeight('600') },
   resumeText: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: spacing.md, textAlign: 'center' },
-  phaseCard: { backgroundColor: colors.cardElevated, borderRadius: radii.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', padding: spacing.lg, marginBottom: spacing.md },
-  phaseHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
-  phaseIconWrap: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(204,255,0,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: spacing.md },
-  phaseInfo: { flex: 1 },
-  phaseName: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800') },
-  phaseSubtitle: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: 2 },
-  progressTrack: { height: 6, borderRadius: radii.pill, backgroundColor: '#2A2A2A', overflow: 'hidden', marginBottom: spacing.sm },
-  progressFill: { height: '100%', backgroundColor: colors.neon, borderRadius: radii.pill },
-  phaseStats: { flexDirection: 'row', justifyContent: 'space-between' },
-  phaseStatWhite: { color: colors.textPrimary, fontSize: 13, ...fontWeight('600') },
-  phaseStatNeon: { color: colors.neon, fontSize: 13, ...fontWeight('600') },
+  phaseCard: { backgroundColor: colors.cardElevated, borderRadius: radii.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', padding: spacing.lg, marginBottom: spacing.md, flexDirection: 'row', alignItems: 'center' },
+  phaseIconWrap: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(204,255,0,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: spacing.lg },
+  phaseWorkouts: { color: colors.textPrimary, fontSize: 13, ...fontWeight('600'), marginTop: -spacing.xs },
+  phaseCenter: { flex: 1 },
+  phaseName: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800'), marginBottom: -4 },
+  phaseSubtitle: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400') },
+  phaseRight: { alignItems: 'center', justifyContent: 'center', marginLeft: spacing.md },
+  phaseKm: { color: colors.neon, fontSize: 14, ...fontWeight('700') },
   exportCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.cardElevated, borderRadius: radii.lg, padding: spacing.lg, marginBottom: spacing.md },
-  exportEmoji: { fontSize: 28, marginRight: spacing.md },
   exportInfo: { flex: 1 },
   exportTitle: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
   exportDesc: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400'), marginTop: 2 },

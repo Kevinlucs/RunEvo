@@ -28,7 +28,8 @@ export function useEntitlement() {
   return {
     ...query,
     entitlement,
-    isPlus: entitlement.plan === 'plus',
+    //isPlus: entitlement.plan === 'plus',
+    isPlus: true, // TESTE — descomentar para simular assinatura RunEvo+
   };
 }
 
