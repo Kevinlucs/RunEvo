@@ -36,7 +36,22 @@ export function buildWeekMeta(
   const taperWeeks = new Set(summary?.taperWeeks ?? []);
   const raceWeek = summary?.raceWeek;
 
-  const weekNumbers = Array.from(new Set(workouts.map((w) => w.week_number))).sort((a, b) => a - b);
+  // Garante que todas as semanas do plano apareçam, mesmo sem treinos (para edição Plus)
+  const maxWeeks = plan.total_weeks ?? 0;
+  const existingWeeks = new Set(workouts.map((w) => w.week_number));
+  const allWeekNumbers: number[] = [];
+
+  // Adiciona semanas de 1 até total_weeks
+  for (let i = 1; i <= maxWeeks; i++) {
+    allWeekNumbers.push(i);
+  }
+
+  // Adiciona qualquer semana extra que tenha treino mas esteja fora do range (segurança)
+  existingWeeks.forEach(w => {
+    if (!allWeekNumbers.includes(w)) allWeekNumbers.push(w);
+  });
+
+  const weekNumbers = allWeekNumbers.sort((a, b) => a - b);
 
   return weekNumbers.map((weekNumber) => {
     const weekWorkouts = workouts.filter((w) => w.week_number === weekNumber);
