@@ -20,6 +20,7 @@ import { useEntitlement } from '@/hooks/useEntitlement';
 import { useAuthStore } from '@/store/auth.store';
 import { buildWeekMeta, groupWeeksByPhase, type WeekMeta, type PhaseGroup } from '@/services/plan/plan-cycle.service';
 import { addWorkout, removeWorkout, updateWorkout, revertWorkoutStatus } from '@/services/plan/edit-workout.service';
+import { readTrainingZones } from '@/services/workout/workout-detail.service';
 import { exportPlanAsPdf, exportPlanAsExcel } from '@/services/plan/export-plan';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
@@ -63,6 +64,7 @@ export default function Plan(): JSX.Element {
     [plan, workouts, currentWeekNumber],
   );
   const phaseGroups = useMemo(() => groupWeeksByPhase(weeksMeta), [weeksMeta]);
+  const zones = plan ? readTrainingZones(plan) : null;
 
   const weekWorkouts = useMemo(
     () => workouts.filter((w) => w.week_number === selectedWeek).sort((a, b) => a.week_index - b.week_index),
@@ -263,7 +265,16 @@ export default function Plan(): JSX.Element {
       ) : null}
 
       {addModalWeek ? (
-        <AddWorkoutModal visible weekNumber={addModalWeek.weekNumber} submitting={addSubmitting} onCancel={() => setAddModalWeek(null)} onConfirm={handleAddWorkout} />
+        <AddWorkoutModal
+          visible
+          weekNumber={addModalWeek.weekNumber}
+          phase={addModalWeek.phase}
+          planStartDate={plan?.start_date ?? ''}
+          zones={zones}
+          submitting={addSubmitting}
+          onCancel={() => setAddModalWeek(null)}
+          onConfirm={handleAddWorkout}
+        />
       ) : null}
     </Screen>
   );

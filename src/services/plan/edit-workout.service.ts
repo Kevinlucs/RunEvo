@@ -189,6 +189,26 @@ export async function addWorkout(input: AddWorkoutInput): Promise<Result<Workout
     });
     if (!createRes.ok) return err(createRes.error);
 
+    // Reordena a semana por data (workout_date asc), mantendo o treino da prova por último
+    const weekAfter = await loadWeekWorkouts(input.planId, input.weekNumber);
+    if (weekAfter.ok) {
+      const nonRaceAfter = weekAfter.value.filter((w) => !isRaceWorkout(w));
+      const raceAfter = weekAfter.value.filter(isRaceWorkout);
+      nonRaceAfter.sort((a, b) => {
+        const da = a.workout_date ?? '';
+        const db = b.workout_date ?? '';
+        return da.localeCompare(db);
+      });
+      const ordered = [...nonRaceAfter, ...raceAfter];
+      for (let i = 0; i < ordered.length; i++) {
+        const w = ordered[i];
+        if (w && w.week_index !== i) {
+          const r = await workoutRepository.upsert({ id: w.id, week_index: i });
+          if (!r.ok) return err(r.error);
+        }
+      }
+    }
+
     const invalidateRes = await invalidateCheckinForWeek(
       input.planId,
       input.weekNumber,
