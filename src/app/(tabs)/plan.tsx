@@ -173,13 +173,13 @@ export default function Plan(): JSX.Element {
               <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
             </Pressable>
             {weekDropdownOpen ? (
-              <View style={styles.dropdownList}>
+              <ScrollView style={styles.dropdownList} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
                 {weeksMeta.map((w) => (
                   <Pressable key={w.weekNumber} onPress={() => { setSelectedWeek(w.weekNumber); setWeekDropdownOpen(false); setSelectedWorkoutId(null); }} style={styles.dropdownItem}>
-                    <Text style={[styles.dropdownItemText, w.weekNumber === selectedWeek && styles.dropdownItemActive]}>S{w.weekNumber} • {w.phase} • {w.label}</Text>
+                    <Text style={[styles.dropdownItemText, w.weekNumber === selectedWeek && styles.dropdownItemActive]}>S{w.weekNumber} • {w.phase} • {w.totalKm} km</Text>
                   </Pressable>
                 ))}
-              </View>
+              </ScrollView>
             ) : null}
 
             {/* Dropdown Treino */}
@@ -189,13 +189,13 @@ export default function Plan(): JSX.Element {
               <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
             </Pressable>
             {workoutDropdownOpen ? (
-              <View style={styles.dropdownList}>
+              <ScrollView style={styles.dropdownList} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
                 {weekWorkouts.map((w) => (
                   <Pressable key={w.id} onPress={() => { setSelectedWorkoutId(w.id); setWorkoutDropdownOpen(false); }} style={styles.dropdownItem}>
                     <Text style={[styles.dropdownItemText, w.id === selectedWorkoutId && styles.dropdownItemActive]} numberOfLines={1}>{w.day_label ?? '-'} • {w.title ?? 'Treino'} • {w.planned_km ?? 0} km</Text>
                   </Pressable>
                 ))}
-              </View>
+              </ScrollView>
             ) : null}
 
             <View style={styles.btnGroup}>
