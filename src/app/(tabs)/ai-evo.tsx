@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
-import { ScrollView, KeyboardAvoidingView, Platform, Text, StyleSheet } from 'react-native';
+import { useEffect, useRef, useMemo } from 'react';
+import { ScrollView, KeyboardAvoidingView, Platform, Text, View, StyleSheet } from 'react-native';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
+import { Clock } from 'lucide-react-native';
 import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { TextField } from '@/components/ui/TextField';
@@ -10,12 +11,12 @@ import { NeonButton } from '@/components/ui/NeonButton';
 import { ChoiceField } from '@/components/forms/ChoiceField';
 import { DateField } from '@/components/forms/DateField';
 import { PreviousTimeField } from '@/components/forms/PreviousTimeField';
+import { SelectableCard } from '@/components/forms/SelectableCard';
+import { SectionHeader } from '@/components/forms/SectionHeader';
 import {
   aiEvoFormSchema,
   type AiEvoFormValues,
-  LEVEL_OPTIONS,
   DISTANCE_OPTIONS,
-  TERRAIN_OPTIONS,
   DAYS_PER_WEEK_OPTIONS,
   DEFAULT_FORM_VALUES,
 } from '@/components/forms/ai-evo.schema';
@@ -26,6 +27,18 @@ import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 import type { AthleteInput } from '@/domain/motor-evo/types';
 
 const DAYS_PER_WEEK_CHOICES = DAYS_PER_WEEK_OPTIONS.map((n) => ({ value: String(n), label: `${n}x/semana` }));
+
+const LEVEL_CARDS = [
+  { value: 'iniciante', emoji: '🌱', title: 'Iniciante', description: 'Começando a correr' },
+  { value: 'intermediário', emoji: '💪', title: 'Intermediário', description: 'Correndo regularmente' },
+  { value: 'avançado', emoji: '🔥', title: 'Avançado', description: 'Competidor experiente' },
+];
+
+const TERRAIN_CARDS = [
+  { value: 'plano', emoji: '↔️', title: 'Plano', description: 'Baixa elevação • até 5 m/km' },
+  { value: 'misto', emoji: '⚡', title: 'Misto', description: 'Elevação moderada • 5 a 15 m/km' },
+  { value: 'elevado', emoji: '▲', title: 'Elevado', description: 'Muitas subidas • acima de 15 m/km' },
+];
 
 export default function AiEvo(): JSX.Element {
   const userId = useAuthStore((s) => s.userId);
@@ -46,6 +59,16 @@ export default function AiEvo(): JSX.Element {
 
   const values = useWatch({ control });
   const targetDistance = values.targetDistance;
+
+  // Calcula semanas até a prova
+  const weeksUntilRace = useMemo(() => {
+    if (!values.startDate || !values.raceDate) return null;
+    const start = new Date(values.startDate);
+    const race = new Date(values.raceDate);
+    const diffMs = race.getTime() - start.getTime();
+    const weeks = Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000));
+    return weeks > 0 ? weeks : null;
+  }, [values.startDate, values.raceDate]);
 
   // Restaura rascunho ao abrir (docs/fase-3-brief.md §1.2).
   useEffect(() => {
@@ -88,6 +111,9 @@ export default function AiEvo(): JSX.Element {
             planilha.
           </Text>
 
+          {/* SEÇÃO: Dados do Corredor */}
+          <SectionHeader emoji="📋" title="Dados do Corredor" description="Informações básicas sobre você" />
+
           <Controller
             control={control}
             name="age"
@@ -127,13 +153,30 @@ export default function AiEvo(): JSX.Element {
               />
             )}
           />
+
+          <Text style={styles.fieldLabel}>Nível de experiência</Text>
           <Controller
             control={control}
             name="level"
             render={({ field }) => (
-              <ChoiceField label="Nível" value={field.value} onChange={field.onChange} options={LEVEL_OPTIONS} error={errors.level?.message} />
+              <View style={styles.selectableCardsGroup}>
+                {LEVEL_CARDS.map((card) => (
+                  <SelectableCard
+                    key={card.value}
+                    selected={field.value === card.value}
+                    onPress={() => field.onChange(card.value as 'iniciante' | 'intermediário' | 'avançado')}
+                    emoji={card.emoji}
+                    title={card.title}
+                    description={card.description}
+                  />
+                ))}
+                {errors.level ? <Text style={styles.error}>{errors.level.message}</Text> : null}
+              </View>
             )}
           />
+
+          {/* SEÇÃO: Prova */}
+          <SectionHeader emoji="🏃" title="Prova" description="Detalhes sobre a corrida e o ciclo de treino" />
 
           <Controller
             control={control}
@@ -163,11 +206,25 @@ export default function AiEvo(): JSX.Element {
               )}
             />
           )}
+
+          <Text style={styles.fieldLabel}>Terreno principal</Text>
           <Controller
             control={control}
             name="terrain"
             render={({ field }) => (
-              <ChoiceField label="Terreno" value={field.value} onChange={field.onChange} options={TERRAIN_OPTIONS} error={errors.terrain?.message} />
+              <View style={styles.selectableCardsGroup}>
+                {TERRAIN_CARDS.map((card) => (
+                  <SelectableCard
+                    key={card.value}
+                    selected={field.value === card.value}
+                    onPress={() => field.onChange(card.value as 'plano' | 'misto' | 'elevado')}
+                    emoji={card.emoji}
+                    title={card.title}
+                    description={card.description}
+                  />
+                ))}
+                {errors.terrain ? <Text style={styles.error}>{errors.terrain.message}</Text> : null}
+              </View>
             )}
           />
 
@@ -186,6 +243,13 @@ export default function AiEvo(): JSX.Element {
             )}
           />
 
+          {weeksUntilRace ? (
+            <View style={styles.weeksCountdown}>
+              <Clock size={16} color={colors.neon} />
+              <Text style={styles.weeksCountdownText}>{weeksUntilRace} semanas até a prova</Text>
+            </View>
+          ) : null}
+
           <Controller
             control={control}
             name="daysPerWeek"
@@ -200,7 +264,9 @@ export default function AiEvo(): JSX.Element {
             )}
           />
 
-          <Text style={styles.sectionTitle}>Tempos anteriores</Text>
+          {/* SEÇÃO: Tempos Anteriores */}
+          <SectionHeader emoji="🕐" title="Tempos anteriores" description="Indique seus melhores tempos, se houver" />
+
           <PreviousTimeField
             label="5K"
             time={values.time5k ?? ''}
@@ -238,7 +304,9 @@ export default function AiEvo(): JSX.Element {
             error={errors.time42k?.message}
           />
 
-          <Text style={styles.sectionTitle}>Teste de 3km (obrigatório)</Text>
+          {/* SEÇÃO: Teste de 3km */}
+          <SectionHeader emoji="⚡" title="Teste de 3km" required description="Corra 3km no seu ritmo normal para calibrar suas zonas" />
+
           <Controller
             control={control}
             name="test3kmTime"
@@ -253,37 +321,27 @@ export default function AiEvo(): JSX.Element {
               />
             )}
           />
-          <Controller
-            control={control}
-            name="test3kmPace"
-            render={({ field }) => (
-              <TextField
-                label="Ou pace médio (se já souber)"
-                value={field.value ?? ''}
-                onChangeText={field.onChange}
-                placeholder="mm:ss/km"
-                keyboardType="numbers-and-punctuation"
-              />
-            )}
-          />
 
-          <Text style={styles.sectionTitle}>Objetivo</Text>
+          {/* SEÇÃO: Objetivo */}
+          <SectionHeader emoji="🎯" title="Objetivo" required description="Deixe um objetivo pessoal para motivação" />
+
           <Controller
             control={control}
             name="objective"
             render={({ field }) => (
               <TextField
-                label="Conte seu objetivo (opcional)"
+                label="Seu objetivo"
                 value={field.value ?? ''}
                 onChangeText={field.onChange}
                 placeholder="Ex: sub 50 no 10K, terminar com segurança..."
                 autoCapitalize="sentences"
+                multiline
                 error={errors.objective?.message}
               />
             )}
           />
 
-          <NeonButton label="Gerar planilha" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
+          <NeonButton label="Gerar Planilha" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
@@ -294,12 +352,21 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   scrollContent: { paddingBottom: spacing.xxxl },
   title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.xl },
-  subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.sm, marginBottom: spacing.xl },
-  sectionTitle: {
-    color: colors.neon,
-    fontSize: fontSizes.lg,
-    ...fontWeight('700'),
-    marginTop: spacing.lg,
-    marginBottom: spacing.md,
+  subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.sm, marginBottom: spacing.lg },
+  fieldLabel: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('600'), marginBottom: spacing.sm, marginTop: spacing.md },
+  selectableCardsGroup: { marginBottom: spacing.lg },
+  error: { color: colors.error, fontSize: fontSizes.caption, marginTop: spacing.xs },
+  weeksCountdown: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: 'rgba(204,255,0,0.08)',
+    borderColor: 'rgba(204,255,0,0.2)',
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: spacing.md,
+    marginTop: spacing.md,
+    marginBottom: spacing.lg,
   },
+  weeksCountdownText: { color: colors.neon, fontSize: 14, ...fontWeight('600') },
 });
