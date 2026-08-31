@@ -177,7 +177,7 @@ export function getWorkoutLibrary(phase: Phase | string, blueprint: WorkoutLibra
   };
 
   const quality =
-    terrain === 'elevado' && phase !== 'Polimento'
+    (terrain === 'montanhoso' || terrain === 'elevado') && phase !== 'Polimento'
       ? [...uphillQuality, ...(isUltra ? qualityUltra : isLong ? qualityLong : quality10k)]
       : isUltra
         ? qualityUltra

@@ -16,7 +16,7 @@ const personalSchema = z.object({
   age: z.coerce.number().int().min(10, 'Idade mínima 10 anos').max(100, 'Idade máxima 100 anos').optional(),
   height: z.coerce.number().min(100, 'Altura mínima 100cm').max(250, 'Altura máxima 250cm').optional(),
   weight: z.coerce.number().min(30, 'Peso mínimo 30kg').max(300, 'Peso máximo 300kg').optional(),
-  level: z.enum(['iniciante', 'intermediário', 'avançado'], { required_error: 'Selecione seu nível' }),
+  level: z.enum(['iniciante', 'intermediário', 'avançado', 'elite'], { required_error: 'Selecione seu nível' }),
 });
 
 const raceSchema = z.object({
@@ -24,10 +24,11 @@ const raceSchema = z.object({
     required_error: 'Selecione a distância alvo',
   }),
   customDistance: z.coerce.number().positive('Informe uma distância válida').optional(),
-  terrain: z.enum(['plano', 'misto', 'elevado'], { required_error: 'Selecione o terreno' }),
+  terrain: z.enum(['plano', 'ondulado', 'moderado', 'montanhoso'], { required_error: 'Selecione o terreno' }),
   startDate: z.string().min(1, 'Informe a data de início'),
   raceDate: z.string().min(1, 'Informe a data da prova'),
   daysPerWeek: z.coerce.number().int().min(2, 'Mínimo 2 dias').max(6, 'Máximo 6 dias'),
+  longRunDay: z.string().optional(),
 });
 
 const previousTimesSchema = z.object({
@@ -108,8 +109,9 @@ export const DISTANCE_OPTIONS: { value: AiEvoFormValues['targetDistance']; label
 
 export const TERRAIN_OPTIONS: { value: AiEvoFormValues['terrain']; label: string }[] = [
   { value: 'plano', label: 'Plano' },
-  { value: 'misto', label: 'Misto' },
-  { value: 'elevado', label: 'Elevado' },
+  { value: 'ondulado', label: 'Ondulado' },
+  { value: 'moderado', label: 'Moderado' },
+  { value: 'montanhoso', label: 'Montanhoso' },
 ];
 
 export const DAYS_PER_WEEK_OPTIONS = [2, 3, 4, 5, 6] as const;

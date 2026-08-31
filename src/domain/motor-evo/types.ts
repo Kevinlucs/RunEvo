@@ -12,7 +12,7 @@
  */
 export type TargetDistance = '5' | '10' | '21' | '42' | 'ultra' | 'custom';
 
-export type Terrain = 'plano' | 'misto' | 'elevado';
+export type Terrain = 'plano' | 'ondulado' | 'moderado' | 'montanhoso' | 'misto' | 'elevado';
 export type Phase = 'Base' | 'Resistência' | 'Pico' | 'Polimento';
 export type DayType = 'Base' | 'Qualidade' | 'Longão' | 'Recuperação' | 'Intervalado';
 export type RaceType = '5k' | '10k' | 'meia' | 'maratona' | 'ultra';

@@ -4,7 +4,8 @@ import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 interface Props {
   selected: boolean;
   onPress: () => void;
-  emoji?: string;
+  icon?: React.ReactNode;
+  emoji?: string; // DEPRECATED — manter backward-compat
   title: string;
   description?: string;
 }
@@ -13,7 +14,7 @@ interface Props {
  * Full-width selectable card button (nível, terreno).
  * Neon border when selected, dark background otherwise.
  */
-export function SelectableCard({ selected, onPress, emoji, title, description }: Props): JSX.Element {
+export function SelectableCard({ selected, onPress, icon, emoji, title, description }: Props): JSX.Element {
   return (
     <Pressable
       style={[styles.card, selected && styles.cardSelected]}
@@ -21,7 +22,7 @@ export function SelectableCard({ selected, onPress, emoji, title, description }:
       accessibilityRole="button"
       accessibilityState={{ selected }}
     >
-      {emoji ? <Text style={styles.emoji}>{emoji}</Text> : null}
+      {icon ? <View style={styles.iconWrap}>{icon}</View> : emoji ? <Text style={styles.emoji}>{emoji}</Text> : null}
       <View style={styles.content}>
         <Text style={[styles.title, selected && styles.titleSelected]}>{title}</Text>
         {description ? <Text style={[styles.description, selected && styles.descSelected]}>{description}</Text> : null}
@@ -45,6 +46,7 @@ const styles = StyleSheet.create({
     borderColor: colors.neon,
     backgroundColor: 'rgba(204,255,0,0.08)',
   },
+  iconWrap: { marginRight: spacing.md, width: 28, alignItems: 'center' },
   emoji: { fontSize: 22, marginRight: spacing.md },
   content: { flex: 1 },
   title: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },

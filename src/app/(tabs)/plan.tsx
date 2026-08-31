@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import { View, Text, ScrollView, Pressable, Alert, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, StyleSheet, Modal } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { FileSpreadsheet, Mountain, Dumbbell, Zap, Flag } from 'lucide-react-native';
@@ -57,6 +57,7 @@ export default function Plan(): JSX.Element {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editSubmitting, setEditSubmitting] = useState(false);
   const [revertSubmitting, setRevertSubmitting] = useState(false);
+  const [removeModalVisible, setRemoveModalVisible] = useState(false);
   const [exporting, setExporting] = useState(false);
 
   const weeksMeta = useMemo(
@@ -80,11 +81,17 @@ export default function Plan(): JSX.Element {
 
   const handleRemoveWorkout = useCallback(() => {
     if (!selectedWorkout) return;
-    Alert.alert('Remover treino', `"${selectedWorkout.title ?? 'Treino'}" será removido.`, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Remover', style: 'destructive', onPress: () => void removeWorkout(selectedWorkout.id) },
-    ]);
+    setRemoveModalVisible(true);
   }, [selectedWorkout]);
+
+  const handleConfirmRemove = async (): Promise<void> => {
+    if (!selectedWorkout) return;
+    setAddSubmitting(true);
+    const result = await removeWorkout(selectedWorkout.id);
+    setAddSubmitting(false);
+    setRemoveModalVisible(false);
+    if (!result.ok) Alert.alert('Erro', result.error.message);
+  };
 
   const handleAddWorkout = async (input: AddWorkoutFormInput): Promise<void> => {
     if (!plan || !userId || !addModalWeek) return;
@@ -264,6 +271,30 @@ export default function Plan(): JSX.Element {
         />
       ) : null}
 
+      {removeModalVisible && selectedWorkout ? (
+        <Modal visible={removeModalVisible} animationType="fade" transparent onRequestClose={() => setRemoveModalVisible(false)}>
+          <View style={styles.removeOverlay}>
+            <View style={styles.removeSheet}>
+              <Text style={styles.removeTitle}>Remover treino</Text>
+              <Text style={styles.removeText}>
+                Tem certeza que deseja remover o treino &quot;{selectedWorkout.title ?? 'Treino'}&quot;?
+              </Text>
+              <Text style={styles.removeHint}>
+                Esta ação não pode ser desfeita. O treino será removido permanentemente do plano.
+              </Text>
+              <View style={styles.removeActions}>
+                <Pressable style={styles.removeCancelBtn} onPress={() => setRemoveModalVisible(false)} accessibilityRole="button">
+                  <Text style={styles.removeCancelBtnText}>Cancelar</Text>
+                </Pressable>
+                <Pressable style={styles.removeConfirmBtn} onPress={() => void handleConfirmRemove()} disabled={addSubmitting} accessibilityRole="button">
+                  <Text style={styles.removeConfirmBtnText}>{addSubmitting ? 'Removendo...' : 'Remover'}</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      ) : null}
+
       {addModalWeek ? (
         <AddWorkoutModal
           visible
@@ -355,4 +386,14 @@ const styles = StyleSheet.create({
   exportInfo: { flex: 1 },
   exportTitle: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800'), marginBottom: -4 },
   exportDesc: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400') },
+  removeOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 },
+  removeSheet: { backgroundColor: colors.card, borderRadius: 20, padding: spacing.xl, width: '100%', maxHeight: '85%' },
+  removeTitle: { color: colors.textPrimary, fontSize: 22, ...fontWeight('800'), textAlign: 'center', marginBottom: spacing.lg },
+  removeText: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('400'), textAlign: 'center', marginBottom: spacing.md, lineHeight: 22 },
+  removeHint: { color: colors.textSecondary, fontSize: 14, ...fontWeight('400'), textAlign: 'center', marginBottom: spacing.xl, lineHeight: 20 },
+  removeActions: { flexDirection: 'row', gap: spacing.md },
+  removeCancelBtn: { flex: 1, height: 52, backgroundColor: '#2A2A2A', borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },
+  removeCancelBtnText: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('600') },
+  removeConfirmBtn: { flex: 1, height: 52, backgroundColor: 'rgba(255,68,68,0.1)', borderWidth: 1, borderColor: 'rgba(255,68,68,0.3)', borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },
+  removeConfirmBtnText: { color: colors.error, fontSize: fontSizes.base, ...fontWeight('600') },
 });

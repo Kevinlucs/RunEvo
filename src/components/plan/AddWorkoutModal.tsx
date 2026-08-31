@@ -64,23 +64,9 @@ function getWeekDays(planStartDate: string, weekNumber: number): { label: string
 }
 
 function suggestedPaceForPhase(phase: string, zones: TrainingZones | null): string {
-  if (!zones) return '';
+  if (!zones) return '-';
   const zoneKey = PHASE_ZONE[phase] ?? 'Z2';
-  return zones[zoneKey]?.from ?? '';
-}
-
-function paceToSeconds(pace: string): number | null {
-  const match = pace.match(/^(\d+):(\d{2})$/);
-  if (!match || match[1] === undefined || match[2] === undefined) return null;
-  return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
-}
-
-function handlePaceInput(raw: string): string {
-  const digits = raw.replace(/\D/g, '').slice(0, 4);
-  if (digits.length <= 2) {
-    return digits;
-  }
-  return `${digits.slice(0, digits.length - 2)}:${digits.slice(-2)}`;
+  return zones[zoneKey]?.from ?? '-';
 }
 
 /** docs/fase-5-brief.md Grupo 4 (§22) — adicionar treino à semana. */
@@ -115,20 +101,6 @@ export function AddWorkoutModal({
     setDateDropdownOpen(false);
     setError(null);
   }, [visible, phase, zones]);
-
-  const paceWarning = useMemo(() => {
-    if (!zones || !pace || !pace.includes(':')) return null;
-    const entered = paceToSeconds(pace);
-    if (entered === null) return null;
-    const slowest = paceToSeconds(zones.Z1.from);
-    const fastest = paceToSeconds(zones.Z5.to);
-    if (slowest === null || fastest === null) return null;
-    if (entered < fastest) {
-      return `Pace ${pace}/km é mais rápido que sua zona Z5 (${zones.Z5.to}/km). Isso está fora da sua capacidade atual segundo o IA Evo.`;
-    }
-    if (entered > slowest) return `Pace ${pace}/km é mais lento que sua zona Z1 (${zones.Z1.from}/km).`;
-    return null;
-  }, [zones, pace]);
 
   const selectedDateDay = weekDays.find((d) => d.value === date);
   const selectedDateLabel = selectedDateDay?.label;
@@ -190,18 +162,6 @@ export function AddWorkoutModal({
               placeholderTextColor={colors.textMuted}
             />
 
-            <Text style={styles.label}>Pace planejado</Text>
-            <TextInput
-              style={styles.input}
-              value={pace}
-              onChangeText={(raw) => setPace(handlePaceInput(raw))}
-              keyboardType="numeric"
-              maxLength={5}
-              placeholder="Ex.: 6:00/km"
-              placeholderTextColor={colors.textMuted}
-            />
-            {paceWarning ? <Text style={styles.paceWarning}>{paceWarning}</Text> : null}
-
             <Text style={styles.label}>Data</Text>
             {isDateAvailable ? (
               <>
@@ -247,9 +207,10 @@ export function AddWorkoutModal({
               onChangeText={setDescription}
               multiline
               numberOfLines={3}
-              placeholder="Detalhes do treino..."
+              placeholder={"1km em Z1\n3km em Z2\n1km em Z1"}
               placeholderTextColor={colors.textMuted}
-              textAlignVertical="top"
+              textAlignVertical="center"
+              textAlign="center"
             />
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -319,8 +280,7 @@ const styles = StyleSheet.create({
   dropdownItem: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: '#2A2A2A' },
   dropdownItemText: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('400') },
   dropdownItemActive: { color: colors.neon, ...fontWeight('700') },
-  textArea: { minHeight: 80, textAlignVertical: 'top' },
-  paceWarning: { color: colors.error, fontSize: 13, ...fontWeight('500'), marginTop: -spacing.sm, marginBottom: spacing.lg, lineHeight: 18 },
+  textArea: { minHeight: 80, textAlignVertical: 'center', textAlign: 'center' },
   error: { color: colors.error, fontSize: fontSizes.body, marginBottom: spacing.md, textAlign: 'center' },
   actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
   cancelBtn: { flex: 1, height: 52, backgroundColor: '#2A2A2A', borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },

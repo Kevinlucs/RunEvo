@@ -1,18 +1,20 @@
-import { useEffect, useRef, useMemo } from 'react';
-import { ScrollView, KeyboardAvoidingView, Platform, Text, View, StyleSheet } from 'react-native';
+import { useEffect, useRef, useMemo, useState } from 'react';
+import { ScrollView, KeyboardAvoidingView, Platform, Text, View, Pressable, TextInput, StyleSheet } from 'react-native';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import { Clock } from 'lucide-react-native';
+import { Sprout, Activity, Flame, Crown, CircleHelp, Clock, Route, Waves, TrendingUp, MountainSnow, ChevronDown } from 'lucide-react-native';
 import { Screen } from '@/components/ui/Screen';
 import { AppHeader } from '@/components/ui/AppHeader';
-import { TextField } from '@/components/ui/TextField';
 import { NeonButton } from '@/components/ui/NeonButton';
-import { ChoiceField } from '@/components/forms/ChoiceField';
 import { DateField } from '@/components/forms/DateField';
-import { PreviousTimeField } from '@/components/forms/PreviousTimeField';
+import { PreviousTimesWheel } from '@/components/forms/PreviousTimesWheel';
+import { Badge } from '@/components/forms/Badge';
+import { Test3kmWheel } from '@/components/forms/Test3kmWheel';
+import { Test3kmInfoModal } from '@/components/forms/Test3kmInfoModal';
 import { SelectableCard } from '@/components/forms/SelectableCard';
-import { SectionHeader } from '@/components/forms/SectionHeader';
+import { LevelInfoModal } from '@/components/forms/LevelInfoModal';
+import { TerrainInfoModal } from '@/components/forms/TerrainInfoModal';
 import {
   aiEvoFormSchema,
   type AiEvoFormValues,
@@ -26,24 +28,46 @@ import { usePlanGenerationStore } from '@/store/plan-generation.store';
 import { colors, spacing, fontSizes, fontWeight } from '@/theme';
 import type { AthleteInput } from '@/domain/motor-evo/types';
 
-const DAYS_PER_WEEK_CHOICES = DAYS_PER_WEEK_OPTIONS.map((n) => ({ value: String(n), label: `${n}x/semana` }));
+const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 
 const LEVEL_CARDS = [
-  { value: 'iniciante', emoji: '🌱', title: 'Iniciante', description: 'Começando a correr' },
-  { value: 'intermediário', emoji: '💪', title: 'Intermediário', description: 'Correndo regularmente' },
-  { value: 'avançado', emoji: '🔥', title: 'Avançado', description: 'Competidor experiente' },
-];
+  { value: 'iniciante', icon: 'sprout', title: 'Iniciante' },
+  { value: 'intermediário', icon: 'activity', title: 'Intermediário' },
+  { value: 'avançado', icon: 'flame', title: 'Avançado' },
+  { value: 'elite', icon: 'crown', title: 'Elite' },
+] as const;
+
+const LEVEL_ICON_MAP: Record<string, React.ReactNode> = {
+  sprout: <Sprout size={22} color={colors.neon} />,
+  activity: <Activity size={22} color={colors.neon} />,
+  flame: <Flame size={22} color={colors.neon} />,
+  crown: <Crown size={22} color={colors.neon} />,
+};
 
 const TERRAIN_CARDS = [
-  { value: 'plano', emoji: '↔️', title: 'Plano', description: 'Baixa elevação • até 5 m/km' },
-  { value: 'misto', emoji: '⚡', title: 'Misto', description: 'Elevação moderada • 5 a 15 m/km' },
-  { value: 'elevado', emoji: '▲', title: 'Elevado', description: 'Muitas subidas • acima de 15 m/km' },
-];
+  { value: 'plano', icon: 'route', title: 'Plano' },
+  { value: 'ondulado', icon: 'waves', title: 'Ondulado' },
+  { value: 'moderado', icon: 'trendingUp', title: 'Moderado' },
+  { value: 'montanhoso', icon: 'mountainSnow', title: 'Montanhoso' },
+] as const;
+
+const TERRAIN_ICON_MAP: Record<string, React.ReactNode> = {
+  route: <Route size={22} color={colors.neon} />,
+  waves: <Waves size={22} color={colors.neon} />,
+  trendingUp: <TrendingUp size={22} color={colors.neon} />,
+  mountainSnow: <MountainSnow size={22} color={colors.neon} />,
+};
 
 export default function AiEvo(): JSX.Element {
   const userId = useAuthStore((s) => s.userId);
   const setPendingInput = usePlanGenerationStore((s) => s.setPendingInput);
   const draftLoaded = useRef(false);
+  const [levelInfoVisible, setLevelInfoVisible] = useState(false);
+  const [terrainInfoVisible, setTerrainInfoVisible] = useState(false);
+  const [test3kmInfoVisible, setTest3kmInfoVisible] = useState(false);
+  const [distanceDropdownOpen, setDistanceDropdownOpen] = useState(false);
+  const [daysDropdownOpen, setDaysDropdownOpen] = useState(false);
+  const [longRunDropdownOpen, setLongRunDropdownOpen] = useState(false);
 
   const {
     control,
@@ -92,9 +116,6 @@ export default function AiEvo(): JSX.Element {
 
   const onSubmit = (data: AiEvoFormValues): void => {
     if (!userId) return;
-    // Boundary de tipos: os valores do form já são os do legado
-    // (targetDistance string crua, terrain enum do motor) — nada a traduzir
-    // aqui além de montar o shape final de AthleteInput.
     const input: AthleteInput = { ...data };
     setPendingInput(input);
     router.push('/plan/generating');
@@ -104,246 +125,379 @@ export default function AiEvo(): JSX.Element {
     <Screen>
       <AppHeader />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
-        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.scrollContent}
+          removeClippedSubviews={false}
+          nestedScrollEnabled
+        >
           <Text style={styles.title}>IA Evo</Text>
-          <Text style={styles.subtitle}>
-            Conte pra gente sobre você e sua prova. A IA (ou o motor local, se a IA não estiver disponível) monta sua
-            planilha.
-          </Text>
+          <Text style={styles.subtitle}>Evolua sua corrida com inteligência</Text>
 
           {/* SEÇÃO: Dados do Corredor */}
-          <SectionHeader emoji="📋" title="Dados do Corredor" description="Informações básicas sobre você" />
+          <View style={styles.inputsCard}>
+            <Text style={styles.sectionTitleInCard}>Dados do Corredor</Text>
+            <Text style={styles.sectionDescInCard}>Informações básicas sobre você</Text>
 
-          <Controller
-            control={control}
-            name="age"
-            render={({ field }) => (
-              <TextField
-                label="Idade"
-                value={field.value !== undefined && field.value !== null ? String(field.value) : ''}
-                onChangeText={field.onChange}
-                keyboardType="number-pad"
-                error={errors.age?.message}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="height"
-            render={({ field }) => (
-              <TextField
-                label="Altura (cm)"
-                value={field.value !== undefined && field.value !== null ? String(field.value) : ''}
-                onChangeText={field.onChange}
-                keyboardType="number-pad"
-                error={errors.height?.message}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="weight"
-            render={({ field }) => (
-              <TextField
-                label="Peso (kg)"
-                value={field.value !== undefined && field.value !== null ? String(field.value) : ''}
-                onChangeText={field.onChange}
-                keyboardType="decimal-pad"
-                error={errors.weight?.message}
-              />
-            )}
-          />
-
-          <Text style={styles.fieldLabel}>Nível de experiência</Text>
-          <Controller
-            control={control}
-            name="level"
-            render={({ field }) => (
-              <View style={styles.selectableCardsGroup}>
-                {LEVEL_CARDS.map((card) => (
-                  <SelectableCard
-                    key={card.value}
-                    selected={field.value === card.value}
-                    onPress={() => field.onChange(card.value as 'iniciante' | 'intermediário' | 'avançado')}
-                    emoji={card.emoji}
-                    title={card.title}
-                    description={card.description}
-                  />
-                ))}
-                {errors.level ? <Text style={styles.error}>{errors.level.message}</Text> : null}
-              </View>
-            )}
-          />
-
-          {/* SEÇÃO: Prova */}
-          <SectionHeader emoji="🏃" title="Prova" description="Detalhes sobre a corrida e o ciclo de treino" />
-
-          <Controller
-            control={control}
-            name="targetDistance"
-            render={({ field }) => (
-              <ChoiceField
-                label="Distância alvo"
-                value={field.value}
-                onChange={field.onChange}
-                options={DISTANCE_OPTIONS}
-                error={errors.targetDistance?.message}
-              />
-            )}
-          />
-          {(targetDistance === 'ultra' || targetDistance === 'custom') && (
+            <Text style={styles.label}>Idade</Text>
             <Controller
               control={control}
-              name="customDistance"
+              name="age"
               render={({ field }) => (
-                <TextField
-                  label="Distância personalizada (km)"
+                <TextInput
+                  style={[styles.input, errors.age ? styles.inputError : null]}
                   value={field.value !== undefined && field.value !== null ? String(field.value) : ''}
                   onChangeText={field.onChange}
-                  keyboardType="decimal-pad"
-                  error={errors.customDistance?.message}
+                  keyboardType="number-pad"
+                  placeholderTextColor={colors.textMuted}
                 />
               )}
             />
-          )}
+            {errors.age ? <Text style={styles.error}>{errors.age.message}</Text> : null}
 
-          <Text style={styles.fieldLabel}>Terreno principal</Text>
-          <Controller
-            control={control}
-            name="terrain"
-            render={({ field }) => (
-              <View style={styles.selectableCardsGroup}>
-                {TERRAIN_CARDS.map((card) => (
-                  <SelectableCard
-                    key={card.value}
-                    selected={field.value === card.value}
-                    onPress={() => field.onChange(card.value as 'plano' | 'misto' | 'elevado')}
-                    emoji={card.emoji}
-                    title={card.title}
-                    description={card.description}
-                  />
-                ))}
-                {errors.terrain ? <Text style={styles.error}>{errors.terrain.message}</Text> : null}
-              </View>
-            )}
-          />
+            <Text style={styles.label}>Altura (cm)</Text>
+            <Controller
+              control={control}
+              name="height"
+              render={({ field }) => (
+                <TextInput
+                  style={[styles.input, errors.height ? styles.inputError : null]}
+                  value={field.value !== undefined && field.value !== null ? String(field.value) : ''}
+                  onChangeText={field.onChange}
+                  keyboardType="number-pad"
+                  placeholderTextColor={colors.textMuted}
+                />
+              )}
+            />
+            {errors.height ? <Text style={styles.error}>{errors.height.message}</Text> : null}
 
-          <Controller
-            control={control}
-            name="startDate"
-            render={({ field }) => (
-              <DateField label="Data de início" value={field.value} onChange={field.onChange} minimumDate={new Date()} error={errors.startDate?.message} />
-            )}
-          />
-          <Controller
-            control={control}
-            name="raceDate"
-            render={({ field }) => (
-              <DateField label="Data da prova" value={field.value} onChange={field.onChange} minimumDate={new Date()} error={errors.raceDate?.message} />
-            )}
-          />
+            <Text style={styles.label}>Peso (kg)</Text>
+            <Controller
+              control={control}
+              name="weight"
+              render={({ field }) => (
+                <TextInput
+                  style={[styles.input, errors.weight ? styles.inputError : null]}
+                  value={field.value !== undefined && field.value !== null ? String(field.value) : ''}
+                  onChangeText={field.onChange}
+                  keyboardType="decimal-pad"
+                  placeholderTextColor={colors.textMuted}
+                />
+              )}
+            />
+            {errors.weight ? <Text style={styles.error}>{errors.weight.message}</Text> : null}
+          </View>
 
-          {weeksUntilRace ? (
-            <View style={styles.weeksCountdown}>
-              <Clock size={16} color={colors.neon} />
-              <Text style={styles.weeksCountdownText}>{weeksUntilRace} semanas até a prova</Text>
+          {/* SEÇÃO: Nível de Experiência */}
+          <View style={styles.levelCard}>
+            <View style={styles.levelHeader}>
+              <Text style={styles.levelTitle}>Nível de experiência</Text>
+              <Pressable onPress={() => setLevelInfoVisible(true)} accessibilityRole="button" accessibilityLabel="O que é cada nível?">
+                <CircleHelp style={{ marginTop: -5 }} size={20} color={colors.textMuted} />
+              </Pressable>
             </View>
-          ) : null}
 
-          <Controller
-            control={control}
-            name="daysPerWeek"
-            render={({ field }) => (
-              <ChoiceField
-                label="Dias de treino por semana"
-                value={field.value !== undefined ? String(field.value) : undefined}
-                onChange={(v) => setValue('daysPerWeek', Number(v), { shouldValidate: true })}
-                options={DAYS_PER_WEEK_CHOICES}
-                error={errors.daysPerWeek?.message}
-              />
+            <Controller
+              control={control}
+              name="level"
+              render={({ field }) => (
+                <View>
+                  {LEVEL_CARDS.map((card) => (
+                    <SelectableCard
+                      key={card.value}
+                      selected={field.value === card.value}
+                      onPress={() => field.onChange(card.value)}
+                      icon={LEVEL_ICON_MAP[card.icon]}
+                      title={card.title}
+                    />
+                  ))}
+                </View>
+              )}
+            />
+            {errors.level ? <Text style={styles.error}>{errors.level.message}</Text> : null}
+          </View>
+
+          {/* SEÇÃO: Prova */}
+          <View style={styles.provaCard}>
+            <Text style={styles.sectionTitleInCard}>Prova</Text>
+
+            <Text style={styles.label}>Distância alvo</Text>
+            <Controller
+              control={control}
+              name="targetDistance"
+              render={({ field }) => (
+                <View style={styles.dropdownWrap}>
+                  <Pressable
+                    style={styles.dropdown}
+                    onPress={() => setDistanceDropdownOpen(!distanceDropdownOpen)}
+                    accessibilityRole="button"
+                  >
+                    <Text style={[styles.dropdownText, !field.value && styles.dropdownPlaceholder]}>
+                      {DISTANCE_OPTIONS.find((o) => o.value === field.value)?.label || 'Selecione a distância'}
+                    </Text>
+                    <ChevronDown size={18} color={colors.textMuted} />
+                  </Pressable>
+                  {distanceDropdownOpen ? (
+                    <View style={styles.dropdownList}>
+                      {DISTANCE_OPTIONS.map((opt) => (
+                        <Pressable
+                          key={opt.value}
+                          onPress={() => {
+                            field.onChange(opt.value);
+                            setDistanceDropdownOpen(false);
+                          }}
+                          style={styles.dropdownItem}
+                        >
+                          <Text style={[styles.dropdownItemText, field.value === opt.value && styles.dropdownItemActive]}>
+                            {opt.label}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  ) : null}
+                  {errors.targetDistance ? <Text style={styles.error}>{errors.targetDistance.message}</Text> : null}
+                </View>
+              )}
+            />
+
+            {(targetDistance === 'ultra' || targetDistance === 'custom') && (
+              <>
+                <Text style={styles.label}>Distância em km</Text>
+                <Controller
+                  control={control}
+                  name="customDistance"
+                  render={({ field }) => (
+                    <>
+                      <TextInput
+                        style={styles.input}
+                        value={field.value !== undefined && field.value !== null ? String(field.value) : ''}
+                        onChangeText={field.onChange}
+                        keyboardType="decimal-pad"
+                        placeholder="Ex.: 61"
+                        placeholderTextColor={colors.textMuted}
+                      />
+                      {errors.customDistance ? <Text style={styles.error}>{errors.customDistance.message}</Text> : null}
+                    </>
+                  )}
+                />
+              </>
             )}
-          />
+          </View>
+
+          <View style={styles.terrainCard}>
+            <View style={styles.terrainHeader}>
+              <Text style={styles.terrainTitle}>Terreno principal</Text>
+              <Pressable onPress={() => setTerrainInfoVisible(true)} accessibilityRole="button" accessibilityLabel="O que é cada terreno?">
+                <CircleHelp style={{ marginTop: -5 }} size={20} color={colors.textMuted} />
+              </Pressable>
+            </View>
+
+            <Controller
+              control={control}
+              name="terrain"
+              render={({ field }) => (
+                <View>
+                  {TERRAIN_CARDS.map((card) => (
+                    <SelectableCard
+                      key={card.value}
+                      selected={field.value === card.value}
+                      onPress={() => field.onChange(card.value)}
+                      icon={TERRAIN_ICON_MAP[card.icon]}
+                      title={card.title}
+                    />
+                  ))}
+                </View>
+              )}
+            />
+
+            {errors.terrain ? <Text style={styles.error}>{errors.terrain.message}</Text> : null}
+          </View>
+
+          <View style={styles.datesCard}>
+            <Text style={styles.sectionTitleInCard}>Datas</Text>
+
+            <Controller
+              control={control}
+              name="startDate"
+              render={({ field }) => (
+                <DateField label="Data de início" value={field.value} onChange={field.onChange} minimumDate={new Date()} error={errors.startDate?.message} />
+              )}
+            />
+            <Controller
+              control={control}
+              name="raceDate"
+              render={({ field }) => (
+                <DateField label="Data da prova" value={field.value} onChange={field.onChange} minimumDate={new Date()} error={errors.raceDate?.message} />
+              )}
+            />
+
+            {weeksUntilRace ? (
+              <View style={styles.weeksCountdown}>
+                <Clock size={16} color={colors.neon} />
+                <Text style={styles.weeksCountdownText}>{weeksUntilRace} semanas até a prova</Text>
+              </View>
+            ) : null}
+          </View>
+
+          {/* SEÇÃO: Treino semanal */}
+          <View style={styles.trainingCard}>
+            <Text style={styles.sectionTitleInCard}>Treino semanal</Text>
+
+            <Text style={styles.label}>Dias de treino por semana</Text>
+            <Controller
+              control={control}
+              name="daysPerWeek"
+              render={({ field }) => (
+                <View style={styles.dropdownWrap}>
+                  <Pressable style={styles.dropdown} onPress={() => setDaysDropdownOpen(!daysDropdownOpen)} accessibilityRole="button">
+                    <Text style={[styles.dropdownText, !field.value && styles.dropdownPlaceholder]}>
+                      {field.value ? `${field.value}x/semana` : 'Selecione'}
+                    </Text>
+                    <ChevronDown size={18} color={colors.textMuted} />
+                  </Pressable>
+                  {daysDropdownOpen ? (
+                    <View style={styles.dropdownList}>
+                      {DAYS_PER_WEEK_OPTIONS.map((n) => (
+                        <Pressable
+                          key={n}
+                          onPress={() => {
+                            setValue('daysPerWeek', n, { shouldValidate: true });
+                            setDaysDropdownOpen(false);
+                          }}
+                          style={styles.dropdownItem}
+                        >
+                          <Text style={[styles.dropdownItemText, field.value === n && styles.dropdownItemActive]}>{n}x/semana</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  ) : null}
+                  {errors.daysPerWeek ? <Text style={styles.error}>{errors.daysPerWeek.message}</Text> : null}
+                </View>
+              )}
+            />
+
+            <Text style={styles.label}>Dia do longão</Text>
+            <Controller
+              control={control}
+              name="longRunDay"
+              render={({ field }) => (
+                <View style={styles.dropdownWrap}>
+                  <Pressable style={styles.dropdown} onPress={() => setLongRunDropdownOpen(!longRunDropdownOpen)} accessibilityRole="button">
+                    <Text style={[styles.dropdownText, !field.value && styles.dropdownPlaceholder]}>
+                      {field.value || 'Selecione o dia'}
+                    </Text>
+                    <ChevronDown size={18} color={colors.textMuted} />
+                  </Pressable>
+                  {longRunDropdownOpen ? (
+                    <View style={styles.dropdownList}>
+                      {WEEKDAYS.map((day) => (
+                        <Pressable
+                          key={day}
+                          onPress={() => {
+                            field.onChange(day);
+                            setLongRunDropdownOpen(false);
+                          }}
+                          style={styles.dropdownItem}
+                        >
+                          <Text style={[styles.dropdownItemText, field.value === day && styles.dropdownItemActive]}>{day}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  ) : null}
+                </View>
+              )}
+            />
+          </View>
 
           {/* SEÇÃO: Tempos Anteriores */}
-          <SectionHeader emoji="🕐" title="Tempos anteriores" description="Indique seus melhores tempos, se houver" />
-
-          <PreviousTimeField
-            label="5K"
-            time={values.time5k ?? ''}
-            onChangeTime={(v) => setValue('time5k', v)}
-            no={Boolean(values.no5k)}
-            onChangeNo={(v) => setValue('no5k', v)}
-            checkboxLabel="Ainda não corri 5K"
-            error={errors.time5k?.message}
-          />
-          <PreviousTimeField
-            label="10K"
-            time={values.time10k ?? ''}
-            onChangeTime={(v) => setValue('time10k', v)}
-            no={Boolean(values.no10k)}
-            onChangeNo={(v) => setValue('no10k', v)}
-            checkboxLabel="Ainda não corri 10K"
-            error={errors.time10k?.message}
-          />
-          <PreviousTimeField
-            label="21K"
-            time={values.time21k ?? ''}
-            onChangeTime={(v) => setValue('time21k', v)}
-            no={Boolean(values.no21k)}
-            onChangeNo={(v) => setValue('no21k', v)}
-            checkboxLabel="Ainda não corri 21K"
-            error={errors.time21k?.message}
-          />
-          <PreviousTimeField
-            label="42K"
-            time={values.time42k ?? ''}
-            onChangeTime={(v) => setValue('time42k', v)}
-            no={Boolean(values.no42k)}
-            onChangeNo={(v) => setValue('no42k', v)}
-            checkboxLabel="Ainda não corri 42K"
-            error={errors.time42k?.message}
-          />
+          <View style={styles.timesCard}>
+            <PreviousTimesWheel
+              values={{
+                time5k: values.time5k,
+                no5k: values.no5k,
+                time10k: values.time10k,
+                no10k: values.no10k,
+                time21k: values.time21k,
+                no21k: values.no21k,
+                time42k: values.time42k,
+                no42k: values.no42k,
+              }}
+              onChange={(field, value) => setValue(field as keyof AiEvoFormValues, value as never)}
+            />
+          </View>
 
           {/* SEÇÃO: Teste de 3km */}
-          <SectionHeader emoji="⚡" title="Teste de 3km" required description="Corra 3km no seu ritmo normal para calibrar suas zonas" />
+          <View style={styles.test3kmCard}>
+            <View style={styles.titleRowCenter}>
+              <Text style={styles.sectionTitleInCard}>Teste de 3 km</Text>
+              <Pressable onPress={() => setTest3kmInfoVisible(true)} accessibilityRole="button" accessibilityLabel="Como fazer o teste?">
+                <CircleHelp size={20} color={colors.textMuted} />
+              </Pressable>
+            </View>
+            <View style={styles.badgeCenterWrap}>
+              <Badge label="OBRIGATÓRIO" tone="error" variant="pill" />
+            </View>
+            <Text style={styles.sectionDescInCard}>Seu resultado define suas zonas de treino.</Text>
 
-          <Controller
-            control={control}
-            name="test3kmTime"
-            render={({ field }) => (
-              <TextField
-                label="Tempo total do teste"
-                value={field.value ?? ''}
-                onChangeText={field.onChange}
-                placeholder="mm:ss"
-                keyboardType="numbers-and-punctuation"
-                error={errors.test3kmTime?.message}
-              />
-            )}
-          />
+            <View style={styles.instructionBox}>
+              <Text style={styles.instructionTitle}>Corra 3 km</Text>
+              <Text style={styles.instructionText}>No seu melhor ritmo sustentável e constante.</Text>
+            </View>
+
+            <Text style={[styles.label, styles.labelCenter]}>Tempo total dos 3 km</Text>
+            <Test3kmWheel
+              value={values.test3kmTime}
+              onChange={(mmss) => setValue('test3kmTime', mmss)}
+              onPaceChange={(pace) => setValue('test3kmPace', pace)}
+            />
+            {errors.test3kmTime ? <Text style={styles.error}>{errors.test3kmTime.message}</Text> : null}
+
+            <Text style={styles.paceText}>
+              Seu pace: <Text style={styles.paceValue}>{values.test3kmPace || '--:--'}</Text> /km
+            </Text>
+          </View>
 
           {/* SEÇÃO: Objetivo */}
-          <SectionHeader emoji="🎯" title="Objetivo" required description="Deixe um objetivo pessoal para motivação" />
+          <View style={styles.objectiveCard}>
+            <View style={styles.titleRowCenter}>
+              <Text style={styles.sectionTitleInCard}>Objetivo</Text>
+            </View>
+            <View style={styles.badgeCenterWrap}>
+              <Badge label="OBRIGATÓRIO" tone="error" variant="pill" />
+            </View>
+            <Text style={styles.sectionDescInCard}>O que você quer conquistar?</Text>
 
-          <Controller
-            control={control}
-            name="objective"
-            render={({ field }) => (
-              <TextField
-                label="Seu objetivo"
-                value={field.value ?? ''}
-                onChangeText={field.onChange}
-                placeholder="Ex: sub 50 no 10K, terminar com segurança..."
-                autoCapitalize="sentences"
-                multiline
-                error={errors.objective?.message}
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="objective"
+              render={({ field }) => (
+                <TextInput
+                  style={[styles.objectiveInput, errors.objective ? styles.inputError : null]}
+                  value={field.value ?? ''}
+                  onChangeText={field.onChange}
+                  placeholder="Ex.: Correr 10 km abaixo de 50 min"
+                  placeholderTextColor={colors.textMuted}
+                  autoCapitalize="sentences"
+                  multiline
+                  textAlign="center"
+                  textAlignVertical="center"
+                />
+              )}
+            />
+            {errors.objective ? <Text style={styles.error}>{errors.objective.message}</Text> : null}
+
+            <Text style={[styles.objectiveHint, styles.objectiveHintCenter]}>
+              Pode ser uma prova, um tempo, uma distância ou uma meta.
+            </Text>
+          </View>
 
           <NeonButton label="Gerar Planilha" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <LevelInfoModal visible={levelInfoVisible} onClose={() => setLevelInfoVisible(false)} />
+      <TerrainInfoModal visible={terrainInfoVisible} onClose={() => setTerrainInfoVisible(false)} />
+      <Test3kmInfoModal visible={test3kmInfoVisible} onClose={() => setTest3kmInfoVisible(false)} />
     </Screen>
   );
 }
@@ -351,22 +505,61 @@ export default function AiEvo(): JSX.Element {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   scrollContent: { paddingBottom: spacing.xxxl },
-  title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.xl },
-  subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.sm, marginBottom: spacing.lg },
-  fieldLabel: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('600'), marginBottom: spacing.sm, marginTop: spacing.md },
-  selectableCardsGroup: { marginBottom: spacing.lg },
+  title: { color: colors.neon, fontSize: 28, ...fontWeight('800'), textAlign: 'center', marginTop: spacing.xl },
+  subtitle: { color: colors.textSecondary, fontSize: 14, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.lg },
+  inputsCard: { backgroundColor: colors.card, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  sectionTitleInCard: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800'), textAlign: 'center', marginBottom: spacing.xs },
+  sectionDescInCard: { color: colors.textSecondary, fontSize: 14, textAlign: 'center', marginBottom: spacing.lg },
+  levelCard: { backgroundColor: colors.card, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  levelHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginBottom: spacing.lg },
+  levelTitle: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800') },
   error: { color: colors.error, fontSize: fontSizes.caption, marginTop: spacing.xs },
+  provaCard: { backgroundColor: colors.card, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  label: { color: colors.textPrimary, fontSize: 16, ...fontWeight('700'), marginBottom: spacing.sm },
+  dropdownWrap: { marginBottom: spacing.lg },
+  dropdown: {
+    backgroundColor: colors.cardElevated, borderWidth: 1, borderColor: '#2A2A2A',
+    borderRadius: 12, paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 52,
+  },
+  dropdownText: { color: colors.textPrimary, fontSize: fontSizes.base },
+  dropdownPlaceholder: { color: colors.textMuted },
+  dropdownList: {
+    backgroundColor: colors.cardElevated, borderRadius: 12,
+    borderWidth: 1, borderColor: '#2A2A2A', marginTop: -spacing.md, marginBottom: spacing.lg, overflow: 'hidden' as const,
+  },
+  dropdownItem: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: '#2A2A2A' },
+  dropdownItemText: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('400') },
+  dropdownItemActive: { color: colors.neon, ...fontWeight('700') },
+  input: {
+    height: 52, backgroundColor: colors.cardElevated, borderWidth: 1, borderColor: '#2A2A2A',
+    borderRadius: 12, color: colors.textPrimary, fontSize: fontSizes.base,
+    paddingHorizontal: spacing.lg, marginBottom: spacing.lg,
+  },
+  inputError: { borderColor: colors.error },
+  terrainCard: { backgroundColor: colors.card, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  terrainHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginBottom: spacing.lg },
+  terrainTitle: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800') },
+  datesCard: { backgroundColor: colors.card, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  trainingCard: { backgroundColor: colors.card, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  timesCard: { backgroundColor: colors.card, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  titleRowCenter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+  badgeCenterWrap: { alignItems: 'center', marginTop: spacing.sm, marginBottom: spacing.xs },
+  labelCenter: { textAlign: 'center' },
+  instructionBox: { backgroundColor: colors.cardElevated, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(204,255,0,0.2)', padding: spacing.lg, marginVertical: spacing.lg, alignItems: 'center' },
+  instructionTitle: { color: colors.neon, fontSize: 16, ...fontWeight('800'), marginBottom: spacing.xs },
+  instructionText: { color: colors.textSecondary, fontSize: 14, textAlign: 'center', lineHeight: 20 },
+  paceText: { color: colors.textSecondary, fontSize: 14, textAlign: 'center', marginTop: spacing.md },
+  paceValue: { color: colors.neon, ...fontWeight('700') },
+  test3kmCard: { backgroundColor: colors.card, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  objectiveCard: { backgroundColor: colors.card, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  objectiveInput: { minHeight: 90, backgroundColor: colors.cardElevated, borderRadius: 12, borderWidth: 1, borderColor: '#2A2A2A', color: colors.textPrimary, fontSize: fontSizes.base, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, marginTop: spacing.md },
+  objectiveHint: { color: colors.textMuted, fontSize: 13, marginTop: spacing.sm, lineHeight: 18 },
+  objectiveHintCenter: { textAlign: 'center' },
   weeksCountdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: 'rgba(204,255,0,0.08)',
-    borderColor: 'rgba(204,255,0,0.2)',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginTop: spacing.md,
-    marginBottom: spacing.lg,
+    flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+    backgroundColor: 'rgba(204,255,0,0.08)', borderColor: 'rgba(204,255,0,0.2)', borderWidth: 1,
+    borderRadius: 12, padding: spacing.md, marginTop: spacing.md, marginBottom: spacing.lg,
   },
   weeksCountdownText: { color: colors.neon, fontSize: 14, ...fontWeight('600') },
 });

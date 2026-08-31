@@ -34,8 +34,8 @@ export interface AthleteInputFixture {
   level?: string;
   targetDistance: '5' | '10' | '21' | '42' | 'ultra' | 'custom';
   customDistance?: number;
-  terrain?: 'plano' | 'misto' | 'elevado';
-  terrainType?: 'plano' | 'misto' | 'elevado';
+  terrain?: 'plano' | 'ondulado' | 'moderado' | 'montanhoso' | 'misto' | 'elevado';
+  terrainType?: 'plano' | 'ondulado' | 'moderado' | 'montanhoso' | 'misto' | 'elevado';
   startDate: string;
   raceDate: string;
   daysPerWeek?: number;

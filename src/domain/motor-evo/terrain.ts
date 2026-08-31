@@ -1,6 +1,7 @@
 /**
  * Porte 1:1 de `legacy/ai-coach.js` — terreno.
  * Mapeamento: docs/legacy-audit.md §13.3 (`getTerrainLabel, getTerrainGuidance` → `terrain.ts`).
+ * Expandido para 4 terrenos (plano, ondulado, moderado, montanhoso) com backward-compat.
  */
 
 export interface TerrainGuidance {
@@ -11,17 +12,19 @@ export interface TerrainGuidance {
   focus: string;
 }
 
-/** ai-coach.js:317-324 */
 export function getTerrainLabel(value: string | undefined): string {
   const labels: Record<string, string> = {
     plano: 'Plano',
-    misto: 'Misto',
-    elevado: 'Elevado',
+    ondulado: 'Ondulado',
+    moderado: 'Moderado',
+    montanhoso: 'Montanhoso',
+    // Backward-compat com dados antigos no banco:
+    misto: 'Ondulado',
+    elevado: 'Montanhoso',
   };
   return (value !== undefined && labels[value]) || 'Plano';
 }
 
-/** ai-coach.js:326-352 */
 export function getTerrainGuidance(value: string | undefined): TerrainGuidance {
   const guidance: Record<string, TerrainGuidance> = {
     plano: {
@@ -31,6 +34,28 @@ export function getTerrainGuidance(value: string | undefined): TerrainGuidance {
       recoveryEvery: 4,
       focus: 'ritmo contínuo, economia de corrida e progressão de volume/pace',
     },
+    ondulado: {
+      label: 'terreno ondulado',
+      volumeFactor: 0.96,
+      longRunFactor: 0.96,
+      recoveryEvery: 3,
+      focus: 'subidas leves, controle de esforço por zona e economia em descida',
+    },
+    moderado: {
+      label: 'terreno moderado',
+      volumeFactor: 0.92,
+      longRunFactor: 0.92,
+      recoveryEvery: 3,
+      focus: 'subidas moderadas, fortalecimento específico e controle de pace em aclive',
+    },
+    montanhoso: {
+      label: 'terreno montanhoso',
+      volumeFactor: 0.86,
+      longRunFactor: 0.86,
+      recoveryEvery: 2,
+      focus: 'subidas longas, técnica de montanha, esforço por zona, maior recuperação e menor agressividade de pace',
+    },
+    // Backward-compat: dados antigos salvos no banco como 'misto' ou 'elevado'
     misto: {
       label: 'terreno misto',
       volumeFactor: 0.94,
