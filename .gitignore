@@ -3,6 +3,7 @@ node_modules/
 !/.vendor/ndeloof-go-garmin/
 !.vendor/ndeloof-go-garmin/
 /.gocache/
+services/garmin-gateway/ndeloof-go-garmin/
 .expo/
 dist/
 *.log
