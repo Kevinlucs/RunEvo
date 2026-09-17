@@ -1,5 +1,8 @@
 node_modules/
-.vendor/
+/.vendor/*
+!/.vendor/ndeloof-go-garmin/
+!.vendor/ndeloof-go-garmin/
+/.gocache/
 .expo/
 dist/
 *.log

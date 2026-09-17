@@ -73,9 +73,12 @@
     "ts-jest": "^29.2.0",
     "ts-node": "^10.9.2",
     "typescript": "~5.6.0"
-  },
-  "private": true,
-  "allowScripts": {
+ },
+ "private": true,
+ "overrides": {
+ "react-server-dom-webpack": "^19.0.2"
+ },
+ "allowScripts": {
     "@anthropic-ai/claude-code@2.1.237": true
   }
 }
