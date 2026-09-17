@@ -42,7 +42,8 @@
     "expo-sqlite": "~15.0.0",
     "expo-status-bar": "~2.0.0",
     "lucide-react-native": "^1.33.0",
-    "react": "18.3.1",
+    "react": "^19.0.2",
+    "react-dom": "^19.0.2",
     "react-hook-form": "^7.54.0",
     "react-native": "0.76.5",
     "react-native-purchases": "^10.6.0",
@@ -52,6 +53,7 @@
     "react-native-svg": "15.8.0",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-wheel-picker-expo": "^0.5.4",
+    "react-server-dom-webpack": "^19.0.2",
     "xlsx": "^0.18.5",
     "zod": "^3.24.0",
     "zustand": "^5.0.0"
@@ -73,9 +75,9 @@
     "ts-jest": "^29.2.0",
     "ts-node": "^10.9.2",
     "typescript": "~5.6.0"
- },
- "private": true,
- "allowScripts": {
+  },
+  "private": true,
+  "allowScripts": {
     "@anthropic-ai/claude-code@2.1.237": true
   }
 }
