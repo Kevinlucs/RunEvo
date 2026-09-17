@@ -7,6 +7,8 @@ import type { AthleteProfile } from '@/domain/entities';
 export interface EditProfileInput {
   id: string;
   displayName: string | null;
+  birthDate?: string | null;
+  gender?: AthleteProfile['gender'];
   currentWeightKg: number | null;
   heightCm: number | null;
   preferredUnit: 'km' | 'mi';
@@ -22,7 +24,9 @@ export interface EditProfileInput {
  * atleta — o app hoje é km/pt-BR/escuro fixo em toda tela, então essas 3
  * opções ainda não têm efeito visível (divergência reportada na Parada 2).
  */
-export async function updateAthleteProfile(input: EditProfileInput): Promise<Result<AthleteProfile>> {
+export async function updateAthleteProfile(
+  input: EditProfileInput,
+): Promise<Result<AthleteProfile>> {
   try {
     const imc = calculateIMC({
       imc: null,
@@ -32,6 +36,8 @@ export async function updateAthleteProfile(input: EditProfileInput): Promise<Res
     const res = await athleteProfileRepository.upsert({
       id: input.id,
       display_name: input.displayName,
+      ...(input.birthDate !== undefined ? { birth_date: input.birthDate } : {}),
+      ...(input.gender !== undefined ? { gender: input.gender } : {}),
       current_weight_kg: input.currentWeightKg,
       imc,
       preferred_unit: input.preferredUnit,

@@ -1,13 +1,15 @@
 import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { colors, radii, spacing, fontSizes, MIN_TOUCH_TARGET, fontWeight } from '@/theme';
+import React from 'react';
 
 type Props = {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'garmin';
   loading?: boolean;
   disabled?: boolean;
+  icon?: React.ReactNode;
 };
 
 export function NeonButton({
@@ -16,8 +18,21 @@ export function NeonButton({
   variant = 'primary',
   loading = false,
   disabled = false,
+  icon,
 }: Props): JSX.Element {
   const isPrimary = variant === 'primary';
+  const isGarmin = variant === 'garmin';
+  
+  const getContainerStyle = () => {
+    if (isGarmin) return styles.garmin;
+    return isPrimary ? styles.primary : styles.secondary;
+  };
+
+  const getLabelStyle = () => {
+    if (isGarmin) return styles.labelGarmin;
+    return isPrimary ? styles.labelPrimary : styles.labelSecondary;
+  };
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -28,17 +43,18 @@ export function NeonButton({
       }}
       style={({ pressed }) => [
         styles.base,
-        isPrimary ? styles.primary : styles.secondary,
+        getContainerStyle(),
         (disabled || loading) && styles.disabled,
         pressed && styles.pressed,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={isPrimary ? colors.bg : colors.neon} />
+        <ActivityIndicator color={isPrimary || isGarmin ? colors.bg : colors.neon} />
       ) : (
-        <Text style={[styles.label, isPrimary ? styles.labelPrimary : styles.labelSecondary]}>
-          {label}
-        </Text>
+        <>
+          {icon}
+          <Text style={[styles.label, getLabelStyle()]}>{label}</Text>
+        </>
       )}
     </Pressable>
   );
@@ -52,12 +68,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.xxl,
     paddingVertical: spacing.md,
+    flexDirection: 'row',
   },
   primary: { backgroundColor: colors.neon },
   secondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.border },
+  garmin: { backgroundColor: '#007CC3' },
   disabled: { opacity: 0.5 },
   pressed: { opacity: 0.85 },
   label: { fontSize: fontSizes.base, ...fontWeight('700') },
   labelPrimary: { color: colors.bg },
   labelSecondary: { color: colors.textPrimary },
+  labelGarmin: { color: colors.bg },
 });

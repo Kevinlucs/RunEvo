@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { runSync } from '@/db/sync';
+import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { withTimeout } from '@/utils/timeout';
 import { keysToInvalidate } from '@/services/sync/invalidation';
@@ -9,14 +10,23 @@ import { keysToInvalidate } from '@/services/sync/invalidation';
 /** Nunca deixa o guard de rota esperando o 1º sync por mais que isso (ver `_layout.tsx`). */
 const INITIAL_SYNC_TIMEOUT_MS = 8000;
 
-async function syncAndInvalidate(userId: string, queryClient: QueryClient): Promise<void> {
-  if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[SYNC] starting sync for user:', userId.slice(0, 8));
+export async function synchronizeLocalCache(
+  userId: string,
+  queryClient: QueryClient,
+): Promise<void> {
+  if (typeof __DEV__ !== 'undefined' && __DEV__)
+    console.log('[SYNC] starting sync for user:', userId.slice(0, 8));
   const result = await runSync(userId);
   if (!result.ok) {
-    if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[SYNC] FAILED:', result.error.message);
+    if (typeof __DEV__ !== 'undefined' && __DEV__)
+      console.log('[SYNC] FAILED:', result.error.message);
     return;
   }
-  if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[SYNC] completed. Changed tables:', result.value.changedTables.join(', ') || 'none');
+  if (typeof __DEV__ !== 'undefined' && __DEV__)
+    console.log(
+      '[SYNC] completed. Changed tables:',
+      result.value.changedTables.join(', ') || 'none',
+    );
   for (const keyPrefix of keysToInvalidate(result.value.changedTables)) {
     void queryClient.invalidateQueries({ queryKey: [keyPrefix] });
   }
@@ -45,20 +55,41 @@ export function useSync(): { initialSyncDone: boolean } {
     }
     let active = true;
 
-    void withTimeout(syncAndInvalidate(userId, queryClient), INITIAL_SYNC_TIMEOUT_MS, undefined).then(() => {
+    void withTimeout(
+      synchronizeLocalCache(userId, queryClient),
+      INITIAL_SYNC_TIMEOUT_MS,
+      undefined,
+    ).then(() => {
       if (active) setInitialSyncDone(true);
     });
 
     const interval = setInterval(() => {
-      if (active) void syncAndInvalidate(userId, queryClient);
+      if (active) void synchronizeLocalCache(userId, queryClient);
     }, 60_000);
     const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
-      if (state === 'active') void syncAndInvalidate(userId, queryClient);
+      if (state === 'active') void synchronizeLocalCache(userId, queryClient);
     });
+    // Webhook → Edge Function → plan_workouts. Enquanto o aplicativo estiver
+    // aberto, este canal evita esperar o próximo ciclo de sincronização para
+    // apresentar o check-in da corrida que acabou de chegar.
+    const channel = supabase
+      .channel(`workout-sync:${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'plan_workouts',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => void synchronizeLocalCache(userId, queryClient),
+      )
+      .subscribe();
     return () => {
       active = false;
       clearInterval(interval);
       sub.remove();
+      void supabase.removeChannel(channel);
     };
   }, [userId, queryClient]);
 

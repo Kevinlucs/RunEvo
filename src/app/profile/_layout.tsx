@@ -11,8 +11,29 @@ export default function ProfileLayout(): JSX.Element {
         contentStyle: { backgroundColor: colors.bg },
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'Perfil' }} />
-      <Stack.Screen name="edit" options={{ title: 'Editar perfil' }} />
+      <Stack.Screen name="index" options={{ title: 'Perfil', headerShown: false }} />
+      <Stack.Screen
+        name="edit"
+        options={{
+          title: 'Editar perfil',
+          headerTitleAlign: 'center',
+          headerBackTitle: '',
+        }}
+      />
+      <Stack.Screen
+        name="connected-apps"
+        options={{
+          title: 'Aplicativos e dispositivos\nconectados',
+          headerTitleAlign: 'center',
+          headerStyle: { backgroundColor: colors.bg },
+          headerTitleStyle: {
+            color: colors.textPrimary,
+            fontSize: 20,
+          },
+        }}
+      />
+      <Stack.Screen name="watches/index" options={{ title: 'Conectar relógio' }} />
+      <Stack.Screen name="watches/garmin" options={{ title: 'Garmin Connect' }} />
       <Stack.Screen name="shoes/index" options={{ title: 'Meus tênis' }} />
       <Stack.Screen name="shoes/[id]" options={{ title: 'Tênis' }} />
     </Stack>

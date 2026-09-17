@@ -1,19 +1,16 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import type { LucideIcon } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
 import { LockedSection } from '@/components/paywall/LockedSection';
 import { useEntitlement } from '@/hooks/useEntitlement';
 import { PLUS_FEATURES, FREE_FEATURES } from '@/services/subscription/plus-features';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
-import type { ComponentProps } from 'react';
 
-type IconName = ComponentProps<typeof Ionicons>['name'];
-
-function FeatureRow({ icon, label }: { icon: IconName; label: string }): JSX.Element {
+function FeatureRow({ icon: Icon, label }: { icon: LucideIcon; label: string }): JSX.Element {
   return (
     <View style={styles.row}>
-      <Ionicons name={icon} size={20} color={colors.neon} />
+      <Icon size={20} color={colors.neon} />
       <Text style={styles.rowLabel}>{label}</Text>
     </View>
   );

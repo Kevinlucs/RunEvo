@@ -6,6 +6,10 @@ export const athleteProfileSchema = z.object({
   display_name: z.string().nullable().default(null),
   avatar_url: z.string().nullable().default(null),
   birth_date: z.string().nullable().default(null),
+  gender: z
+    .enum(['masculino', 'feminino', 'nao-binario', 'prefiro-nao-dizer'])
+    .nullable()
+    .default(null),
   height_cm: z.number().nullable().default(null),
   current_weight_kg: z.number().nullable().default(null),
   imc: z.number().nullable().default(null),
@@ -13,6 +17,7 @@ export const athleteProfileSchema = z.object({
   language: z.string().default('pt-BR'),
   theme: z.enum(['dark', 'light', 'system']).default('dark'),
   onboarding_seen: z.boolean().default(false),
+  level_frame_enabled: z.boolean().default(false),
   created_at: isoTimestamp,
   updated_at: isoTimestamp,
 });

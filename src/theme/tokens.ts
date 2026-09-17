@@ -17,6 +17,8 @@ export const colors = {
   success: '#4CAF50',
   warning: '#FF9800',
   error: '#FF4444',
+  strava: '#FC4C02',
+  stravaMuted: 'rgba(252, 76, 2, 0.14)',
   glow: 'rgba(204, 255, 0, 0.30)',
   tabInactive: '#666666',
   tabActive: '#CCFF00',

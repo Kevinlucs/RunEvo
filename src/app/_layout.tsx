@@ -41,13 +41,15 @@ function useOnboardingSeen(userId: string | null, initialSyncDone: boolean): Onb
       // AsyncStorage como cache monotônico: uma vez true, nunca volta a false.
       const cached = await AsyncStorage.getItem(ONBOARDING_KEY);
       if (cached === 'true') {
-        if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ONBOARDING] AsyncStorage cache hit: seen=true');
+        if (typeof __DEV__ !== 'undefined' && __DEV__)
+          console.log('[ONBOARDING] AsyncStorage cache hit: seen=true');
         return true;
       }
 
       const result = await athleteProfileRepository.findById(userId);
       const value = result.ok ? (result.value?.onboarding_seen ?? null) : null;
-      if (typeof __DEV__ !== 'undefined' && __DEV__) console.log('[ONBOARDING] SQLite:', value, '| syncDone:', initialSyncDone);
+      if (typeof __DEV__ !== 'undefined' && __DEV__)
+        console.log('[ONBOARDING] SQLite:', value, '| syncDone:', initialSyncDone);
 
       // Se SQLite diz true, persiste no AsyncStorage para resiliência.
       if (value === true) {
@@ -113,6 +115,7 @@ function RootNavigator(): JSX.Element {
       <Stack.Screen name="profile" />
       <Stack.Screen name="plan" />
       <Stack.Screen name="workout" />
+      <Stack.Screen name="workout-checkin" />
       <Stack.Screen name="history" />
     </Stack>
   );

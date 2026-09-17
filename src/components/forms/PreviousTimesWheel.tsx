@@ -1,7 +1,7 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import WheelPicker from 'react-native-wheel-picker-expo';
 import { NeonButton } from '@/components/ui/NeonButton';
+import { TimeWheelPicker } from '@/components/forms/TimeWheelPicker';
 import { colors, spacing, fontSizes, radii, fontWeight } from '@/theme';
 
 type DistanceKey = '5' | '10' | '21' | '42';
@@ -41,7 +41,12 @@ const DISTANCE_CONFIG: Record<DistanceKey, DistanceConf> = {
 };
 
 const DISTANCE_ORDER: DistanceKey[] = ['5', '10', '21', '42'];
-const CHIP_LABEL: Record<DistanceKey, string> = { '5': '5 km', '10': '10 km', '21': '21 km', '42': '42 km' };
+const CHIP_LABEL: Record<DistanceKey, string> = {
+  '5': '5 km',
+  '10': '10 km',
+  '21': '21 km',
+  '42': '42 km',
+};
 
 function pad2(n: number): string {
   return String(n).padStart(2, '0');
@@ -60,10 +65,6 @@ function parseHMS(value: string | undefined): { h: number; m: number; s: number 
   if (parts.length === 3) return { h: parts[0] ?? 0, m: parts[1] ?? 0, s: parts[2] ?? 0 };
   if (parts.length === 2) return { h: 0, m: parts[0] ?? 0, s: parts[1] ?? 0 };
   return { h: 0, m: 0, s: parts[0] ?? 0 };
-}
-
-function range(n: number): number[] {
-  return Array.from({ length: n }, (_, i) => i);
 }
 
 interface WheelValues {
@@ -129,10 +130,6 @@ export function PreviousTimesWheel({ values, onChange }: Props): JSX.Element {
     setNaoCorri(activeNo);
   }, [active, activeTime, activeNo]);
 
-  const hoursItems = useMemo(() => range(conf.maxHours + 1).map((n) => ({ label: `${n}h`, value: n })), [conf.maxHours]);
-  const minutesItems = useMemo(() => range(60).map((n) => ({ label: `${n}m`, value: n })), []);
-  const secondsItems = useMemo(() => range(60).map((n) => ({ label: `${n}s`, value: n })), []);
-
   const writeTime = (h: number, m: number, s: number): void => {
     setHours(h);
     setMinutes(m);
@@ -172,7 +169,8 @@ export function PreviousTimesWheel({ values, onChange }: Props): JSX.Element {
     <View>
       <Text style={styles.title}>Tempo estimado</Text>
       <Text style={styles.subtitle}>
-        Preencher seus tempos torna sua planilha mais precisa. Use o tempo do seu condicionamento atual, não o RP desatualizado.
+        Preencher seus tempos torna sua planilha mais precisa. Use o tempo do seu condicionamento
+        atual, não o RP desatualizado.
       </Text>
 
       {/* Chips de distância */}
@@ -192,12 +190,7 @@ export function PreviousTimesWheel({ values, onChange }: Props): JSX.Element {
               accessibilityRole="button"
               accessibilityState={{ selected: isAct }}
             >
-              <Text
-                style={[
-                  styles.chipText,
-                  (isAct || isFil) && styles.chipTextActiveOrFilled,
-                ]}
-              >
+              <Text style={[styles.chipText, (isAct || isFil) && styles.chipTextActiveOrFilled]}>
                 {CHIP_LABEL[key]}
               </Text>
             </Pressable>
@@ -216,50 +209,15 @@ export function PreviousTimesWheel({ values, onChange }: Props): JSX.Element {
       <View
         style={[styles.wheelRow, wheelLocked && styles.wheelLocked]}
         pointerEvents={wheelLocked ? 'none' : 'auto'}
-        onStartShouldSetResponder={() => true}
-        onMoveShouldSetResponder={() => true}
       >
-        <View style={styles.wheelCol}>
-          <WheelPicker
-            height={200}
-            width={80}
-            initialSelectedIndex={Math.min(hours, conf.maxHours)}
-            items={hoursItems}
-            onChange={({ item }) => writeTime(Number(item.value), minutes, seconds)}
-            backgroundColor={colors.card}
-            selectedStyle={{ borderColor: colors.neon, borderWidth: 1 }}
-            flatListProps={{ nestedScrollEnabled: true, disableVirtualization: true, removeClippedSubviews: false }}
-            haptics
-          />
-        </View>
-        <Text style={styles.colon}>:</Text>
-        <View style={styles.wheelCol}>
-          <WheelPicker
-            height={200}
-            width={80}
-            initialSelectedIndex={minutes}
-            items={minutesItems}
-            onChange={({ item }) => writeTime(hours, Number(item.value), seconds)}
-            backgroundColor={colors.card}
-            selectedStyle={{ borderColor: colors.neon, borderWidth: 1 }}
-            flatListProps={{ nestedScrollEnabled: true, disableVirtualization: true, removeClippedSubviews: false }}
-            haptics
-          />
-        </View>
-        <Text style={styles.colon}>:</Text>
-        <View style={styles.wheelCol}>
-          <WheelPicker
-            height={200}
-            width={80}
-            initialSelectedIndex={seconds}
-            items={secondsItems}
-            onChange={({ item }) => writeTime(hours, minutes, Number(item.value))}
-            backgroundColor={colors.card}
-            selectedStyle={{ borderColor: colors.neon, borderWidth: 1 }}
-            flatListProps={{ nestedScrollEnabled: true, disableVirtualization: true, removeClippedSubviews: false }}
-            haptics
-          />
-        </View>
+        <TimeWheelPicker
+          value={toHMS(totalSeconds)}
+          maxHours={conf.maxHours}
+          onChange={(value) => {
+            const parsed = parseHMS(value);
+            writeTime(parsed.h, parsed.m, parsed.s);
+          }}
+        />
       </View>
 
       {/* Alert de trava */}
@@ -298,9 +256,25 @@ export function PreviousTimesWheel({ values, onChange }: Props): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  title: { color: colors.textPrimary, fontSize: 18, ...fontWeight('800'), textAlign: 'center', marginBottom: spacing.xs },
-  subtitle: { color: colors.textSecondary, fontSize: 14, textAlign: 'center', marginBottom: spacing.lg },
-  chipsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.sm, marginBottom: spacing.lg },
+  title: {
+    color: colors.textPrimary,
+    fontSize: 18,
+    ...fontWeight('800'),
+    textAlign: 'center',
+    marginBottom: spacing.xs,
+  },
+  subtitle: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: spacing.lg,
+  },
+  chipsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
   chip: {
     flex: 1,
     paddingVertical: spacing.md,
@@ -318,10 +292,8 @@ const styles = StyleSheet.create({
   dynamicLine: { textAlign: 'center', marginBottom: spacing.md },
   dynamicLabel: { color: colors.textSecondary, fontSize: fontSizes.body },
   dynamicValue: { color: colors.textPrimary, fontSize: fontSizes.body, ...fontWeight('700') },
-  wheelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md },
+  wheelRow: { marginBottom: spacing.md },
   wheelLocked: { opacity: 0.6 },
-  wheelCol: { width: 80 },
-  colon: { color: colors.textMuted, fontSize: 24, ...fontWeight('700'), marginHorizontal: spacing.xs },
   alertBox: {
     backgroundColor: 'rgba(255,68,68,0.1)',
     borderRadius: 12,

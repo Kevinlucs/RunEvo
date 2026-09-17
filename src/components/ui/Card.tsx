@@ -25,5 +25,5 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.md,
   },
-  title: { color: colors.neon, fontSize: fontSizes.lg, ...fontWeight('800'), marginBottom: spacing.md },
+  title: { color: colors.neon, fontSize: fontSizes.lg, ...fontWeight('800'), marginBottom: spacing.md, textAlign: 'center' },
 });

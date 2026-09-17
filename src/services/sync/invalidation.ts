@@ -4,10 +4,11 @@ import type { SyncedTable } from '@/db/schema';
 const QUERY_KEYS_BY_TABLE: Record<SyncedTable, readonly string[]> = {
   athlete_profiles: ['onboarding-seen'],
   training_plans: ['active-plan', 'plan'],
-  plan_workouts: ['plan-workouts', 'workout'],
+  plan_workouts: ['plan-workouts', 'workout', 'pending-post-workout-checkin'],
   weekly_checkins: ['plan-checkins'],
   running_shoes: ['shoes'],
   subscriptions: ['entitlement'],
+  personal_records: ['personal-records', 'personal-record-milestones'],
 };
 
 /** Achata as tabelas alteradas num ciclo de sync nos prefixos de queryKey a invalidar, sem duplicatas. */

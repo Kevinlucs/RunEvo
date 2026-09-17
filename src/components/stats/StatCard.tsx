@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import type { LucideIcon } from 'lucide-react-native';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
 interface Props {
-  icon: keyof typeof Ionicons.glyphMap;
+  /** Ícone opcional para usos que precisem de reforço visual. */
+  icon?: LucideIcon;
   value: string;
   label: string;
   /** Card cheio (ex.: "Distância total") em vez do tamanho compacto da grade 2x2. */
@@ -13,16 +14,22 @@ interface Props {
 }
 
 /**
- * docs/fase-6-brief.md Grupo 2 (§31, mockup 13) — ícone + valor + rótulo.
- * `StatBox` (ui/) não tem ícone e é usado em 3+ telas com esse contrato
- * visual fixo; em vez de mexer nele, um componente próprio para a grade de
- * Estatísticas.
+ * Card compacto para métricas. O ícone é opcional para que a leitura possa
+ * priorizar os números quando a grade já contém rótulos suficientemente claros.
  */
-export function StatCard({ icon, value, label, large = false, labelColor }: Props): JSX.Element {
+export function StatCard({
+  icon: Icon,
+  value,
+  label,
+  large = false,
+  labelColor,
+}: Props): JSX.Element {
   return (
     <View style={[styles.card, large && styles.cardLarge]}>
-      <Ionicons name={icon} size={large ? 26 : 20} color={colors.textSecondary} />
-      <Text style={[styles.value, large && styles.valueLarge]}>{value}</Text>
+      {Icon ? <Icon size={large ? 26 : 20} color={colors.textSecondary} /> : null}
+      <Text style={[styles.value, Icon && styles.valueWithIcon, large && styles.valueLarge]}>
+        {value}
+      </Text>
       <Text style={[styles.label, labelColor && { color: labelColor }]}>{label}</Text>
     </View>
   );
@@ -40,7 +47,8 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   cardLarge: { paddingVertical: spacing.xl },
-  value: { color: colors.textPrimary, fontSize: fontSizes.lg, ...fontWeight('800'), marginTop: spacing.xs },
+  value: { color: colors.textPrimary, fontSize: fontSizes.lg, ...fontWeight('800') },
+  valueWithIcon: { marginTop: spacing.xs },
   valueLarge: { fontSize: fontSizes.display },
   label: {
     color: colors.textSecondary,

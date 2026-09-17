@@ -1,30 +1,34 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, View, Text, Pressable, Alert, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, router } from 'expo-router';
+import { ScrollView, View, Text, Pressable, Image, Alert, StyleSheet } from 'react-native';
+import { X, Check, ChevronRight } from 'lucide-react-native';
+import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Screen } from '@/components/ui/Screen';
-import { NeonButton } from '@/components/ui/NeonButton';
 import { useEntitlement } from '@/hooks/useEntitlement';
 import { useAuth } from '@/hooks/useAuth';
-import { subscriptionService, completePurchase, completeRestore, annualDiscountPercent, PLUS_FEATURES } from '@/services/subscription';
-import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
+import { subscriptionService, completePurchase, completeRestore, annualDiscountPercent } from '@/services/subscription';
+import { colors, radii, spacing, fontWeight } from '@/theme';
 import type { SubscriptionPackage } from '@/domain/entities';
 
-const CONVERSION_MESSAGES: Record<string, string> = {
-  'first-cycle': 'Você concluiu seu primeiro ciclo. Acompanhe sua evolução, compare estratégias e leve seu histórico — RunEvo+.',
-  history: 'Desbloqueie o histórico completo entre ciclos, comparação de planilhas e auditoria avançada da IA.',
-  // docs/fase-7-5-brief.md Grupo 5 — só usado quando o Free já tem ciclos
-  // arquivados de verdade (Comparar/Evolução em /history), então a promessa
-  // é real, não vazia.
-  'cycles-evolution': 'Você concluiu ciclos com o RunEvo. Assine o RunEvo+ e veja sua evolução completa.',
-  // docs/fase-8-brief.md Grupo 3 — usadas pelos redirects do gate de trial.
-  'trial-ended': 'Suas 8 primeiras semanas gratuitas terminaram. Continue com o plano completo rumo à sua prova.',
-  'new-plan': 'Gerar uma nova planilha é um recurso RunEvo+. Continue evoluindo com um treinador que se adapta a cada ciclo.',
-};
-// docs/fase-8-brief.md Grupo 4 — mensagem-mãe: vende treinador, não dashboard.
-const DEFAULT_MESSAGE =
-  'O RunEvo+ é o treinador que te leva até a prova: plano completo, adaptação a cada semana, e a evolução que te prepara para o próximo objetivo.';
+/**
+ * Lista de conversão LOCAL do paywall — foca em benefícios que vendem, não nas
+ * features técnicas de `PLUS_FEATURES` (essa é reusada em outras telas). Ordem
+ * pensada para conversão: benefício principal → adaptação → viabilidade →
+ * ganchos de gameficação/badges → histórico/Excel.
+ */
+const PAYWALL_HIGHLIGHTS: string[] = [
+  'Plano completo e sem limite de semanas, adaptado a cada semana rumo à sua prova',
+  'IA Evo aprimorada: análises mais profundas e recomendações personalizadas a cada ciclo',
+  'Análise de viabilidade do seu objetivo e evolução entre ciclos de treino',
+  'Badges exclusivos e gameficação para manter você motivado até a linha de chegada',
+  'Histórico completo, comparação de planilhas e exportação em Excel',
+];
+
+// Preços fake só para visualizar o layout no emulador (__DEV__); nunca usados em produção.
+const DEV_PACKAGES: SubscriptionPackage[] = [
+  { identifier: 'dev_annual', productId: 'dev_annual', period: 'annual', priceString: 'R$ 199,90', priceAmount: 199.9, currencyCode: 'BRL', title: 'Anual' },
+  { identifier: 'dev_monthly', productId: 'dev_monthly', period: 'monthly', priceString: 'R$ 19,90', priceAmount: 19.9, currencyCode: 'BRL', title: 'Mensal' },
+];
 
 type PlanCycle = 'monthly' | 'annual';
 
@@ -35,7 +39,6 @@ type PlanCycle = 'monthly' | 'annual';
  * decide Free/Plus de verdade é sempre `useEntitlement()`.
  */
 export default function RunEvoPlusOffer(): JSX.Element {
-  const { reason } = useLocalSearchParams<{ reason?: string }>();
   const { isPlus } = useEntitlement();
   const { user } = useAuth();
   const [cycle, setCycle] = useState<PlanCycle>('annual');
@@ -54,8 +57,12 @@ export default function RunEvoPlusOffer(): JSX.Element {
   });
 
   const packages = offeringsQuery.data ?? [];
-  const monthlyPkg = packages.find((p) => p.period === 'monthly');
-  const annualPkg = packages.find((p) => p.period === 'annual');
+  // Em __DEV__ o RevenueCat não devolve offerings no emulador → usa mock só para
+  // visualizar o layout. Produção sempre usa os pacotes reais da loja.
+  const effectivePackages =
+    packages.length > 0 ? packages : typeof __DEV__ !== 'undefined' && __DEV__ ? DEV_PACKAGES : packages;
+  const monthlyPkg = effectivePackages.find((p) => p.period === 'monthly');
+  const annualPkg = effectivePackages.find((p) => p.period === 'annual');
   const selectedPkg = cycle === 'monthly' ? monthlyPkg : annualPkg;
   const discount = annualDiscountPercent(monthlyPkg, annualPkg);
 
@@ -65,7 +72,17 @@ export default function RunEvoPlusOffer(): JSX.Element {
     else if (cycle === 'monthly' && !monthlyPkg && annualPkg) setCycle('annual');
   }, [cycle, monthlyPkg, annualPkg]);
 
-  const message = (reason && CONVERSION_MESSAGES[reason]) || DEFAULT_MESSAGE;
+  const firstName = (() => {
+    const meta = (user?.user_metadata ?? {}) as { full_name?: string; name?: string };
+    const raw = meta.full_name || meta.name || '';
+    const first = raw.trim().split(' ')[0];
+    return first || null;
+  })();
+
+  const weekly = (amount: number, period: 'annual' | 'monthly'): string => {
+    const perWeek = period === 'annual' ? amount / 52 : (amount * 12) / 52;
+    return `R$ ${perWeek.toFixed(2).replace('.', ',')}/sem`;
+  };
 
   async function handlePurchase(): Promise<void> {
     if (!selectedPkg || !user?.id || purchasing) return;
@@ -107,139 +124,217 @@ export default function RunEvoPlusOffer(): JSX.Element {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.hero}>
-          <Ionicons name="flash" size={32} color={colors.neon} />
-          <Text style={styles.heroTitle}>RunEvo+</Text>
-          <Text style={styles.heroMessage}>{isPlus ? 'Você já é assinante RunEvo+. Obrigado por apoiar o RunEvo!' : message}</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+        <Pressable style={styles.closeBtn} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Fechar">
+          <X size={24} color={colors.textSecondary} />
+        </Pressable>
+
+        {/* Logo */}
+        <View style={styles.logoWrap}>
+          <Image source={require('../../../assets/logo-runevo-plus.png')} style={styles.logo} resizeMode="contain" />
         </View>
 
-        <View style={styles.featureWrap}>
-          <View style={[styles.featureList, !isPlus && styles.featureListDimmed]} pointerEvents={isPlus ? 'auto' : 'none'}>
-            {PLUS_FEATURES.map((f) => (
-              <View key={f.label} style={styles.featureRow}>
-                <Ionicons name={f.icon} size={20} color={colors.neon} />
-                <Text style={styles.featureText}>{f.label}</Text>
-              </View>
-            ))}
-          </View>
-          {!isPlus && (
-            <View style={styles.lockBadge}>
-              <Ionicons name="lock-closed" size={16} color={colors.neon} />
-            </View>
+        {/* Hero */}
+        <View style={styles.hero}>
+          {isPlus ? (
+            <>
+              <Text style={styles.heroTitle}>Você já é RunEvo+</Text>
+              <Text style={styles.heroGreeting}>Obrigado por apoiar o RunEvo!</Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.heroTitle}>Desbloqueie seu plano de treino completo</Text>
+              <Text style={styles.heroGreeting}>
+                {firstName ? `${firstName}, comece hoje mesmo` : 'Comece hoje mesmo'}
+              </Text>
+            </>
           )}
         </View>
 
-        {!isPlus && (
-          <>
-            {offeringsQuery.isError && (
-              <Text style={styles.errorText}>Não foi possível carregar os planos agora. Verifique sua conexão e tente novamente.</Text>
-            )}
+        {/* Benefícios (sem card de fundo) */}
+        <View style={styles.highlights}>
+          {PAYWALL_HIGHLIGHTS.map((item) => (
+            <View key={item} style={styles.highlightRow}>
+              <View style={styles.highlightCheck}>
+                <Check size={16} color={colors.neon} strokeWidth={3} />
+              </View>
+              <Text style={styles.highlightText}>{item}</Text>
+            </View>
+          ))}
+        </View>
 
-            <View style={styles.plans}>
-              <Pressable
-                style={[styles.planCard, cycle === 'monthly' && styles.planCardSelected]}
-                onPress={() => setCycle('monthly')}
-                accessibilityRole="button"
-                accessibilityState={{ selected: cycle === 'monthly' }}
-                disabled={!monthlyPkg}
-              >
-                <Text style={styles.planLabel}>Mensal</Text>
-                {monthlyPkg && <Text style={styles.planPrice}>{monthlyPkg.priceString}</Text>}
-              </Pressable>
+        {/* Planos */}
+        {!isPlus ? (
+          <View style={styles.plansCol}>
+            {annualPkg ? (
               <Pressable
                 style={[styles.planCard, cycle === 'annual' && styles.planCardSelected]}
                 onPress={() => setCycle('annual')}
                 accessibilityRole="button"
                 accessibilityState={{ selected: cycle === 'annual' }}
-                disabled={!annualPkg}
               >
-                <Text style={styles.planLabel}>Anual</Text>
-                {annualPkg && <Text style={styles.planPrice}>{annualPkg.priceString}</Text>}
-                {discount !== null && <Text style={styles.planBadge}>Economize {discount}%</Text>}
+                {discount !== null ? (
+                  <View style={styles.saveBadge}>
+                    <Text style={styles.saveBadgeText}>ECONOMIZE {discount}%</Text>
+                  </View>
+                ) : null}
+                <View style={styles.planRow}>
+                  <View>
+                    <Text style={styles.planPeriod}>Anual</Text>
+                    <Text style={styles.planPrice}>
+                      {annualPkg.priceString}<Text style={styles.planPriceSuffix}>/ano</Text>
+                    </Text>
+                  </View>
+                  <Text style={styles.planWeekly}>{weekly(annualPkg.priceAmount, 'annual')}</Text>
+                </View>
               </Pressable>
-            </View>
+            ) : null}
 
-            <View style={styles.cta}>
-              <NeonButton
-                label={selectedPkg ? `Assinar — ${selectedPkg.priceString}` : 'Assinar'}
-                onPress={() => void handlePurchase()}
-                loading={purchasing}
-                disabled={!selectedPkg || purchasing}
-              />
-            </View>
+            {monthlyPkg ? (
+              <Pressable
+                style={[styles.planCard, cycle === 'monthly' && styles.planCardSelected]}
+                onPress={() => setCycle('monthly')}
+                accessibilityRole="button"
+                accessibilityState={{ selected: cycle === 'monthly' }}
+              >
+                <View style={styles.planRow}>
+                  <View>
+                    <Text style={styles.planPeriod}>Mensal</Text>
+                    <Text style={styles.planPrice}>
+                      {monthlyPkg.priceString}<Text style={styles.planPriceSuffix}>/mês</Text>
+                    </Text>
+                  </View>
+                  <Text style={styles.planWeekly}>{weekly(monthlyPkg.priceAmount, 'monthly')}</Text>
+                </View>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
 
-            <Pressable onPress={() => void handleRestore()} accessibilityRole="button" disabled={restoring}>
-              <Text style={styles.link}>{restoring ? 'Restaurando…' : 'Restaurar compra'}</Text>
+        {offeringsQuery.isError && effectivePackages.length === 0 ? (
+          <Text style={styles.errorText}>Não foi possível carregar os planos. Verifique sua conexão.</Text>
+        ) : null}
+
+        {/* Links (rolam com o conteúdo) */}
+        {!isPlus ? (
+          <View style={styles.linksCol}>
+            <Pressable onPress={handleTerms} accessibilityRole="button">
+              <Text style={styles.link}>Termos de uso</Text>
             </Pressable>
-          </>
+            <Pressable onPress={handleTerms} accessibilityRole="button">
+              <Text style={styles.link}>Política de privacidade</Text>
+            </Pressable>
+            <Pressable onPress={() => void handleRestore()} disabled={restoring} accessibilityRole="button">
+              <Text style={styles.link}>{restoring ? 'Restaurando...' : 'Restaurar compra'}</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <Pressable onPress={handleTerms} accessibilityRole="button" style={styles.termsCentered}>
+            <Text style={styles.link}>Termos</Text>
+          </Pressable>
         )}
-
-        <Pressable onPress={handleTerms} accessibilityRole="button">
-          <Text style={styles.link}>Termos</Text>
-        </Pressable>
       </ScrollView>
+
+      {/* Barra fixa só com o CTA */}
+      {!isPlus ? (
+        <View style={styles.ctaBar}>
+          <Pressable
+            style={[styles.ctaBtn, (!selectedPkg || purchasing) && styles.ctaBtnDisabled]}
+            onPress={() => void handlePurchase()}
+            disabled={!selectedPkg || purchasing}
+            accessibilityRole="button"
+          >
+            <Text style={styles.ctaBtnText}>{purchasing ? 'Processando...' : 'Iniciar agora'}</Text>
+            {!purchasing ? <ChevronRight size={20} color={colors.bg} /> : null}
+          </Pressable>
+        </View>
+      ) : null}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { paddingTop: spacing.lg, paddingBottom: spacing.xxxl },
-  hero: { alignItems: 'center', marginBottom: spacing.xl, gap: spacing.sm },
-  heroTitle: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('900') },
-  heroMessage: { color: colors.textSecondary, fontSize: fontSizes.body, textAlign: 'center', paddingHorizontal: spacing.md },
-  featureWrap: { position: 'relative', marginBottom: spacing.xl },
-  featureList: {
-    backgroundColor: colors.card,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    gap: spacing.md,
-  },
-  featureListDimmed: { opacity: 0.4 },
-  featureRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  featureText: { color: colors.textPrimary, fontSize: fontSizes.body, flexShrink: 1 },
-  lockBadge: {
-    position: 'absolute',
-    top: spacing.md,
-    right: spacing.md,
-    width: 32,
-    height: 32,
-    borderRadius: radii.pill,
-    backgroundColor: colors.cardElevated,
-    borderWidth: 1,
-    borderColor: colors.neon,
+  scroll: { paddingHorizontal: spacing.lg, paddingBottom: 110 },
+
+  /* X fechar */
+  closeBtn: { alignSelf: 'flex-end', padding: spacing.md, marginTop: spacing.xs },
+
+  /* Logo */
+  logoWrap: { alignItems: 'center', marginBottom: spacing.md },
+  logo: { width: 160, height: 60 },
+
+  /* Hero */
+  hero: { alignItems: 'center', marginTop: spacing.sm, marginBottom: spacing.xl, paddingHorizontal: spacing.md },
+  heroTitle: { color: colors.textPrimary, fontSize: 26, ...fontWeight('800'), textAlign: 'center', lineHeight: 32, marginBottom: spacing.sm },
+  heroGreeting: { color: colors.textSecondary, fontSize: 16, ...fontWeight('500'), textAlign: 'center' },
+
+  /* Benefícios */
+  highlights: { gap: spacing.lg, marginBottom: spacing.xl },
+  highlightRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
+  highlightCheck: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(204,255,0,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 1,
   },
-  errorText: {
-    color: colors.textSecondary,
-    fontSize: fontSizes.caption,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  plans: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
+  highlightText: { color: colors.textPrimary, fontSize: 15, ...fontWeight('500'), flex: 1, lineHeight: 21 },
+
+  /* Plans (empilhados) */
+  plansCol: { gap: spacing.md, marginBottom: spacing.lg },
   planCard: {
-    flex: 1,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     backgroundColor: colors.card,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#2A2A2A',
     padding: spacing.lg,
+    position: 'relative',
+  },
+  planCardSelected: { borderColor: colors.neon, backgroundColor: 'rgba(204,255,0,0.04)' },
+  saveBadge: {
+    position: 'absolute',
+    top: -12,
+    right: spacing.lg,
+    backgroundColor: colors.neon,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+  },
+  saveBadgeText: { color: colors.bg, fontSize: 11, ...fontWeight('800') },
+  planRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  planPeriod: { color: colors.textSecondary, fontSize: 14, ...fontWeight('600'), marginBottom: 2 },
+  planPrice: { color: colors.textPrimary, fontSize: 20, ...fontWeight('800') },
+  planPriceSuffix: { color: colors.textSecondary, fontSize: 13, ...fontWeight('400') },
+  planWeekly: { color: colors.textSecondary, fontSize: 14, ...fontWeight('600') },
+
+  /* Error */
+  errorText: { color: colors.textMuted, fontSize: 13, textAlign: 'center', marginBottom: spacing.lg },
+  termsCentered: { alignItems: 'center', marginTop: spacing.sm },
+
+  /* Barra fixa só com o CTA */
+  ctaBar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.bg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
+  },
+  ctaBtn: {
+    height: 56,
+    backgroundColor: colors.neon,
+    borderRadius: radii.pill,
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    justifyContent: 'center',
+    gap: spacing.sm,
   },
-  planCardSelected: { borderColor: colors.neon, backgroundColor: colors.cardElevated },
-  planLabel: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('700') },
-  planPrice: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('600') },
-  planBadge: { color: colors.neon, fontSize: fontSizes.caption, ...fontWeight('700') },
-  cta: { marginBottom: spacing.lg },
-  link: {
-    color: colors.textSecondary,
-    fontSize: fontSizes.caption,
-    ...fontWeight('700'),
-    textAlign: 'center',
-    marginTop: spacing.md,
-  },
+  ctaBtnDisabled: { opacity: 0.5 },
+  ctaBtnText: { color: colors.bg, fontSize: 16, ...fontWeight('700') },
+  linksCol: { alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl, marginBottom: spacing.md },
+  link: { color: colors.textSecondary, fontSize: 13, ...fontWeight('600') },
 });

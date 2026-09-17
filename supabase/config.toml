@@ -1,0 +1,5 @@
+[functions.strava-oauth]
+verify_jwt = false
+
+[functions.strava-webhook]
+verify_jwt = false

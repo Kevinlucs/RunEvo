@@ -1,105 +1,407 @@
-import { useEffect, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
-import { router } from 'expo-router';
-import { TextField } from '@/components/ui/TextField';
-import { ChoiceField } from '@/components/forms/ChoiceField';
-import { NeonButton } from '@/components/ui/NeonButton';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Alert,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Stack } from 'expo-router';
+import { Screen } from '@/components/ui/Screen';
 import { useAthleteProfile } from '@/hooks/useAthleteProfile';
-import { useAuthStore } from '@/store/auth.store';
+import { useAuth } from '@/hooks/useAuth';
 import { updateAthleteProfile } from '@/services/profile/edit-profile.service';
-import { colors, spacing, fontSizes, fontWeight } from '@/theme';
+import { colors, fontSizes, fontWeight, radii, spacing } from '@/theme';
+import type { AthleteProfile } from '@/domain/entities';
 
-const UNIT_OPTIONS = [
-  { value: 'km' as const, label: 'Quilômetros' },
-  { value: 'mi' as const, label: 'Milhas' },
-];
-const LANGUAGE_OPTIONS = [
-  { value: 'pt-BR', label: 'Português' },
-  { value: 'en', label: 'English' },
-];
-const THEME_OPTIONS = [
-  { value: 'dark' as const, label: 'Escuro' },
-  { value: 'light' as const, label: 'Claro' },
-  { value: 'system' as const, label: 'Sistema' },
+type FieldKey = 'name' | 'birthDate' | 'gender' | 'weight' | 'height';
+type Gender = NonNullable<AthleteProfile['gender']>;
+
+const GENDER_OPTIONS: { value: Gender; label: string }[] = [
+  { value: 'masculino', label: 'Homem' },
+  { value: 'feminino', label: 'Mulher' },
+  { value: 'nao-binario', label: 'Não binário' },
+  { value: 'prefiro-nao-dizer', label: 'Prefiro não informar' },
 ];
 
-/**
- * docs/fase-6-brief.md §32 — editar nome, peso, unidade, idioma, tema.
- * Unidade/idioma/tema só gravam preferência: o app hoje é km/pt-BR/escuro
- * fixo em toda tela (sem i18n nem conversão de unidade implementados), então
- * a mudança não tem efeito visível ainda — divergência reportada na Parada 2.
- * Foto de perfil fica de fora desta tela: exigiria expo-image-picker +
- * bucket de Storage no Supabase, nenhum dos dois existe no projeto hoje.
- */
+function formatBirthDate(value: string | null | undefined): string {
+  if (!value) return 'Adicionar';
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
+}
+
+function toIsoDate(value: string): string | null {
+  const match = value.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [, day, month, year] = match;
+  const parsed = new Date(`${year}-${month}-${day}T12:00:00`);
+  if (
+    Number.isNaN(parsed.getTime()) ||
+    parsed.getFullYear() !== Number(year) ||
+    parsed.getMonth() !== Number(month) - 1 ||
+    parsed.getDate() !== Number(day)
+  ) {
+    return null;
+  }
+  return `${year}-${month}-${day}`;
+}
+
+function genderLabel(value: AthleteProfile['gender']): string {
+  return GENDER_OPTIONS.find((option) => option.value === value)?.label ?? 'Adicionar';
+}
+
+interface ProfileFieldProps {
+  label: string;
+  value: string;
+  onPress: () => void;
+  disabled?: boolean;
+}
+
+function ProfileField({ label, value, onPress, disabled = false }: ProfileFieldProps): JSX.Element {
+  return (
+    <View style={styles.fieldWrap}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Editar ${label.toLowerCase()}`}
+        disabled={disabled}
+        onPress={onPress}
+        style={({ pressed }) => [styles.field, pressed && !disabled && styles.fieldPressed]}
+      >
+        <Text
+          style={[
+            styles.fieldValue,
+            !value || value === 'Adicionar' ? styles.fieldPlaceholder : undefined,
+          ]}
+        >
+          {value || 'Adicionar'}
+        </Text>
+        <Ionicons name="chevron-forward" size={22} color={colors.textMuted} />
+      </Pressable>
+    </View>
+  );
+}
+
+/** Dados básicos do atleta em cards compactos, salvos no repositório offline-first. */
 export default function EditProfile(): JSX.Element {
-  const userId = useAuthStore((s) => s.userId);
-  const { profile, isLoading, invalidate } = useAthleteProfile(userId);
-
+  const { user } = useAuth();
+  const { profile, isLoading, invalidate } = useAthleteProfile(user?.id);
   const [displayName, setDisplayName] = useState('');
+  const [birthDate, setBirthDate] = useState<string | null>(null);
+  const [gender, setGender] = useState<AthleteProfile['gender']>(null);
   const [weight, setWeight] = useState('');
-  const [unit, setUnit] = useState<'km' | 'mi'>('km');
-  const [language, setLanguage] = useState('pt-BR');
-  const [theme, setTheme] = useState<'dark' | 'light' | 'system'>('dark');
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [height, setHeight] = useState('');
+  const [editing, setEditing] = useState<FieldKey | null>(null);
+  const [draft, setDraft] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!profile) return;
     setDisplayName(profile.display_name ?? '');
-    setWeight(profile.current_weight_kg ? String(profile.current_weight_kg) : '');
-    setUnit(profile.preferred_unit);
-    setLanguage(profile.language);
-    setTheme(profile.theme);
+    setBirthDate(profile.birth_date);
+    setGender(profile.gender);
+      setWeight(profile.current_weight_kg ? String(profile.current_weight_kg) : '');
+      setHeight(profile.height_cm ? String(profile.height_cm) : '');
   }, [profile]);
 
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loading}>Carregando…</Text>
-      </View>
-    );
-  }
+  const email = user?.email ?? 'E-mail não disponível';
+  const name = displayName || user?.user_metadata?.display_name || email.split('@')[0] || 'Atleta';
+  const initial = name.charAt(0).toUpperCase();
+  const modalTitle = useMemo(() => {
+    if (editing === 'name') return 'Nome';
+    if (editing === 'birthDate') return 'Data de nascimento';
+    return 'Gênero';
+  }, [editing]);
 
-  const handleSave = async (): Promise<void> => {
-    if (!userId) return;
-    setError(null);
-    setSubmitting(true);
-    const parsedWeight = weight.trim() ? Number(weight.replace(',', '.')) : null;
-    const res = await updateAthleteProfile({
-      id: userId,
-      displayName: displayName.trim() || null,
-      currentWeightKg: Number.isFinite(parsedWeight) ? parsedWeight : null,
-      heightCm: profile?.height_cm ?? null,
-      preferredUnit: unit,
-      language,
-      theme,
+  const openEditor = (field: FieldKey): void => {
+    setEditing(field);
+    setDraft(
+      field === 'name'
+        ? displayName
+        : field === 'birthDate'
+          ? formatBirthDate(birthDate)
+          : (gender ?? ''),
+    );
+  };
+
+  const closeEditor = (): void => {
+    if (!saving) setEditing(null);
+  };
+
+  const save = async (): Promise<void> => {
+    if (!user?.id || !editing) return;
+
+    let nextName = displayName;
+    let nextBirthDate = birthDate;
+    let nextGender = gender;
+    let nextWeight = weight;
+    let nextHeight = height;
+
+    if (editing === 'name') {
+      nextName = draft.trim();
+      if (!nextName) {
+        Alert.alert('Informe seu nome', 'Use um nome para identificar seu perfil.');
+        return;
+      }
+    }
+
+    if (editing === 'birthDate') {
+      nextBirthDate = toIsoDate(draft);
+      if (!nextBirthDate) {
+        Alert.alert('Data inválida', 'Use o formato DD/MM/AAAA.');
+        return;
+      }
+    }
+
+    if (editing === 'gender') {
+      nextGender = draft as Gender;
+      if (!GENDER_OPTIONS.some((option) => option.value === nextGender)) return;
+    }
+
+    if (editing === 'weight') {
+      if (draft && isNaN(Number(draft))) { Alert.alert('Valor inválido', 'Insira um peso numérico.'); return; }
+      nextWeight = draft;
+    }
+
+    if (editing === 'height') {
+      if (draft && isNaN(Number(draft))) { Alert.alert('Valor inválido', 'Insira uma altura numérica.'); return; }
+      nextHeight = draft;
+    }
+
+    setSaving(true);
+    const result = await updateAthleteProfile({
+      id: user.id,
+      displayName: nextName || null,
+      birthDate: nextBirthDate,
+      gender: nextGender,
+      currentWeightKg: nextWeight ? Number(nextWeight) : null,
+      heightCm: nextHeight ? Number(nextHeight) : null,
+      preferredUnit: profile?.preferred_unit ?? 'km',
+      language: profile?.language ?? 'pt-BR',
+      theme: profile?.theme ?? 'dark',
     });
-    setSubmitting(false);
-    if (!res.ok) {
-      setError('Não foi possível salvar. Tente novamente.');
+    setSaving(false);
+
+    if (!result.ok) {
+      Alert.alert('Não foi possível salvar', 'Tente novamente em alguns instantes.');
       return;
     }
+
+    setDisplayName(nextName);
+    setBirthDate(nextBirthDate);
+    setGender(nextGender);
+    setWeight(nextWeight);
+    setHeight(nextHeight);
     invalidate();
-    router.back();
+    setEditing(null);
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <TextField label="Nome" value={displayName} onChangeText={setDisplayName} placeholder="Seu nome" autoCapitalize="sentences" error={error ?? undefined} />
-      <TextField label="Peso (kg)" value={weight} onChangeText={setWeight} keyboardType="decimal-pad" placeholder="Ex: 70" />
-      <ChoiceField label="Unidade de distância" value={unit} onChange={setUnit} options={UNIT_OPTIONS} />
-      <ChoiceField label="Idioma" value={language} onChange={setLanguage} options={LANGUAGE_OPTIONS} />
-      <ChoiceField label="Tema" value={theme} onChange={setTheme} options={THEME_OPTIONS} />
+    <Screen>
+      <Stack.Screen options={{ headerTitleAlign: 'center', title: 'Editar perfil' }} />
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.avatarWrap}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarInitial}>{initial}</Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Alterar foto de perfil"
+            onPress={() =>
+              Alert.alert('Foto de perfil', 'A personalização da foto estará disponível em breve.')
+            }
+            style={styles.editAvatarButton}
+          >
+            <Ionicons name="pencil" size={16} color={colors.card} />
+          </Pressable>
+        </View>
 
-      <View style={styles.actions}>
-        <NeonButton label="Salvar" onPress={() => void handleSave()} loading={submitting} />
-      </View>
-    </ScrollView>
+        {isLoading ? (
+          <Text style={styles.loading}>Carregando perfil…</Text>
+        ) : (
+          <View style={styles.fields}>
+            <ProfileField label="Nome" value={name} onPress={() => openEditor('name')} />
+            <ProfileField label="E-mail" value={email} onPress={() => undefined} disabled />
+            <ProfileField
+              label="Data de nascimento"
+              value={formatBirthDate(birthDate)}
+              onPress={() => openEditor('birthDate')}
+            />
+            <ProfileField label="Gênero" value={genderLabel(gender)} onPress={() => openEditor('gender')} />
+            <ProfileField label="Altura (cm)" value={height ? height + ' cm' : 'Adicionar'} onPress={() => openEditor('height')} />
+            <ProfileField label="Peso (kg)" value={weight ? weight + ' kg' : 'Adicionar'} onPress={() => openEditor('weight')} />
+          </View>
+        )}
+      </ScrollView>
+
+      <Modal
+        transparent
+        visible={editing !== null}
+        animationType="fade"
+        onRequestClose={closeEditor}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>{modalTitle}</Text>
+            {editing === 'gender' ? (
+              <View style={styles.options}>
+                {GENDER_OPTIONS.map((option) => {
+                  const selected = draft === option.value;
+                  return (
+                    <Pressable
+                      key={option.value}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected }}
+                      onPress={() => setDraft(option.value)}
+                      style={[styles.option, selected && styles.optionSelected]}
+                    >
+                      <Text style={[styles.optionLabel, selected && styles.optionLabelSelected]}>
+                        {option.label}
+                      </Text>
+                      {selected ? <Ionicons name="checkmark" size={20} color={colors.bg} /> : null}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : (
+              <TextInput
+                autoFocus
+                value={draft}
+                onChangeText={setDraft}
+                placeholder={editing === 'birthDate' ? 'DD/MM/AAAA' : 'Seu nome'}
+                placeholderTextColor={colors.textMuted}
+                keyboardType={editing === 'birthDate' ? 'numbers-and-punctuation' : (editing === 'weight' || editing === 'height') ? 'numeric' : 'default'}
+                autoCapitalize={editing === 'name' ? 'words' : 'none'}
+                maxLength={editing === 'birthDate' ? 10 : (editing === 'weight' || editing === 'height') ? 5 : 80}
+                style={styles.modalInput}
+              />
+            )}
+            <View style={styles.modalActions}>
+              <Pressable disabled={saving} onPress={closeEditor} style={styles.cancelButton}>
+                <Text style={styles.cancelLabel}>Cancelar</Text>
+              </Pressable>
+              <Pressable disabled={saving} onPress={() => void save()} style={styles.saveButton}>
+                <Text style={styles.saveLabel}>{saving ? 'Salvando…' : 'Salvar'}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: spacing.xl, paddingBottom: spacing.xxxl, backgroundColor: colors.bg, flexGrow: 1 },
-  loading: { color: colors.textSecondary, fontSize: fontSizes.body, ...fontWeight('600') },
-  actions: { marginTop: spacing.sm },
+  content: { flexGrow: 1, paddingTop: spacing.xxxl, paddingBottom: spacing.xxxl },
+  avatarWrap: { alignSelf: 'center', width: 96, height: 96, marginBottom: spacing.xxxl },
+  avatar: {
+    width: 88,
+    height: 88,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cardElevated,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarInitial: { color: colors.neon, fontSize: fontSizes.title, ...fontWeight('900') },
+  editAvatarButton: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    width: 32,
+    height: 32,
+    borderRadius: radii.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.textPrimary,
+    borderWidth: 3,
+    borderColor: colors.bg,
+  },
+  loading: { color: colors.textSecondary, textAlign: 'center', fontSize: fontSizes.body },
+  fields: { gap: spacing.xl },
+  fieldWrap: { gap: spacing.sm },
+  fieldLabel: {
+    color: colors.textMuted,
+    fontSize: fontSizes.caption,
+    ...fontWeight('700'),
+    textTransform: 'uppercase',
+  },
+  field: {
+    minHeight: 64,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: colors.cardElevated,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  fieldPressed: { opacity: 0.76 },
+  fieldValue: {
+    color: colors.textPrimary,
+    fontSize: fontSizes.base,
+    flex: 1,
+    marginRight: spacing.md,
+  },
+  fieldPlaceholder: { color: colors.textMuted },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.72)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 420,
+    borderRadius: radii.lg,
+    backgroundColor: colors.cardElevated,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.xl,
+  },
+  modalTitle: { color: colors.textPrimary, fontSize: fontSizes.lg, ...fontWeight('800') },
+  modalInput: {
+    height: 52,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+    color: colors.textPrimary,
+    fontSize: fontSizes.base,
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.lg,
+  },
+  options: { marginTop: spacing.lg, gap: spacing.sm },
+  option: {
+    minHeight: 48,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.card,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  optionSelected: { backgroundColor: colors.neon },
+  optionLabel: { color: colors.textPrimary, fontSize: fontSizes.body },
+  optionLabelSelected: { color: colors.bg, ...fontWeight('700') },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.sm,
+    marginTop: spacing.xl,
+  },
+  cancelButton: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
+  cancelLabel: { color: colors.textSecondary, ...fontWeight('700') },
+  saveButton: {
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.neon,
+  },
+  saveLabel: { color: colors.bg, ...fontWeight('800') },
 });

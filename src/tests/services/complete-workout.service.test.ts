@@ -16,7 +16,9 @@ jest.mock('@/repositories', () => ({
   workoutRepository: { upsert: upsertWorkoutMock },
   shoeRepository: { findById: findShoeByIdMock, upsert: upsertShoeMock },
 }));
-jest.mock('@/store/query-client', () => ({ queryClient: { invalidateQueries: invalidateQueriesMock } }));
+jest.mock('@/store/query-client', () => ({
+  queryClient: { invalidateQueries: invalidateQueriesMock },
+}));
 
 import { completeWorkout, skipWorkout } from '@/services/workout/complete-workout.service';
 import { ok, err } from '@/utils/result';
@@ -35,7 +37,14 @@ describe('completeWorkout', () => {
 
     expect(result.ok).toBe(true);
     expect(upsertWorkoutMock).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'w-1', status: 'completed', completed_km: 5, shoe_id: null }),
+      expect.objectContaining({
+        id: 'w-1',
+        status: 'completed',
+        completed_km: 5,
+        shoe_id: null,
+        check_in_status: 'completed',
+        completion_source: 'manual',
+      }),
     );
     expect(findShoeByIdMock).not.toHaveBeenCalled();
     expect(upsertShoeMock).not.toHaveBeenCalled();
@@ -45,17 +54,29 @@ describe('completeWorkout', () => {
   it('com tênis: incrementa current_km do tênis (treino + tênis, os dois enfileirados)', async () => {
     findShoeByIdMock.mockResolvedValue(ok({ id: 'shoe-1', current_km: 100 }));
 
-    const result = await completeWorkout({ workoutId: 'w-1', completedKm: 5, perceivedEffort: 6, shoeId: 'shoe-1' });
+    const result = await completeWorkout({
+      workoutId: 'w-1',
+      completedKm: 5,
+      perceivedEffort: 6,
+      shoeId: 'shoe-1',
+    });
 
     expect(result.ok).toBe(true);
     expect(upsertWorkoutMock).toHaveBeenCalledWith(expect.objectContaining({ shoe_id: 'shoe-1' }));
-    expect(upsertShoeMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'shoe-1', current_km: 105 }));
+    expect(upsertShoeMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'shoe-1', current_km: 105 }),
+    );
   });
 
   it('tênis informado mas não encontrado localmente: conclui o treino sem quebrar', async () => {
     findShoeByIdMock.mockResolvedValue(ok(null));
 
-    const result = await completeWorkout({ workoutId: 'w-1', completedKm: 5, perceivedEffort: 6, shoeId: 'ghost' });
+    const result = await completeWorkout({
+      workoutId: 'w-1',
+      completedKm: 5,
+      perceivedEffort: 6,
+      shoeId: 'ghost',
+    });
 
     expect(result.ok).toBe(true);
     expect(upsertShoeMock).not.toHaveBeenCalled();
@@ -64,7 +85,12 @@ describe('completeWorkout', () => {
   it('falha ao atualizar o treino → propaga erro e não mexe no tênis', async () => {
     upsertWorkoutMock.mockResolvedValueOnce(err({ code: 'storage', message: 'falhou' }));
 
-    const result = await completeWorkout({ workoutId: 'w-1', completedKm: 5, perceivedEffort: 6, shoeId: 'shoe-1' });
+    const result = await completeWorkout({
+      workoutId: 'w-1',
+      completedKm: 5,
+      perceivedEffort: 6,
+      shoeId: 'shoe-1',
+    });
 
     expect(result.ok).toBe(false);
     expect(findShoeByIdMock).not.toHaveBeenCalled();
@@ -79,7 +105,9 @@ describe('skipWorkout', () => {
 
     expect(result.ok).toBe(true);
     const call = upsertWorkoutMock.mock.calls[0][0];
-    expect(call).toEqual(expect.objectContaining({ id: 'w-1', status: 'skipped', feedback: 'dor no joelho' }));
+    expect(call).toEqual(
+      expect.objectContaining({ id: 'w-1', status: 'skipped', feedback: 'dor no joelho' }),
+    );
     expect(call).not.toHaveProperty('completed_km');
     expect(call).not.toHaveProperty('shoe_id');
   });

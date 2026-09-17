@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
@@ -9,12 +9,15 @@ import { RaceObjectiveCard } from '@/components/home/RaceObjectiveCard';
 import { CurrentWeekCard } from '@/components/home/CurrentWeekCard';
 import { AdaptiveTrainingCard } from '@/components/home/AdaptiveTrainingCard';
 import { CheckinModal } from '@/components/home/CheckinModal';
+import { PostWorkoutCheckinModal } from '@/components/home/PostWorkoutCheckinModal';
+import { SyncedWorkoutCheckinCard } from '@/components/home/SyncedWorkoutCheckinCard';
 import { useActivePlan } from '@/hooks/useActivePlan';
 import { useNextWorkout } from '@/hooks/useNextWorkout';
 import { usePlanProgress } from '@/hooks/usePlanProgress';
 import { useCurrentWeek } from '@/hooks/useCurrentWeek';
 import { usePlanWorkouts } from '@/hooks/usePlanWorkouts';
 import { useAdaptiveTrainingSummary } from '@/hooks/useAdaptiveTrainingSummary';
+import { usePendingPostWorkoutCheckin } from '@/hooks/usePendingPostWorkoutCheckin';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 
 /**
@@ -31,6 +34,21 @@ export default function Home(): JSX.Element {
   const { workouts } = usePlanWorkouts(plan?.id);
   const adaptive = useAdaptiveTrainingSummary();
   const [checkinVisible, setCheckinVisible] = useState(false);
+  const [postWorkoutCheckinVisible, setPostWorkoutCheckinVisible] = useState(false);
+  const pendingPostWorkoutCheckin = usePendingPostWorkoutCheckin();
+  const autoPresentedCheckin = useRef<string | null>(null);
+
+  useEffect(() => {
+    const pending = pendingPostWorkoutCheckin.workout;
+    if (
+      !pending ||
+      pendingPostWorkoutCheckin.isLoading ||
+      autoPresentedCheckin.current === pending.id
+    )
+      return;
+    autoPresentedCheckin.current = pending.id;
+    setPostWorkoutCheckinVisible(true);
+  }, [pendingPostWorkoutCheckin.isLoading, pendingPostWorkoutCheckin.workout]);
 
   if (!planLoading && !plan) {
     return (
@@ -69,6 +87,14 @@ export default function Home(): JSX.Element {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <AppHeader />
 
+        {pendingPostWorkoutCheckin.workout ? (
+          <SyncedWorkoutCheckinCard
+            workout={pendingPostWorkoutCheckin.workout}
+            pendingCount={pendingPostWorkoutCheckin.pendingCount}
+            onPress={() => setPostWorkoutCheckinVisible(true)}
+          />
+        ) : null}
+
         {nextWorkout && (
           <>
             <View style={styles.capsule}>
@@ -106,6 +132,12 @@ export default function Home(): JSX.Element {
           onClose={() => setCheckinVisible(false)}
         />
       ) : null}
+      <PostWorkoutCheckinModal
+        visible={postWorkoutCheckinVisible}
+        workout={pendingPostWorkoutCheckin.workout}
+        onClose={() => setPostWorkoutCheckinVisible(false)}
+        onCompleted={() => setPostWorkoutCheckinVisible(false)}
+      />
     </Screen>
   );
 }
@@ -124,5 +156,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     marginTop: 0,
   },
-  capsuleText: { color: colors.neon, fontSize: fontSizes.base, ...fontWeight('800'), letterSpacing: 1 },
+  capsuleText: {
+    color: colors.neon,
+    fontSize: fontSizes.base,
+    ...fontWeight('800'),
+    letterSpacing: 1,
+  },
 });

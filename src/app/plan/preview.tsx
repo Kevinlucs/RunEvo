@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { CircleHelp } from 'lucide-react-native';
 import { Screen } from '@/components/ui/Screen';
 import { Card } from '@/components/ui/Card';
 import { NeonButton } from '@/components/ui/NeonButton';
@@ -10,9 +11,15 @@ import { useAuthStore } from '@/store/auth.store';
 import { useEntitlement } from '@/hooks/useEntitlement';
 import { adoptPlan } from '@/services/plan/adopt-plan.service';
 import { isIdenticalToActivePlan } from '@/services/plan/plan-identity.service';
+import { QualityGauge } from '@/components/plan/QualityGauge';
+import { QualityInfoModal } from '@/components/plan/QualityInfoModal';
+import { PremiumGate } from '@/components/premium';
 import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
 import type { Zone } from '@/domain/motor-evo/types';
 import { VIABILITY_LEVEL_LABELS, type ViabilityLevel } from '@/services/viability/goal-viability';
+
+const FREE_WEEKS = 8;
+const TEASER_WEEKS = 2;
 
 /**
  * Prévia da planilha (docs/fase-3-brief.md §4.2/§4.3). Se a planilha nova é
@@ -31,6 +38,7 @@ export default function PlanPreview(): JSX.Element {
   const [adopting, setAdopting] = useState(false);
   const [adoptError, setAdoptError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [qualityInfoVisible, setQualityInfoVisible] = useState(false);
 
   if (!plan) {
     router.replace('/(tabs)/ai-evo');
@@ -101,10 +109,51 @@ export default function PlanPreview(): JSX.Element {
   const trainingZones = blueprint.paceZones.trainingZones;
   const totalKm = plan.weeks.reduce((sum, w) => sum + w.workouts.reduce((s, wo) => s + wo.km, 0), 0);
 
+  // Quebra visual do título: "Plano Maratona (42.2 km) - intermediário"
+  // → linha 1: "Plano Maratona", linha 2: "(42.2 km)", linha 3: "INTERMEDIÁRIO"
+  const { titleTop, titleParen, titleLevel } = (() => {
+    const parts = plan.planName.split(' - ');
+    const main = parts[0] ?? plan.planName;
+    const level = (parts[1] ?? '').toUpperCase();
+    const m = main.match(/^(.*?)\s*(\(.*\))\s*$/);
+    return m
+      ? { titleTop: m[1]!, titleParen: m[2]!, titleLevel: level }
+      : { titleTop: main, titleParen: '', titleLevel: level };
+  })();
+
+  const freeWeeks = plan.weeks.slice(0, FREE_WEEKS);
+  const teaserWeeks = plan.weeks.slice(FREE_WEEKS, FREE_WEEKS + TEASER_WEEKS);
+  const lockedCount = Math.max(0, plan.weeks.length - FREE_WEEKS);
+
+  const renderWeek = (week: (typeof plan.weeks)[number]): JSX.Element => (
+    <View key={week.week} style={styles.weekBlock}>
+      <Text style={styles.weekTitle}>
+        {week.week} — {week.phase}
+        {week.off ? ' (recuperação)' : ''}
+      </Text>
+      {week.workouts.map((workout, i) => {
+        const paceClean = String(workout.pace).replace(/\/km/g, '');
+        return (
+          <View key={i} style={styles.workoutRow}>
+            <Text style={styles.workoutDay}>{workout.dayOfWeek}</Text>
+            <Text style={styles.workoutTitle} numberOfLines={1}>
+              {workout.title}
+            </Text>
+            <Text style={styles.workoutMeta}>
+              {workout.km} km · {paceClean}/km
+            </Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>{plan.planName}</Text>
+        <Text style={styles.titleMain}>{titleTop}</Text>
+        {titleParen ? <Text style={styles.titleMain}>{titleParen}</Text> : null}
+        {titleLevel ? <Text style={styles.titleLevel}>{titleLevel}</Text> : null}
         <Text style={styles.subtitle}>
           {plan.raceName} · {plan.totalWeeks} semanas · {plan.daysPerWeek}x/semana
         </Text>
@@ -124,18 +173,17 @@ export default function PlanPreview(): JSX.Element {
         ) : null}
 
         <Card title="Resumo do plano">
-          <InfoRow label="Semanas totais" value={`${plan.totalWeeks}`} />
-          <InfoRow label="Dias por semana" value={`${plan.daysPerWeek}`} />
-          <InfoRow label="Volume total" value={`${totalKm.toFixed(0)} km`} />
-          <InfoRow label="Objetivo" value={plan.raceName} />
+          <InfoRow label="Semanas totais" value={`${plan.totalWeeks}`} strong />
+          <InfoRow label="Dias por semana" value={`${plan.daysPerWeek}`} strong />
+          <InfoRow label="Volume total" value={`${totalKm.toFixed(0)} km`} strong />
         </Card>
 
         <Card title="Análise do atleta">
-          <InfoRow label="Nível detectado" value={blueprint.athleteAnalysis.detectedLevel} />
-          <InfoRow label="Viabilidade" value={blueprint.athleteAnalysis.goalFeasibility} />
-          <InfoRow label="Ponto forte" value={blueprint.athleteAnalysis.mainStrength} />
-          <InfoRow label="Ponto de atenção" value={blueprint.athleteAnalysis.mainWeakness} />
-          <InfoRow label="Foco" value={blueprint.athleteAnalysis.focus} />
+          <AnalysisBlock label="Nível informado" value={blueprint.athleteAnalysis.detectedLevel} />
+          <AnalysisBlock label="Ponto forte" value={blueprint.athleteAnalysis.mainStrength} />
+          <AnalysisBlock label="Ponto de atenção" value={blueprint.athleteAnalysis.mainWeakness} />
+          <AnalysisBlock label="Foco" value={blueprint.athleteAnalysis.focus} />
+          <View style={styles.analysisDivider} />
           <Text style={styles.paragraph}>{blueprint.athleteAnalysis.coachSummary}</Text>
         </Card>
 
@@ -149,7 +197,7 @@ export default function PlanPreview(): JSX.Element {
         </Card>
 
         {trainingZones ? (
-          <Card title={`Zonas de treino (Z1-Z5) — ${trainingZones.anchor.method === 'goal_anchored' ? 'ancorado no objetivo' : 'ancorado no teste de 3km'}`}>
+          <Card title="Zonas de treino (Z1–Z5)">
             {(['Z1', 'Z2', 'Z3', 'Z4', 'Z5'] as const).map((key) => {
               const zone: Zone = trainingZones[key];
               return (
@@ -180,9 +228,22 @@ export default function PlanPreview(): JSX.Element {
           </Card>
         ) : null}
 
-        <Card title="Qualidade técnica">
-          <InfoRow label="Quality Score" value={`${validation?.summary.qualityScore ?? '-'}/10 (${validation?.summary.qualityStatus ?? '-'})`} />
-          <InfoRow label="Risco técnico" value={validation?.summary.riskLevel ?? '-'} />
+        <Card>
+          <View style={styles.titleRowCenter}>
+            <Text style={styles.cardTitle}>Qualidade técnica</Text>
+            <Pressable
+              onPress={() => setQualityInfoVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="O que é Quality Score e Risco técnico?"
+            >
+              <CircleHelp style={{ marginTop: -5 }} size={20} color={colors.textMuted} />
+            </Pressable>
+          </View>
+          <QualityGauge
+            score={validation?.summary.qualityScore ?? 0}
+            status={validation?.summary.qualityStatus ?? '-'}
+            riskLevel={validation?.summary.riskLevel ?? '-'}
+          />
           {(validation?.summary.riskReasons ?? []).length > 0 ? (
             <View style={styles.riskReasons}>
               {(validation?.summary.riskReasons ?? []).map((reason, i) => (
@@ -203,31 +264,55 @@ export default function PlanPreview(): JSX.Element {
         </Pressable>
 
         {expanded ? (
-          <Card title={`Plano semana a semana (${plan.weeks.length} semanas)`}>
-            {plan.weeks.map((week) => (
-              <View key={week.week} style={styles.weekBlock}>
-                <Text style={styles.weekTitle}>
-                  {week.week} — {week.phase}
-                  {week.off ? ' (recuperação)' : ''}
-                </Text>
-                {week.workouts.map((workout, i) => (
-                  <Text key={i} style={styles.workoutLine}>
-                    {workout.dayOfWeek}: {workout.title} — {workout.km}km @ {workout.pace}
-                  </Text>
-                ))}
-              </View>
-            ))}
+          <Card title={`Plano completo (${plan.weeks.length} semanas)`}>
+            {isPlus ? (
+              plan.weeks.map((week) => renderWeek(week))
+            ) : (
+              <>
+                {freeWeeks.map((week) => renderWeek(week))}
+                {teaserWeeks.length > 0 ? (
+                  <PremiumGate
+                    locked
+                    title="Plano completo no RunEvo+"
+                    description={`Desbloqueie as ${lockedCount} semanas restantes do seu ciclo completo.`}
+                    cta="Conhecer o RunEvo+"
+                    onUnlock={() => router.push('/runevo-plus')}
+                    overlayOpacity={0.95}
+                  >
+                    {teaserWeeks.map((week) => renderWeek(week))}
+                  </PremiumGate>
+                ) : null}
+              </>
+            )}
           </Card>
         ) : null}
 
         {adoptError ? <Text style={styles.error}>{adoptError}</Text> : null}
 
-        <NeonButton label="Adotar planilha" onPress={() => void onAdopt()} loading={adopting} />
-        <View style={styles.row}>
-          <NeonButton label="Gerar outra" variant="secondary" onPress={onGenerateAnother} disabled={adopting} />
+        <View style={styles.actions}>
+          <NeonButton label="Adotar planilha" variant="primary" onPress={() => void onAdopt()} loading={adopting} />
+          <Pressable
+            style={styles.secondaryBtn}
+            onPress={onGenerateAnother}
+            disabled={adopting}
+            accessibilityRole="button"
+          >
+            <Text style={styles.secondaryBtnText}>Gerar outra planilha</Text>
+          </Pressable>
         </View>
       </ScrollView>
+
+      <QualityInfoModal visible={qualityInfoVisible} onClose={() => setQualityInfoVisible(false)} />
     </Screen>
+  );
+}
+
+function AnalysisBlock({ label, value }: { label: string; value: string }): JSX.Element {
+  return (
+    <View style={styles.analysisBlock}>
+      <Text style={styles.analysisLabel}>{label}</Text>
+      <Text style={styles.analysisValue}>{value}</Text>
+    </View>
   );
 }
 
@@ -238,11 +323,11 @@ function viabilityColor(level: ViabilityLevel): string {
   return colors.textSecondary;
 }
 
-function InfoRow({ label, value }: { label: string; value: string }): JSX.Element {
+function InfoRow({ label, value, strong }: { label: string; value: string; strong?: boolean }): JSX.Element {
   return (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
+      <Text style={strong ? styles.infoValueStrong : styles.infoValue}>{value}</Text>
     </View>
   );
 }
@@ -252,9 +337,18 @@ const styles = StyleSheet.create({
   identicalTitle: { color: colors.neon, fontSize: fontSizes.lg, ...fontWeight('800'), textAlign: 'center' },
   identicalHint: { color: colors.textSecondary, fontSize: fontSizes.body, textAlign: 'center' },
   scrollContent: { paddingBottom: spacing.xxxl },
-  title: { color: colors.textPrimary, fontSize: fontSizes.title, ...fontWeight('800'), marginTop: spacing.xl },
-  subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, marginBottom: spacing.xl },
-  paragraph: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.sm, lineHeight: 20 },
+  titleMain: { color: colors.textPrimary, fontSize: 28, ...fontWeight('800'), textAlign: 'center', marginTop: spacing.xs },
+  titleLevel: { color: colors.textSecondary, fontSize: 15, ...fontWeight('700'), textAlign: 'center', letterSpacing: 1, marginTop: 2, marginBottom: spacing.xs },
+  subtitle: { color: colors.textSecondary, fontSize: fontSizes.body, textAlign: 'center', marginBottom: spacing.xl },
+  paragraph: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.sm, lineHeight: 20, textAlign: 'left' },
+  titleRowCenter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginBottom: spacing.md },
+  cardTitle: { color: colors.neon, fontSize: fontSizes.lg, ...fontWeight('800') },
+  analysisBlock: { marginBottom: spacing.md },
+  analysisLabel: { color: colors.textSecondary, fontSize: 13, ...fontWeight('600'), marginBottom: 2 },
+  analysisValue: { color: colors.textPrimary, fontSize: 14, ...fontWeight('500'), lineHeight: 20 },
+  analysisDivider: { borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', marginTop: spacing.xs, paddingTop: spacing.sm },
+  secondaryBtn: { height: 52, backgroundColor: '#2A2A2A', borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center', marginTop: spacing.sm },
+  secondaryBtnText: { color: colors.textPrimary, fontSize: fontSizes.base, ...fontWeight('600') },
   viabilityCard: {
     backgroundColor: colors.card,
     borderRadius: radii.lg,
@@ -262,13 +356,15 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.lg,
     gap: spacing.sm,
+    alignItems: 'center',
   },
-  viabilityLabel: { fontSize: fontSizes.lg, ...fontWeight('800') },
-  viabilityText: { color: colors.textPrimary, fontSize: fontSizes.body, lineHeight: 21 },
-  viabilityAnchor: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('700') },
+  viabilityLabel: { fontSize: fontSizes.lg, ...fontWeight('800'), textAlign: 'center' },
+  viabilityText: { color: colors.textPrimary, fontSize: fontSizes.body, lineHeight: 21, textAlign: 'center' },
+  viabilityAnchor: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('700'), textAlign: 'center' },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm, gap: spacing.md },
   infoLabel: { color: colors.textSecondary, fontSize: fontSizes.body, flexShrink: 0 },
   infoValue: { color: colors.textPrimary, fontSize: fontSizes.body, flexShrink: 1, textAlign: 'right' },
+  infoValueStrong: { color: colors.neon, fontSize: 16, ...fontWeight('800'), flexShrink: 1, textAlign: 'right' },
   zoneRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -292,8 +388,11 @@ const styles = StyleSheet.create({
   },
   expandLabel: { color: colors.neon, fontSize: fontSizes.body, ...fontWeight('700') },
   weekBlock: { marginBottom: spacing.md, paddingBottom: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  weekTitle: { color: colors.textPrimary, ...fontWeight('700'), fontSize: fontSizes.body, marginBottom: spacing.xs },
-  workoutLine: { color: colors.textSecondary, fontSize: fontSizes.caption, marginBottom: 2 },
+  weekTitle: { color: colors.neon, ...fontWeight('800'), fontSize: fontSizes.body, marginBottom: spacing.sm },
+  workoutRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.xs, gap: spacing.sm },
+  workoutDay: { color: colors.neon, fontSize: 12, ...fontWeight('700'), width: 64 },
+  workoutTitle: { color: colors.textPrimary, fontSize: 13, ...fontWeight('500'), flex: 1 },
+  workoutMeta: { color: colors.textSecondary, fontSize: 12, ...fontWeight('600'), textAlign: 'right' },
   error: { color: colors.error, fontSize: fontSizes.body, textAlign: 'center', marginBottom: spacing.md },
-  row: { marginTop: spacing.md },
+  actions: { gap: spacing.md },
 });

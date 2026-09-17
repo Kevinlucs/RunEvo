@@ -10,10 +10,11 @@
 export const LOCAL_SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS athlete_profiles (
   id TEXT PRIMARY KEY,
-  display_name TEXT, avatar_url TEXT, birth_date TEXT,
+  display_name TEXT, avatar_url TEXT, birth_date TEXT, gender TEXT,
   height_cm REAL, current_weight_kg REAL, imc REAL,
   preferred_unit TEXT DEFAULT 'km', language TEXT DEFAULT 'pt-BR',
   theme TEXT DEFAULT 'dark', onboarding_seen INTEGER DEFAULT 0,
+  level_frame_enabled INTEGER DEFAULT 0,
   created_at TEXT, updated_at TEXT,
   _sync TEXT DEFAULT 'synced', _deleted INTEGER DEFAULT 0
 );
@@ -36,6 +37,9 @@ CREATE TABLE IF NOT EXISTS plan_workouts (
   planned_km REAL, planned_pace TEXT, status TEXT DEFAULT 'pending',
   completed_km REAL, perceived_effort INTEGER, feeling TEXT, pain INTEGER,
   feedback TEXT, shoe_id TEXT, completed_at TEXT,
+  check_in_status TEXT NOT NULL DEFAULT 'not_required',
+  completion_source TEXT, completion_activity_id TEXT,
+  completion_match_type TEXT, completion_match_score INTEGER,
   created_at TEXT, updated_at TEXT,
   _sync TEXT DEFAULT 'synced', _deleted INTEGER DEFAULT 0
 );
@@ -86,6 +90,34 @@ CREATE TABLE IF NOT EXISTS ai_evo_drafts (
   payload TEXT NOT NULL,
   saved_at TEXT NOT NULL
 );
+
+-- Conquistas desbloqueadas (Fase QA/polimento — Grupo Gamificação).
+-- LOCAL-ONLY: persiste o timestamp da primeira vez que cada conquista foi desbloqueada.
+-- Nunca sincroniza. achievement_key = chave da conquista (ex.: 'workouts-1', 'distance-10').
+CREATE TABLE IF NOT EXISTS achievements_unlocked (
+  user_id TEXT NOT NULL,
+  achievement_key TEXT NOT NULL,
+  unlocked_at TEXT NOT NULL,  -- ISO date (YYYY-MM-DD) da primeira vez que atingiu o threshold
+  PRIMARY KEY (user_id, achievement_key)
+);
+
+-- Recordes pessoais editados manualmente (Fase QA/polimento — Grupo Gamificação).
+-- LOCAL-ONLY até as integrações de atividades: nunca sincroniza, nunca passa pelo
+-- outbox. Suporta múltiplos marcos por distância (histórico). O "recorde atual"
+-- é derivado (menor time_str via parseTimeToSeconds).
+-- record_key = PersonalRecord.key em constants.ts ('1k', '5k', 'half', 'marathon', ...).
+CREATE TABLE IF NOT EXISTS personal_records (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  record_key TEXT NOT NULL,
+  time_str TEXT NOT NULL,       -- "HH:MM:SS" ou "MM:SS"
+  date_iso TEXT,                 -- ISO date opcional (quando foi obtido)
+  source TEXT NOT NULL DEFAULT 'manual',  -- 'manual' | 'strava'
+  external_url TEXT,             -- deep link Strava (null p/ manuais)
+  updated_at TEXT NOT NULL,
+  _sync TEXT DEFAULT 'synced', _deleted INTEGER DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_personal_records_user_key ON personal_records(user_id, record_key);
 `;
 
 export const SYNCED_TABLES = [
@@ -95,5 +127,6 @@ export const SYNCED_TABLES = [
   'weekly_checkins',
   'running_shoes',
   'subscriptions',
+  'personal_records',
 ] as const;
 export type SyncedTable = (typeof SYNCED_TABLES)[number];

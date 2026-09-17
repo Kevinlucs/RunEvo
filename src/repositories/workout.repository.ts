@@ -19,5 +19,22 @@ class WorkoutRepository extends BaseRepository<Workout> {
       return err(toAppError(e, 'storage'));
     }
   }
+
+  /** Check-ins individuais aguardando resposta, priorizando a corrida mais recente. */
+  async listPendingPostWorkoutCheckins(userId: string): Promise<Result<Workout[]>> {
+    try {
+      const db = await getDb();
+      const rows = await db.getAllAsync<Workout>(
+        `SELECT * FROM ${this.table}
+         WHERE user_id = ? AND status = 'completed'
+           AND check_in_status = 'pending' AND _deleted = 0
+         ORDER BY completed_at DESC, updated_at DESC`,
+        [userId],
+      );
+      return ok(this.deserializeRows(rows));
+    } catch (e) {
+      return err(toAppError(e, 'storage'));
+    }
+  }
 }
 export const workoutRepository = new WorkoutRepository();

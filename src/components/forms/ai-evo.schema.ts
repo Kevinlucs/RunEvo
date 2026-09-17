@@ -13,9 +13,9 @@ import { z } from 'zod';
  */
 
 const personalSchema = z.object({
-  age: z.coerce.number().int().min(10, 'Idade mínima 10 anos').max(100, 'Idade máxima 100 anos').optional(),
-  height: z.coerce.number().min(100, 'Altura mínima 100cm').max(250, 'Altura máxima 250cm').optional(),
-  weight: z.coerce.number().min(30, 'Peso mínimo 30kg').max(300, 'Peso máximo 300kg').optional(),
+  age: z.coerce.number().int().min(14, 'Idade mínima 14 anos').max(100, 'Idade máxima 100 anos'),
+  height: z.coerce.number().positive('Informe a altura').max(250, 'Altura máxima 250 cm'),
+  weight: z.coerce.number().positive('Informe o peso').max(250, 'Peso máximo 250 kg'),
   level: z.enum(['iniciante', 'intermediário', 'avançado', 'elite'], { required_error: 'Selecione seu nível' }),
 });
 

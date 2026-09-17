@@ -30,6 +30,12 @@ export async function completeWorkout(input: CompleteWorkoutInput): Promise<Resu
       feedback: input.feedback ?? null,
       shoe_id: input.shoeId ?? null,
       completed_at: nowIso(),
+      // O fluxo manual já coleta esforço e observação na própria conclusão.
+      // Não deixamos um check-in pós-treino artificialmente pendente.
+      check_in_status: 'completed',
+      completion_source: 'manual',
+      completion_match_type: null,
+      completion_match_score: null,
     });
     if (!workoutRes.ok) return workoutRes;
 

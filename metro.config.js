@@ -6,5 +6,11 @@ config.resolver.unstable_enablePackageExports = false;
 // android/build (gerado pelo Gradle) tem milhares de arquivos intermediários
 // e nunca contém código-fonte JS/TS — watch-lo estoura o limite de inotify
 // (ENOSPC) sem trazer nenhum benefício. Exclui do watcher do Metro.
-config.resolver.blockList = exclusionList([/android\/(app\/)?build\/.*/, /android\/\.gradle\/.*/]);
+config.resolver.blockList = exclusionList([
+  /android\/(app\/)?build\/.*/,
+  /android\/\.gradle\/.*/,
+  // Artefatos temporários do Android Studio podem conter sockets inacessíveis
+  // ao watcher do Metro e não fazem parte do código do app.
+  /outputs.*android-studio-session.*/,
+]);
 module.exports = config;

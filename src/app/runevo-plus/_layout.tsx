@@ -11,7 +11,7 @@ export default function RunEvoPlusLayout(): JSX.Element {
         contentStyle: { backgroundColor: colors.bg },
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'RunEvo+' }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="resources" options={{ title: 'Meus recursos' }} />
     </Stack>
   );

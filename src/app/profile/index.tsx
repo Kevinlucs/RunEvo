@@ -1,16 +1,17 @@
-import { useState, type ComponentProps } from 'react';
-import { ScrollView, View, Text, Pressable, Alert, StyleSheet } from 'react-native';
+import { useMemo, useState, type ComponentProps } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import Constants from 'expo-constants';
 import { Screen } from '@/components/ui/Screen';
-import { NeonButton } from '@/components/ui/NeonButton';
+import { LevelShield } from '@/components/gamification';
 import { useAuth } from '@/hooks/useAuth';
 import { useAthleteProfile } from '@/hooks/useAthleteProfile';
-import { useEntitlement } from '@/hooks/useEntitlement';
-import { classifyImc } from '@/services/stats/stats.service';
+import { useLifetimeStats } from '@/hooks/useLifetimeStats';
+import { computeLevel } from '@/services/gamification/compute';
+import { RUN_LEVELS } from '@/services/gamification/constants';
 import { formatMonthYear } from '@/utils/time';
-import { colors, radii, spacing, fontSizes, fontWeight } from '@/theme';
+import { colors, fontSizes, fontWeight, radii, spacing } from '@/theme';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -27,12 +28,16 @@ interface RowProps {
 
 function ProfileRow({ icon, label, onPress, destructive = false }: RowProps): JSX.Element {
   return (
-    <Pressable onPress={onPress} style={styles.row} accessibilityRole="button">
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+    >
       <View style={styles.rowLeft}>
-        <Ionicons name={icon} size={20} color={destructive ? colors.error : colors.textSecondary} />
+        <Ionicons name={icon} size={22} color={destructive ? colors.error : colors.textPrimary} />
         <Text style={[styles.rowLabel, destructive && styles.rowLabelDestructive]}>{label}</Text>
       </View>
-      <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+      <Ionicons name="chevron-forward" size={22} color={colors.textMuted} />
     </Pressable>
   );
 }
@@ -41,27 +46,22 @@ function SectionLabel({ children }: { children: string }): JSX.Element {
   return <Text style={styles.sectionLabel}>{children}</Text>;
 }
 
-/**
- * docs/fase-6-brief.md Grupo 4 (§32, mockup 14). Foto de perfil não entra
- * (exigiria expo-image-picker + bucket de Storage — infra que não existe no
- * projeto hoje). Unidade/idioma/tema (editados em profile/edit.tsx) só
- * gravam preferência: sem efeito visível ainda, divergência reportada.
- * Termos/Privacidade/Suporte/Geral/Dispositivos/Meus Recursos ficam "Em
- * breve" — não há domínio de landing publicado para linkar (não simulamos
- * URL) nem telas de configurações/suporte especificadas neste grupo.
- */
+/** Central de conta: itens, preferências e progresso de nível do atleta. */
 export default function Profile(): JSX.Element {
   const { session, user, signOut, deleteAccount } = useAuth();
   const { profile } = useAthleteProfile(user?.id);
-  const { isPlus } = useEntitlement();
-
+  const { stats: lifetimeStats } = useLifetimeStats();
   const [deleting, setDeleting] = useState(false);
 
   const name = profile?.display_name || session?.user.email?.split('@')[0] || 'Atleta';
   const initial = name.charAt(0).toUpperCase();
   const joinedAt = formatMonthYear(user?.created_at ?? null);
-  const imcLabel = classifyImc(profile?.imc ?? null);
-  const planLabel = isPlus ? 'RunEvo+' : 'Livre';
+  const currentLevel = computeLevel(lifetimeStats.totalKm);
+  const levelIndex = RUN_LEVELS.findIndex((level) => level.key === currentLevel.key);
+  const levelPreview = useMemo(() => {
+    const start = Math.min(Math.max(0, levelIndex - 1), RUN_LEVELS.length - 3);
+    return RUN_LEVELS.slice(start, start + 3);
+  }, [levelIndex]);
 
   const handleDeleteAccount = (): void => {
     Alert.alert(
@@ -84,9 +84,9 @@ export default function Profile(): JSX.Element {
                   onPress: () => {
                     void (async () => {
                       setDeleting(true);
-                      const res = await deleteAccount();
+                      const result = await deleteAccount();
                       setDeleting(false);
-                      if (!res.ok) {
+                      if (!result.ok) {
                         Alert.alert('Erro', 'Não foi possível excluir a conta. Tente novamente.');
                       }
                     })();
@@ -102,65 +102,125 @@ export default function Profile(): JSX.Element {
 
   return (
     <Screen>
-    <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-      <View style={styles.avatarSection}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarLetter}>{initial}</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.avatarSection}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarLetter}>{initial}</Text>
+          </View>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.joined}>Entrou em {joinedAt}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Editar perfil"
+            onPress={() => router.push('/profile/edit')}
+            style={({ pressed }) => [styles.editButton, pressed && styles.buttonPressed]}
+          >
+            <Text style={styles.editButtonLabel}>EDITAR PERFIL</Text>
+          </Pressable>
         </View>
-        <Text style={styles.name}>{name}</Text>
-        <Text style={styles.joined}>Entrou em {joinedAt}</Text>
-        <View style={styles.editButton}>
-          <NeonButton label="Editar perfil" onPress={() => router.push('/profile/edit')} />
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Abrir níveis"
+          onPress={() => router.push('/stats/levels')}
+          style={({ pressed }) => [styles.levelCard, pressed && styles.rowPressed]}
+        >
+          <View style={styles.shields}>
+            {levelPreview.map((level, index) => (
+              <View
+                key={level.key}
+                style={[
+                  styles.shield,
+                  index === 1 && styles.shieldMiddle,
+                  index === 2 && styles.shieldLast,
+                ]}
+              >
+                <LevelShield
+                  level={level}
+                  size={58}
+                  opacity={index === levelPreview.length - 1 ? 0.74 : 1}
+                />
+              </View>
+            ))}
+          </View>
+          <View style={styles.levelContent}>
+            <Text style={styles.levelTitle}>Níveis</Text>
+            <Text style={styles.levelDescription}>Ganhe pontos. Alcance suas metas.</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color={colors.textMuted} />
+        </Pressable>
+
+        <SectionLabel>Meus itens</SectionLabel>
+        <View style={styles.group}>
+          <ProfileRow
+            icon="apps-outline"
+            label="Aplicativos e dispositivos conectados"
+            onPress={() => router.push('/profile/connected-apps')}
+          />
+          <ProfileRow
+            icon="footsteps-outline"
+            label="Tênis"
+            onPress={() => router.push('/profile/shoes')}
+          />
+          <ProfileRow
+            icon="lock-closed-outline"
+            label="RUNEVO+"
+            onPress={() => router.push('/runevo-plus')}
+          />
         </View>
-      </View>
 
-      <View style={styles.infoCard}>
-        <Text style={styles.infoLabel}>PESO</Text>
-        <Text style={styles.infoValue}>{profile?.current_weight_kg ? `${profile.current_weight_kg} kg` : '-'}</Text>
-      </View>
-      <View style={styles.infoCard}>
-        <Text style={styles.infoLabel}>IMC</Text>
-        <Text style={styles.infoValue}>{profile?.imc ? `${profile.imc.toFixed(1)} · ${imcLabel}` : '-'}</Text>
-      </View>
-      <View style={styles.infoCard}>
-        <Text style={styles.infoLabel}>PLANO</Text>
-        <Text style={styles.infoValue}>{planLabel}</Text>
-      </View>
+        <SectionLabel>Minhas preferências</SectionLabel>
+        <View style={styles.group}>
+          <ProfileRow
+            icon="notifications-outline"
+            label="Notificações"
+            onPress={() => ComingSoon('Notificações')}
+          />
+          <ProfileRow
+            icon="heart-outline"
+            label="Zonas de frequência cardíaca"
+            onPress={() => ComingSoon('Zonas de frequência cardíaca')}
+          />
+          <ProfileRow icon="ticket-outline" label="Suporte" onPress={() => ComingSoon('Suporte')} />
+        </View>
 
-      <SectionLabel>Meus itens</SectionLabel>
-      <View style={styles.group}>
-        <ProfileRow icon="apps-outline" label="Aplicativos e dispositivos conectados" onPress={() => ComingSoon('Aplicativos e dispositivos conectados')} />
-        <ProfileRow icon="footsteps-outline" label="Tênis" onPress={() => router.push('/profile/shoes')} />
-      </View>
+        <SectionLabel>Conta</SectionLabel>
+        <View style={styles.group}>
+          <ProfileRow
+            icon="trash-outline"
+            label="Excluir conta"
+            onPress={handleDeleteAccount}
+            destructive
+          />
+        </View>
 
-      <SectionLabel>Assinatura e recursos</SectionLabel>
-      <View style={styles.group}>
-        <ProfileRow icon="flash-outline" label="RunEvo+" onPress={() => router.push('/runevo-plus')} />
-        <ProfileRow icon="grid-outline" label="Meus recursos" onPress={() => router.push('/runevo-plus/resources')} />
-        <ProfileRow icon="time-outline" label="Histórico de ciclos" onPress={() => router.push('/history')} />
-      </View>
+        <View style={styles.divider} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Sair da conta"
+          disabled={deleting}
+          onPress={() => void signOut()}
+          style={({ pressed }) => [
+            styles.signOutButton,
+            pressed && styles.buttonPressed,
+            deleting && styles.disabled,
+          ]}
+        >
+          <Ionicons name="log-out-outline" size={28} color={colors.cardElevated} />
+          <Text style={styles.signOutLabel}>{deleting ? 'EXCLUINDO…' : 'SAIR'}</Text>
+        </Pressable>
+        <View style={styles.divider} />
 
-      <SectionLabel>Minhas preferências</SectionLabel>
-      <View style={styles.group}>
-        <ProfileRow icon="settings-outline" label="Geral" onPress={() => ComingSoon('Configurações gerais')} />
-        <ProfileRow icon="help-circle-outline" label="Suporte" onPress={() => ComingSoon('Suporte')} />
-      </View>
-
-      <SectionLabel>Conta</SectionLabel>
-      <View style={styles.group}>
-        <ProfileRow icon="trash-outline" label="Excluir conta" onPress={handleDeleteAccount} destructive />
-      </View>
-
-      <View style={styles.signOutButton}>
-        <NeonButton label={deleting ? 'Excluindo…' : 'Sair'} variant="secondary" onPress={() => void signOut()} disabled={deleting} />
-      </View>
-
-      <View style={styles.legal}>
-        <Text style={styles.legalLink} onPress={() => ComingSoon('Termos e condições')}>Termos e condições</Text>
-        <Text style={styles.legalLink} onPress={() => ComingSoon('Política de privacidade')}>Política de privacidade</Text>
-        <Text style={styles.version}>versão RunEvo v{Constants.expoConfig?.version ?? '-'}</Text>
-      </View>
-    </ScrollView>
+        <View style={styles.legal}>
+          <Text style={styles.legalLink} onPress={() => ComingSoon('Termos e condições')}>
+            TERMOS E CONDIÇÕES
+          </Text>
+          <Text style={styles.legalLink} onPress={() => ComingSoon('Política de privacidade')}>
+            POLÍTICA DE PRIVACIDADE
+          </Text>
+          <Text style={styles.version}>versão RunEvo v{Constants.expoConfig?.version ?? '-'}</Text>
+        </View>
+      </ScrollView>
     </Screen>
   );
 }
@@ -171,7 +231,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 88,
     height: 88,
-    borderRadius: 999,
+    borderRadius: radii.pill,
     backgroundColor: colors.cardElevated,
     borderWidth: 2,
     borderColor: colors.neon,
@@ -181,48 +241,102 @@ const styles = StyleSheet.create({
   },
   avatarLetter: { color: colors.neon, fontSize: fontSizes.title, ...fontWeight('900') },
   name: { color: colors.textPrimary, fontSize: fontSizes.xl, ...fontWeight('800') },
-  joined: { color: colors.textSecondary, fontSize: fontSizes.body, marginTop: spacing.xs, marginBottom: spacing.lg },
-  editButton: { minWidth: 180 },
-  infoCard: {
-    backgroundColor: colors.card,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
+  joined: {
+    color: colors.textSecondary,
+    fontSize: fontSizes.body,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
   },
-  infoLabel: { color: colors.textMuted, fontSize: fontSizes.caption, ...fontWeight('700'), letterSpacing: 0.5, marginBottom: spacing.xs },
-  infoValue: { color: colors.textPrimary, fontSize: fontSizes.lg, ...fontWeight('800') },
-  sectionLabel: {
-    color: colors.neon,
+  editButton: {
+    minHeight: 46,
+    paddingHorizontal: spacing.xl,
+    borderRadius: radii.pill,
+    justifyContent: 'center',
+    backgroundColor: '#E6ECF5',
+  },
+  editButtonLabel: {
+    color: colors.cardElevated,
     fontSize: fontSizes.caption,
     ...fontWeight('800'),
-    letterSpacing: 0.5,
+  },
+  levelCard: {
+    minHeight: 106,
+    backgroundColor: colors.cardElevated,
+    borderRadius: radii.md,
+    borderWidth: 1.5,
+    borderColor: '#3A4353',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.xl,
+  },
+  shields: { width: 112, height: 72, justifyContent: 'center' },
+  shield: { position: 'absolute', left: 0 },
+  shieldMiddle: { left: 27, zIndex: 1 },
+  shieldLast: { left: 54, zIndex: 2 },
+  levelContent: { flex: 1, paddingLeft: spacing.xs },
+  levelTitle: { color: colors.textPrimary, fontSize: fontSizes.xl, ...fontWeight('800') },
+  levelDescription: {
+    color: colors.textSecondary,
+    fontSize: fontSizes.caption,
+    marginTop: spacing.xs,
+    lineHeight: 17,
+  },
+  sectionLabel: {
+    color: colors.textMuted,
+    fontSize: fontSizes.caption,
+    ...fontWeight('700'),
     textTransform: 'uppercase',
-    marginTop: spacing.lg,
     marginBottom: spacing.sm,
+    marginLeft: spacing.md,
   },
   group: {
-    backgroundColor: colors.card,
-    borderRadius: radii.lg,
+    backgroundColor: colors.cardElevated,
+    borderRadius: radii.md,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: '#3A4353',
     overflow: 'hidden',
+    marginBottom: spacing.xl,
   },
   row: {
+    minHeight: 62,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: '#343B47',
   },
-  rowLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flexShrink: 1 },
-  rowLabel: { color: colors.textPrimary, fontSize: fontSizes.body, flexShrink: 1 },
+  rowPressed: { opacity: 0.74 },
+  rowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  rowLabel: { color: colors.textPrimary, fontSize: fontSizes.base, flexShrink: 1 },
   rowLabelDestructive: { color: colors.error },
-  signOutButton: { marginTop: spacing.xl },
-  legal: { alignItems: 'center', marginTop: spacing.xl, gap: spacing.sm },
-  legalLink: { color: colors.textSecondary, fontSize: fontSizes.caption, ...fontWeight('700'), letterSpacing: 0.5 },
-  version: { color: colors.textMuted, fontSize: fontSizes.caption, marginTop: spacing.sm },
+  divider: { height: 1, backgroundColor: '#3A4353', marginVertical: spacing.xl },
+  signOutButton: {
+    minHeight: 64,
+    borderRadius: radii.pill,
+    backgroundColor: '#E6ECF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  signOutLabel: { color: colors.cardElevated, fontSize: fontSizes.lg, ...fontWeight('800') },
+  buttonPressed: { opacity: 0.78 },
+  disabled: { opacity: 0.5 },
+  legal: { alignItems: 'center', gap: spacing.xl, paddingBottom: spacing.xl },
+  legalLink: { color: '#E6ECF5', fontSize: fontSizes.base, ...fontWeight('800') },
+  version: {
+    color: '#657087',
+    fontSize: fontSizes.body,
+    ...fontWeight('700'),
+    marginTop: spacing.sm,
+  },
 });

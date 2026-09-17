@@ -9,7 +9,6 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { DateField } from '@/components/forms/DateField';
 import { PreviousTimesWheel } from '@/components/forms/PreviousTimesWheel';
-import { Badge } from '@/components/forms/Badge';
 import { Test3kmWheel } from '@/components/forms/Test3kmWheel';
 import { Test3kmInfoModal } from '@/components/forms/Test3kmInfoModal';
 import { SelectableCard } from '@/components/forms/SelectableCard';
@@ -136,7 +135,9 @@ export default function AiEvo(): JSX.Element {
 
           {/* SEÇÃO: Dados do Corredor */}
           <View style={styles.inputsCard}>
-            <Text style={styles.sectionTitleInCard}>Dados do Corredor</Text>
+            <Text style={styles.sectionTitleInCard}>
+              Dados do Corredor<Text style={styles.requiredMark}> *</Text>
+            </Text>
             <Text style={styles.sectionDescInCard}>Informações básicas sobre você</Text>
 
             <Text style={styles.label}>Idade</Text>
@@ -147,7 +148,7 @@ export default function AiEvo(): JSX.Element {
                 <TextInput
                   style={[styles.input, errors.age ? styles.inputError : null]}
                   value={field.value !== undefined && field.value !== null ? String(field.value) : ''}
-                  onChangeText={field.onChange}
+                  onChangeText={(v) => field.onChange(v.replace(/[^0-9]/g, ''))}
                   keyboardType="number-pad"
                   placeholderTextColor={colors.textMuted}
                 />
@@ -163,7 +164,7 @@ export default function AiEvo(): JSX.Element {
                 <TextInput
                   style={[styles.input, errors.height ? styles.inputError : null]}
                   value={field.value !== undefined && field.value !== null ? String(field.value) : ''}
-                  onChangeText={field.onChange}
+                  onChangeText={(v) => field.onChange(v.replace(/[^0-9]/g, ''))}
                   keyboardType="number-pad"
                   placeholderTextColor={colors.textMuted}
                 />
@@ -179,7 +180,7 @@ export default function AiEvo(): JSX.Element {
                 <TextInput
                   style={[styles.input, errors.weight ? styles.inputError : null]}
                   value={field.value !== undefined && field.value !== null ? String(field.value) : ''}
-                  onChangeText={field.onChange}
+                  onChangeText={(v) => field.onChange(v.replace(/[^0-9.,]/g, '').replace(',', '.'))}
                   keyboardType="decimal-pad"
                   placeholderTextColor={colors.textMuted}
                 />
@@ -191,7 +192,9 @@ export default function AiEvo(): JSX.Element {
           {/* SEÇÃO: Nível de Experiência */}
           <View style={styles.levelCard}>
             <View style={styles.levelHeader}>
-              <Text style={styles.levelTitle}>Nível de experiência</Text>
+              <Text style={styles.levelTitle}>
+                Nível de experiência<Text style={styles.requiredMark}> *</Text>
+              </Text>
               <Pressable onPress={() => setLevelInfoVisible(true)} accessibilityRole="button" accessibilityLabel="O que é cada nível?">
                 <CircleHelp style={{ marginTop: -5 }} size={20} color={colors.textMuted} />
               </Pressable>
@@ -219,7 +222,9 @@ export default function AiEvo(): JSX.Element {
 
           {/* SEÇÃO: Prova */}
           <View style={styles.provaCard}>
-            <Text style={styles.sectionTitleInCard}>Prova</Text>
+            <Text style={styles.sectionTitleInCard}>
+              Prova<Text style={styles.requiredMark}> *</Text>
+            </Text>
 
             <Text style={styles.label}>Distância alvo</Text>
             <Controller
@@ -286,7 +291,9 @@ export default function AiEvo(): JSX.Element {
 
           <View style={styles.terrainCard}>
             <View style={styles.terrainHeader}>
-              <Text style={styles.terrainTitle}>Terreno principal</Text>
+              <Text style={styles.terrainTitle}>
+                Terreno principal<Text style={styles.requiredMark}> *</Text>
+              </Text>
               <Pressable onPress={() => setTerrainInfoVisible(true)} accessibilityRole="button" accessibilityLabel="O que é cada terreno?">
                 <CircleHelp style={{ marginTop: -5 }} size={20} color={colors.textMuted} />
               </Pressable>
@@ -314,7 +321,9 @@ export default function AiEvo(): JSX.Element {
           </View>
 
           <View style={styles.datesCard}>
-            <Text style={styles.sectionTitleInCard}>Datas</Text>
+            <Text style={styles.sectionTitleInCard}>
+              Datas<Text style={styles.requiredMark}> *</Text>
+            </Text>
 
             <Controller
               control={control}
@@ -341,7 +350,9 @@ export default function AiEvo(): JSX.Element {
 
           {/* SEÇÃO: Treino semanal */}
           <View style={styles.trainingCard}>
-            <Text style={styles.sectionTitleInCard}>Treino semanal</Text>
+            <Text style={styles.sectionTitleInCard}>
+              Treino semanal<Text style={styles.requiredMark}> *</Text>
+            </Text>
 
             <Text style={styles.label}>Dias de treino por semana</Text>
             <Controller
@@ -429,13 +440,12 @@ export default function AiEvo(): JSX.Element {
           {/* SEÇÃO: Teste de 3km */}
           <View style={styles.test3kmCard}>
             <View style={styles.titleRowCenter}>
-              <Text style={styles.sectionTitleInCard}>Teste de 3 km</Text>
+              <Text style={styles.sectionTitleInCard}>
+                Teste de 3 km<Text style={styles.requiredMark}> *</Text>
+              </Text>
               <Pressable onPress={() => setTest3kmInfoVisible(true)} accessibilityRole="button" accessibilityLabel="Como fazer o teste?">
-                <CircleHelp size={20} color={colors.textMuted} />
+                <CircleHelp style={{ marginTop: -5 }} size={20} color={colors.textMuted} />
               </Pressable>
-            </View>
-            <View style={styles.badgeCenterWrap}>
-              <Badge label="OBRIGATÓRIO" tone="error" variant="pill" />
             </View>
             <Text style={styles.sectionDescInCard}>Seu resultado define suas zonas de treino.</Text>
 
@@ -460,10 +470,9 @@ export default function AiEvo(): JSX.Element {
           {/* SEÇÃO: Objetivo */}
           <View style={styles.objectiveCard}>
             <View style={styles.titleRowCenter}>
-              <Text style={styles.sectionTitleInCard}>Objetivo</Text>
-            </View>
-            <View style={styles.badgeCenterWrap}>
-              <Badge label="OBRIGATÓRIO" tone="error" variant="pill" />
+              <Text style={styles.sectionTitleInCard}>
+                Objetivo<Text style={styles.requiredMark}> *</Text>
+              </Text>
             </View>
             <Text style={styles.sectionDescInCard}>O que você quer conquistar?</Text>
 
@@ -544,7 +553,7 @@ const styles = StyleSheet.create({
   trainingCard: { backgroundColor: colors.card, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   timesCard: { backgroundColor: colors.card, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   titleRowCenter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
-  badgeCenterWrap: { alignItems: 'center', marginTop: spacing.sm, marginBottom: spacing.xs },
+  requiredMark: { color: colors.error, ...fontWeight('800') },
   labelCenter: { textAlign: 'center' },
   instructionBox: { backgroundColor: colors.cardElevated, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(204,255,0,0.2)', padding: spacing.lg, marginVertical: spacing.lg, alignItems: 'center' },
   instructionTitle: { color: colors.neon, fontSize: 16, ...fontWeight('800'), marginBottom: spacing.xs },

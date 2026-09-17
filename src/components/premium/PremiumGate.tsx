@@ -10,6 +10,8 @@ interface PremiumGateProps {
   description?: string;
   cta?: string;
   onUnlock: () => void;
+  /** Opacidade do fundo preto do overlay (default 0.85). */
+  overlayOpacity?: number;
   children: React.ReactNode;
 }
 
@@ -26,6 +28,7 @@ export function PremiumGate({
   description = 'Desbloqueie este recurso no plano Premium.',
   cta = 'Conhecer RunEvo+',
   onUnlock,
+  overlayOpacity = 0.85,
   children,
 }: PremiumGateProps): JSX.Element {
   const fadeAnim = useRef(new Animated.Value(locked ? 1 : 0)).current;
@@ -50,7 +53,7 @@ export function PremiumGate({
       </View>
 
       {/* Overlay: fundo escuro + CTA centralizado */}
-      <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
+      <Animated.View style={[styles.overlay, { backgroundColor: `rgba(0,0,0,${overlayOpacity})`, opacity: fadeAnim }]}>
         <Pressable style={styles.ctaArea} onPress={onUnlock} accessibilityRole="button">
           <View style={styles.lockCircle}>
             <Lock size={32} color={colors.neon} />
@@ -76,7 +79,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.85)',
     paddingHorizontal: spacing.xl,
   },
   ctaArea: {

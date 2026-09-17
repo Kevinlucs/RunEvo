@@ -28,3 +28,25 @@ export function formatMonthYear(isoStr: string | null | undefined): string {
   if (Number.isNaN(date.getTime())) return '-';
   return `${SHORT_MONTHS[date.getMonth()]}. de ${date.getFullYear()}`;
 }
+
+/** `"YYYY-MM-DD"` → `"18 de mai. de 2025"` (data longa dos recordes). Parsing local. */
+export function formatLongDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-').map(Number);
+  if (!y || !m || !d) return '';
+  return `${d} de ${SHORT_MONTHS[m - 1]}. de ${y}`;
+}
+
+/**
+ * Segundos → duração amigável: `"22 min 26 s"`, ou `"1 h 5 min"` a partir de 1h.
+ * Usado nos recordes pessoais (formato dos mockups). "-" se inválido.
+ */
+export function formatDuration(totalSeconds: number | null | undefined): string {
+  if (totalSeconds == null || !Number.isFinite(totalSeconds) || totalSeconds < 0) return '-';
+  const s = Math.round(totalSeconds);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h} h ${m} min`;
+  return `${m} min ${sec} s`;
+}
