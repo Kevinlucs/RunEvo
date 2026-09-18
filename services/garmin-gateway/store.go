@@ -67,7 +67,7 @@ func (s *Store) request(ctx context.Context, method, path string, body any, pref
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("database request rejected: HTTP %d", resp.StatusCode)
+		b, _ := io.ReadAll(resp.Body); return fmt.Errorf("database request rejected: HTTP %d body=%s", resp.StatusCode, string(b))
 	}
 	if out != nil && resp.StatusCode != http.StatusNoContent {
 		if err := json.NewDecoder(resp.Body).Decode(out); err != nil && err != io.EOF {
@@ -173,7 +173,7 @@ func (s *Store) syncDevices(ctx context.Context, userID string, devices []garmin
 	for _, device := range devices {
 		rows = append(rows, map[string]any{
 			"user_id": userID, "external_device_id": fmt.Sprintf("%d", device.DeviceID),
-			"device_name": device.ProductDisplayName, "device_type": device.Model, "status": "active",
+			"device_name": func() string { if device.ProductDisplayName != "" { return device.ProductDisplayName }; if device.Model != "" { return device.Model }; return fmt.Sprintf("Garmin %d", device.DeviceID) }(), "device_type": device.Model, "status": "active",
 			"last_sync_at": time.Now().UTC().Format(time.RFC3339),
 		})
 	}

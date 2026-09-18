@@ -78,6 +78,9 @@ func newServer() (*Server, error) {
 	hmacSecret := os.Getenv("WATCH_GATEWAY_HMAC_SECRET")
 	tokenKeyText := os.Getenv("GARMIN_TOKEN_ENCRYPTION_KEY")
 	publicURL := strings.TrimSuffix(os.Getenv("PUBLIC_BASE_URL"), "/")
+	if !strings.HasPrefix(publicURL, "http://") && !strings.HasPrefix(publicURL, "https://") {
+		publicURL = "https://" + publicURL
+	}
 	if supabaseURL == "" || serviceKey == "" || hmacSecret == "" || tokenKeyText == "" || publicURL == "" {
 		return nil, errors.New("SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, WATCH_GATEWAY_HMAC_SECRET, GARMIN_TOKEN_ENCRYPTION_KEY e PUBLIC_BASE_URL são obrigatórios")
 	}
