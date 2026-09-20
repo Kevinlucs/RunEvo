@@ -4,7 +4,6 @@ import { useFocusEffect } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
-import { AlertModal } from '@/components/ui/AlertModal';
 import { useConnectedAccounts } from '@/hooks/useConnectedAccounts';
 import { startStravaConnection } from '@/services/integrations/connected-accounts.service';
 import { colors, fontSizes, fontWeight, radii, spacing } from '@/theme';
@@ -121,7 +120,6 @@ function StravaIntroModal({
 export default function ConnectedAppsScreen(): JSX.Element {
   const { accounts, refresh } = useConnectedAccounts();
   const [showStravaIntro, setShowStravaIntro] = useState(false);
-  const [showWatchInfo, setShowWatchInfo] = useState(false);
   const [connecting, setConnecting] = useState(false);
 
   const strava = useMemo(
@@ -183,28 +181,6 @@ export default function ConnectedAppsScreen(): JSX.Element {
           )}
           <Ionicons name="chevron-forward" size={25} color={colors.textMuted} />
         </Pressable>
-
-        <Text style={styles.sectionTitle}>Relógios</Text>
-        <View style={[styles.connectionRow, styles.watchComingSoonRow]}>
-          <View style={styles.watchIcon}>
-            <Ionicons name="watch-outline" size={25} color={colors.textPrimary} />
-          </View>
-          <View style={styles.watchCopy}>
-            <Text style={styles.connectionLabel}>Em breve</Text>
-            <Text style={styles.comingSoon}>Integrações com relógios</Text>
-          </View>
-          <Pressable
-            onPress={() => setShowWatchInfo(true)}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel="Saiba mais sobre integrações com relógios"
-          >
-            <Ionicons name="help-circle-outline" size={24} color={colors.neon} />
-          </Pressable>
-        </View>
-        <Text style={styles.supported}>
-          Estamos preparando integrações oficiais com Garmin, COROS, Polar e Amazfit.
-        </Text>
       </ScrollView>
 
       <StravaIntroModal
@@ -213,13 +189,6 @@ export default function ConnectedAppsScreen(): JSX.Element {
         connecting={connecting}
         onClose={() => setShowStravaIntro(false)}
         onConnect={() => void connectStrava()}
-      />
-      <AlertModal
-        visible={showWatchInfo}
-        title="Integrações em desenvolvimento"
-        message="Estamos trabalhando para disponibilizar integrações oficiais e seguras com Garmin, COROS, Polar e Amazfit nas próximas atualizações do RunEvo."
-        type="info"
-        primaryAction={() => setShowWatchInfo(false)}
       />
     </Screen>
   );
@@ -256,25 +225,8 @@ const styles = StyleSheet.create({
   },
   rowPressed: { opacity: 0.68 },
   stravaMark: { width: 32, height: 32, borderRadius: 16 },
-  watchIcon: { width: 32, alignItems: 'center' },
   connectionLabel: { flex: 1, color: colors.textPrimary, fontSize: fontSizes.lg },
   connectedDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success },
-  watchComingSoonRow: { marginBottom: spacing.sm },
-  watchCopy: { flex: 1, gap: 2 },
-  comingSoon: {
-    color: colors.neon,
-    fontSize: fontSizes.caption,
-    ...fontWeight('800'),
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-  },
-  supported: {
-    color: colors.textMuted,
-    fontSize: fontSizes.body,
-    lineHeight: 21,
-    marginTop: -spacing.xxl,
-    paddingHorizontal: spacing.xs,
-  },
 
   introModal: {
     flex: 1,

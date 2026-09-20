@@ -29,19 +29,19 @@ dos `TextInput` com máscara atuais.
 - Badges: `assets/rp/RP-1.png` … `assets/rp/RP-11.png`.
 - **Mapeamento posicional** (confirmado abrindo os PNGs): `RP-N` → `PERSONAL_RECORDS[N-1]`.
 
-  | Arquivo   | key        | Label na ref B     | Nome no grid (ref A) |
-  |-----------|------------|--------------------|----------------------|
-  | RP-1.png  | `1k`       | 1K                 | 1 km                 |
-  | RP-2.png  | `1mi`      | 1MI                | 1 mi                 |
-  | RP-3.png  | `2mi`      | 2MI                | 2 mi                 |
-  | RP-4.png  | `5k`       | 5K                 | 5 km                 |
-  | RP-5.png  | `5mi`      | 5MI                | 5 mi                 |
-  | RP-6.png  | `10k`      | 10K                | 10 km                |
-  | RP-7.png  | `10mi`     | 10MI               | 10 mi                |
-  | RP-8.png  | `half`     | 21.1               | Meia maratona        |
-  | RP-9.png  | `marathon` | 42.2               | Maratona             |
-  | RP-10.png | `50k`      | 50K                | 50 km                |
-  | RP-11.png | `100k`     | 100K               | 100 km               |
+  | Arquivo   | key        | Label na ref B | Nome no grid (ref A) |
+  | --------- | ---------- | -------------- | -------------------- |
+  | RP-1.png  | `1k`       | 1K             | 1 km                 |
+  | RP-2.png  | `1mi`      | 1MI            | 1 mi                 |
+  | RP-3.png  | `2mi`      | 2MI            | 2 mi                 |
+  | RP-4.png  | `5k`       | 5K             | 5 km                 |
+  | RP-5.png  | `5mi`      | 5MI            | 5 mi                 |
+  | RP-6.png  | `10k`      | 10K            | 10 km                |
+  | RP-7.png  | `10mi`     | 10MI           | 10 mi                |
+  | RP-8.png  | `half`     | 21.1           | Meia maratona        |
+  | RP-9.png  | `marathon` | 42.2           | Maratona             |
+  | RP-10.png | `50k`      | 50K            | 50 km                |
+  | RP-11.png | `100k`     | 100K           | 100 km               |
 
   > Os PNGs **já trazem** a cor e o texto (1K, 21.1, etc.) embutidos. Não desenhar mais o hexágono
   > por cima — a imagem é a arte final. A cor de cada `PERSONAL_RECORDS[i].color` continua útil só
@@ -90,7 +90,7 @@ export const RECORD_BADGES: Record<string, ImageSourcePropType> = {
 
 **Este é o ponto mais importante e o que mais muda.** Hoje o repositório guarda **1 linha por
 `(user_id, record_key)`** via `upsert` (`src/repositories/personal-record.repository.ts`), ou seja,
-só existe *o* recorde atual. A **ref B mostra um histórico** ("MARCOS": 02:00, 04:03, 04:09 com
+só existe _o_ recorde atual. A **ref B mostra um histórico** ("MARCOS": 02:00, 04:03, 04:09 com
 datas diferentes) e permite apagar entradas individuais. Precisamos guardar **N entradas por
 distância**.
 
@@ -107,7 +107,7 @@ linhas por distância:
 - Índice em `(user_id, record_key)` pra listar rápido.
 
 > Seguir o mesmo padrão de migração já usado no projeto (`src/db/`). A tabela continua **LOCAL-ONLY**
-> (fora de `SYNCED_TABLES`) até a integração Strava/Garmin, como o comentário atual já diz.
+> (fora de `SYNCED_TABLES`) até uma futura necessidade de sincronização, como o comentário atual já diz.
 > Se houver dados de teste na tabela antiga, uma migração destrutiva é aceitável nesta fase (app
 > ainda não lançado) — mas confirme antes de dropar.
 
@@ -120,11 +120,11 @@ export type PersonalRecordSource = 'manual' | 'strava';
 
 export interface PersonalRecordEntry {
   id: string;
-  key: string;            // PersonalRecord.key
-  time: string;           // "HH:MM:SS" ou "MM:SS"
-  date?: string;          // ISO — quando o recorde foi obtido
+  key: string; // PersonalRecord.key
+  time: string; // "HH:MM:SS" ou "MM:SS"
+  date?: string; // ISO — quando o recorde foi obtido
   source: PersonalRecordSource;
-  externalUrl?: string;   // deep link Strava (source === 'strava')
+  externalUrl?: string; // deep link Strava (source === 'strava')
   updatedAt: string;
 }
 ```
@@ -172,7 +172,7 @@ Reescrever `src/app/stats/records.tsx`:
 - **Tap no card → navega para a tela de detalhe** (Passo 4), NÃO abre modal:
   `router.push('/stats/records/' + record.key)`.
 - Remover o `RecordEditModal` desta tela (ele passa a viver na tela de detalhe).
-- Pode manter a nota de rodapé sobre integração Strava/Garmin.
+- Pode manter uma nota de rodapé sobre a origem manual ou via Strava dos recordes.
 
 ### 3.1 Formato de tempo no grid
 
@@ -207,7 +207,7 @@ Conteúdo da tela (de cima pra baixo, fiel à ref B):
 2. **Badge grande** centralizado: `<Image source={RECORD_BADGES[key]} />` ~176–200px, `contain`.
 3. **Data** do recorde atual (melhor entrada), formato "21 de abr. de 2026" (usar o formatador de
    data longo pt-BR que a fase já usa; se não houver, `toLocaleDateString('pt-BR', { day, month:
-   'short', year })`).
+'short', year })`).
 4. **Título**: `Mais rápido {record.displayName}` (ex.: "Mais rápido 1 km").
 5. **Tempo grande**: melhor tempo no formato cru "02:00" (fonte grande, bold). Se não houver
    recorde, mostrar um placeholder discreto (ex.: "--:--") e ocultar a data.
@@ -289,4 +289,7 @@ fase adotou):
       sem dados reais.
 - [ ] Ícones em lucide; sem `Ionicons` nos componentes tocados.
 - [ ] Type-check e lint limpos.
+
+```
+
 ```
