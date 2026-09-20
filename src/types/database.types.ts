@@ -235,53 +235,6 @@ export type Database = {
         };
         Relationships: [];
       };
-      external_workouts: {
-        Row: {
-          created_at: string;
-          external_workout_id: string | null;
-          id: string;
-          last_error: string | null;
-          planned_workout_id: string;
-          provider: string;
-          sync_status: string;
-          synced_at: string | null;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          external_workout_id?: string | null;
-          id?: string;
-          last_error?: string | null;
-          planned_workout_id: string;
-          provider: string;
-          sync_status?: string;
-          synced_at?: string | null;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          external_workout_id?: string | null;
-          id?: string;
-          last_error?: string | null;
-          planned_workout_id?: string;
-          provider?: string;
-          sync_status?: string;
-          synced_at?: string | null;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'external_workouts_planned_workout_id_fkey';
-            columns: ['planned_workout_id'];
-            isOneToOne: false;
-            referencedRelation: 'plan_workouts';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
       integration_events: {
         Row: {
           attempts: number;

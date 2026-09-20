@@ -8,6 +8,7 @@ Ordem versionada (fonte de verdade do schema):
 4. `0004_profile_bootstrap.sql` — cria `athlete_profiles` no cadastro.
 5. `0005_delete_account.sql` — RPC `delete_own_account` (SECURITY DEFINER).
 6. `0008_subscriptions_unique_user.sql` — índice único em `subscriptions.user_id`, necessário pro upsert idempotente do webhook do RevenueCat (docs/fase-7-brief.md Grupo 1).
+7. `0018_remove_watch_integrations.sql` — remove a implementação temporária de relógios/Garmin e seus dados; mantém somente o Strava como integração ativa.
 
 ## Aplicar
 

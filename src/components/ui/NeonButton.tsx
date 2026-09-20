@@ -6,7 +6,7 @@ import React from 'react';
 type Props = {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'garmin';
+  variant?: 'primary' | 'secondary';
   loading?: boolean;
   disabled?: boolean;
   icon?: React.ReactNode;
@@ -21,17 +21,6 @@ export function NeonButton({
   icon,
 }: Props): JSX.Element {
   const isPrimary = variant === 'primary';
-  const isGarmin = variant === 'garmin';
-  
-  const getContainerStyle = () => {
-    if (isGarmin) return styles.garmin;
-    return isPrimary ? styles.primary : styles.secondary;
-  };
-
-  const getLabelStyle = () => {
-    if (isGarmin) return styles.labelGarmin;
-    return isPrimary ? styles.labelPrimary : styles.labelSecondary;
-  };
 
   return (
     <Pressable
@@ -43,17 +32,19 @@ export function NeonButton({
       }}
       style={({ pressed }) => [
         styles.base,
-        getContainerStyle(),
+        isPrimary ? styles.primary : styles.secondary,
         (disabled || loading) && styles.disabled,
         pressed && styles.pressed,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={isPrimary || isGarmin ? colors.bg : colors.neon} />
+        <ActivityIndicator color={isPrimary ? colors.bg : colors.neon} />
       ) : (
         <>
           {icon}
-          <Text style={[styles.label, getLabelStyle()]}>{label}</Text>
+          <Text style={[styles.label, isPrimary ? styles.labelPrimary : styles.labelSecondary]}>
+            {label}
+          </Text>
         </>
       )}
     </Pressable>
@@ -72,11 +63,9 @@ const styles = StyleSheet.create({
   },
   primary: { backgroundColor: colors.neon },
   secondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.border },
-  garmin: { backgroundColor: '#007CC3' },
   disabled: { opacity: 0.5 },
   pressed: { opacity: 0.85 },
   label: { fontSize: fontSizes.base, ...fontWeight('700') },
   labelPrimary: { color: colors.bg },
   labelSecondary: { color: colors.textPrimary },
-  labelGarmin: { color: colors.bg },
 });

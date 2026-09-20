@@ -1,11 +1,12 @@
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Alert, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect, router } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
+import { AlertModal } from '@/components/ui/AlertModal';
 import { useConnectedAccounts } from '@/hooks/useConnectedAccounts';
-import { startStravaConnection, getGarminStatus, type GarminConnectionStatus } from '@/services/integrations/connected-accounts.service';
+import { startStravaConnection } from '@/services/integrations/connected-accounts.service';
 import { colors, fontSizes, fontWeight, radii, spacing } from '@/theme';
 
 interface StravaIntroModalProps {
@@ -120,26 +121,14 @@ function StravaIntroModal({
 export default function ConnectedAppsScreen(): JSX.Element {
   const { accounts, refresh } = useConnectedAccounts();
   const [showStravaIntro, setShowStravaIntro] = useState(false);
+  const [showWatchInfo, setShowWatchInfo] = useState(false);
   const [connecting, setConnecting] = useState(false);
-  const [garminStatus, setGarminStatus] = useState<GarminConnectionStatus | null>(null);
-  
-  const loadGarminStatus = useCallback(async () => {
-    const result = await getGarminStatus();
-    if (result.ok) {
-      setGarminStatus(result.value);
-    }
-  }, []);
-  
-  useEffect(() => {
-    void loadGarminStatus();
-  }, [loadGarminStatus]);
-  
+
   const strava = useMemo(
     () => accounts.find((account) => account.provider === 'strava'),
     [accounts],
   );
   const stravaConnected = strava?.status === 'connected';
-  const garminConnected = garminStatus?.connected ?? false;
 
   useFocusEffect(
     useCallback(() => {
@@ -170,8 +159,8 @@ export default function ConnectedAppsScreen(): JSX.Element {
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.intro}>
-          Acompanhe seus treinos em dispositivos compatíveis e sincronize corridas concluídas com
-          seus aplicativos de condicionamento físico favoritos.
+          Conecte seus aplicativos favoritos para reunir suas corridas e acompanhar sua evolução em
+          um só lugar.
         </Text>
 
         <Text style={styles.sectionTitle}>Aplicativos</Text>
@@ -196,23 +185,25 @@ export default function ConnectedAppsScreen(): JSX.Element {
         </Pressable>
 
         <Text style={styles.sectionTitle}>Relógios</Text>
-        <Pressable
-          style={({ pressed }) => [styles.connectionRow, pressed && styles.rowPressed]}
-          onPress={() => router.push('/profile/watches' as never)}
-          accessibilityRole="button"
-          accessibilityLabel="Conectar relógio"
-        >
+        <View style={[styles.connectionRow, styles.watchComingSoonRow]}>
           <View style={styles.watchIcon}>
             <Ionicons name="watch-outline" size={25} color={colors.textPrimary} />
           </View>
-          <Text style={styles.connectionLabel}>Conectar relógio</Text>
-            {garminConnected && (
-              <View style={styles.connectedDot} accessibilityLabel="Relógio conectado" />
-            )}
-          <Ionicons name="chevron-forward" size={25} color={colors.textMuted} />
-        </Pressable>
+          <View style={styles.watchCopy}>
+            <Text style={styles.connectionLabel}>Em breve</Text>
+            <Text style={styles.comingSoon}>Integrações com relógios</Text>
+          </View>
+          <Pressable
+            onPress={() => setShowWatchInfo(true)}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel="Saiba mais sobre integrações com relógios"
+          >
+            <Ionicons name="help-circle-outline" size={24} color={colors.neon} />
+          </Pressable>
+        </View>
         <Text style={styles.supported}>
-          Os smartwatches compatíveis incluem Garmin Connect, COROS, Polar e Amazfit.
+          Estamos preparando integrações oficiais com Garmin, COROS, Polar e Amazfit.
         </Text>
       </ScrollView>
 
@@ -222,6 +213,13 @@ export default function ConnectedAppsScreen(): JSX.Element {
         connecting={connecting}
         onClose={() => setShowStravaIntro(false)}
         onConnect={() => void connectStrava()}
+      />
+      <AlertModal
+        visible={showWatchInfo}
+        title="Integrações em desenvolvimento"
+        message="Estamos trabalhando para disponibilizar integrações oficiais e seguras com Garmin, COROS, Polar e Amazfit nas próximas atualizações do RunEvo."
+        type="info"
+        primaryAction={() => setShowWatchInfo(false)}
       />
     </Screen>
   );
@@ -261,6 +259,15 @@ const styles = StyleSheet.create({
   watchIcon: { width: 32, alignItems: 'center' },
   connectionLabel: { flex: 1, color: colors.textPrimary, fontSize: fontSizes.lg },
   connectedDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success },
+  watchComingSoonRow: { marginBottom: spacing.sm },
+  watchCopy: { flex: 1, gap: 2 },
+  comingSoon: {
+    color: colors.neon,
+    fontSize: fontSizes.caption,
+    ...fontWeight('800'),
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
   supported: {
     color: colors.textMuted,
     fontSize: fontSizes.body,
@@ -336,5 +343,3 @@ const styles = StyleSheet.create({
     ...fontWeight('700'),
   },
 });
-
-

@@ -1,7 +1,5 @@
 node_modules/
 /.vendor/*
-!/.vendor/ndeloof-go-garmin/
-!.vendor/ndeloof-go-garmin/
 /.gocache/
 .expo/
 dist/
@@ -23,10 +21,4 @@ expo-env.d.ts
 .pnpm-store/
 outputs/
 supabase/.temp/
-
-# --- Go gateway build artifacts ---
-services/garmin-gateway/garmin-gateway.exe
-services/garmin-gateway/garmin-gateway
-services/garmin-gateway/.gocache/
-services/garmin-gateway/.gopath/
 

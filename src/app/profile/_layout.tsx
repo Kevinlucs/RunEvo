@@ -32,8 +32,6 @@ export default function ProfileLayout(): JSX.Element {
           },
         }}
       />
-      <Stack.Screen name="watches/index" options={{ title: 'Conectar relógio' }} />
-      <Stack.Screen name="watches/garmin" options={{ title: 'Garmin Connect' }} />
       <Stack.Screen name="shoes/index" options={{ title: 'Meus tênis' }} />
       <Stack.Screen name="shoes/[id]" options={{ title: 'Tênis' }} />
     </Stack>
