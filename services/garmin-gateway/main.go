@@ -180,7 +180,7 @@ func (s *Server) handleConnectComplete(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	creds, challenge, err := garmin.Login(ctx, email, password)
 	if err != nil {
-		logger.Warn("garmin login rejected", "kind", garminErrorKind(err))
+		logger.Warn("garmin login rejected", "kind", garminErrorKind(err), "error", err)
 		s.renderLogin(w, templateData{State: state, Error: loginMessage(err)})
 		return
 	}
@@ -230,7 +230,7 @@ func (s *Server) handleMFAComplete(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	creds, err := garmin.ResumeMFA(ctx, &challenge, code)
 	if err != nil {
-		logger.Warn("garmin mfa rejected", "kind", garminErrorKind(err))
+		logger.Warn("garmin mfa rejected", "kind", garminErrorKind(err), "error", err)
 		s.renderMFA(w, templateData{State: state, Error: loginMessage(err)})
 		return
 	}
@@ -409,6 +409,9 @@ func garminErrorKind(err error) string {
 	if errors.Is(err, garmin.ErrUnauthorized) {
 		return "unauthorized"
 	}
+	if errors.Is(err, garmin.ErrLoginFailed) {
+		return "login_failed"
+	}
 	return "request_failed"
 }
 func loginMessage(err error) string {
@@ -417,6 +420,9 @@ func loginMessage(err error) string {
 	}
 	if errors.Is(err, garmin.ErrRateLimited) {
 		return "O Garmin limitou tentativas temporariamente. Aguarde alguns minutos."
+	}
+	if errors.Is(err, garmin.ErrLoginFailed) {
+		return "Não foi possível conectar. O Garmin pode estar bloqueando conexões deste servidor. Tente novamente mais tarde."
 	}
 	return "Não foi possível conectar agora. Tente novamente mais tarde."
 }
